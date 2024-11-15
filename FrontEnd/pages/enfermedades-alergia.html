@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enfermedades-Alergias</title>
+    <link rel="stylesheet" href="/css/enfermedades-alergia.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            🏥 DermaCare
+        </div>
+        <nav>
+            <a href="#" class="nav-item">Inicio</a>
+            <a href="#" class="nav-item">Doctores</a>
+            <a href="#" class="nav-item">Productos</a>
+            <a href="#" class="nav-item active">Alergias y Enfermedades</a>
+            <a href="#" class="nav-item active">Tratamientos</a>
+            <a href="#" class="nav-item">Cerrar Sesión</a>
+        </nav>
+    </div>
+    <div class="main-content">
+        <div class="top-bar">
+            <h2>Alergias y Enfermedades</h2>
+            <div class="icons">
+                <img src="/imagenes/notificaciones.png" alt="">
+                <img src="/imagenes/usser.png" alt="">
+            </div>
+        </div>
+        
+        <div class="container-fluid px-0">
+            <ul class="nav nav-tabs mb-3" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="alergias-tab" data-bs-toggle="tab" data-bs-target="#alergias" type="button" role="tab" aria-controls="alergias" aria-selected="true">Alergias</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="enfermedades-tab" data-bs-toggle="tab" data-bs-target="#enfermedades" type="button" role="tab" aria-controls="enfermedades" aria-selected="false">Enfermedades</button>
+                </li>
+            </ul>
+            <div class="tab-content" id="myTabContent">
+                <div class="tab-pane fade show active" id="alergias" role="tabpanel" aria-labelledby="alergias-tab">
+                    <div class="row g-3 align-items-center mb-3">
+                        <div class="col-auto">
+                            <input type="search" id="searchAlergias" class="form-control" placeholder="Buscar alergias...">
+                        </div>
+                        <div class="col-auto">
+                            <select class="form-select" aria-label="Filtrar por gravedad">
+                                <option selected>Todas las gravedades</option>
+                                <option value="1">Leve</option>
+                                <option value="2">Moderada</option>
+                                <option value="3">Grave</option>
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <button type="button" class="btn btn-primary">
+                                Agregar Alergia
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                        <div class="col">
+                            <div class="card h-100 info-card">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="bi bi-exclamation-triangle text-warning me-2"></i>Dermatitis de contacto</h5>
+                                    <p class="card-text">Reacción alérgica causada por el contacto con sustancias irritantes.</p>
+                                    <p class="card-text"><small class="text-muted">Gravedad: Moderada</small></p>
+                                </div>
+                                <div class="card-footer">
+                                    <button class="btn btn-outline-primary btn-sm">Ver detalles</button>
+                                    <button class="btn btn-outline-secondary btn-sm">Editar</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card h-100 info-card">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="bi bi-exclamation-circle text-danger me-2"></i>Urticaria</h5>
+                                    <p class="card-text">Erupción cutánea caracterizada por ronchas rojas y picazón intensa.</p>
+                                    <p class="card-text"><small class="text-muted">Gravedad: Grave</small></p>
+                                </div>
+                                <div class="card-footer">
+                                    <button class="btn btn-outline-primary btn-sm">Ver detalles</button>
+                                    <button class="btn btn-outline-secondary btn-sm">Editar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="enfermedades" role="tabpanel" aria-labelledby="enfermedades-tab">
+                    <div class="row g-3 align-items-center mb-3">
+                        <div class="col-auto">
+                            <input type="search" id="searchEnfermedades" class="form-control" placeholder="Buscar enfermedades...">
+                        </div>
+                        <div class="col-auto">
+                            <select class="form-select" aria-label="Filtrar por tipo">
+                                <option selected>Todos los tipos</option>
+                                <option value="1">Inflamatoria</option>
+                                <option value="2">Infecciosa</option>
+                                <option value="3">Autoinmune</option>
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <button type="button" class="btn btn-primary">
+                                Agregar Enfermedad
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                        <div class="col">
+                            <div class="card h-100 info-card">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="bi bi-virus text-info me-2"></i>Psoriasis</h5>
+                                    <p class="card-text">Enfermedad inflamatoria crónica que causa escamas y parches rojos en la piel.</p>
+                                    <p class="card-text"><small class="text-muted">Tipo: Autoinmune</small></p>
+                                </div>
+                                <div class="card-footer">
+                                    <button class="btn btn-outline-primary btn-sm">Ver detalles</button>
+                                    <button class="btn btn-outline-secondary btn-sm">Editar</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card h-100 info-card">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="bi bi-bug text-danger me-2"></i>Dermatitis atópica</h5>
+                                    <p class="card-text">Inflamación crónica de la piel que causa picazón y enrojecimiento.</p>
+                                    <p class="card-text"><small class="text-muted">Tipo: Inflamatoria</small></p>
+                                </div>
+                                <div class="card-footer">
+                                    <button class="btn btn-outline-primary btn-sm">Ver detalles</button>
+                                    <button class="btn btn-outline-secondary btn-sm">Editar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Estadísticas rápidas</h5>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Total de alergias registradas
+                                    <span class="badge bg-primary rounded-pill">24</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Total de enfermedades registradas
+                                    <span class="badge bg-primary rounded-pill">18</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Casos activos
+                                    <span class="badge bg-warning rounded-pill">12</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Últimas actualizaciones</h5>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">
+                                    <small class="text-muted">Hace 2 horas</small>
+                                    <p class="mb-0">Nueva alergia registrada: Alergia al látex</p>
+                                </li>
+                                <li class="list-group-item">
+                                    <small class="text-muted">Hace 1 día</small>
+                                    <p class="mb-0">Actualización de tratamiento: Dermatitis atópica</p>
+                                </li>
+                                <li class="list-group-item">
+                                    <small class="text-muted">Hace 3 días</small>
+                                    <p class="mb-0">Nueva enfermedad registrada: Rosácea</p>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
