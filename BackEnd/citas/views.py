@@ -61,3 +61,53 @@ def registrar_paciente(request):
         return redirect('registrar_paciente')
 
     return render(request, 'citas/registro_paciente.html')
+
+def registrar_medico(request):
+    if request.method == "POST":
+        # Datos del usuario
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password1 = request.POST.get('password1')
+        password2 = request.POST.get('password2')
+        first_name = request.POST.get('first_name', '')
+        last_name = request.POST.get('last_name', '')
+        role = 'Medico'
+        genero = request.POST.get('genero', '')
+
+        # datos del medico
+        telefono = request.POST.get('telefono', '')
+
+        # validaciones
+        if Usuario.objects.filter(username=username).exists():
+            messages.error(request, 'El nombre de usuario ya está registrado.')
+            return redirect('registrar_medico')
+        
+        if Usuario.objects.filter(email=email).exists():
+            messages.error(request, 'El correo electronico ya está registrado.')
+            return redirect('registrar_medico')
+        
+        if password1 != password2:
+            messages.error(request, 'Las contraseñas no coinciden.')
+            return redirect('registrar_medico')
+        
+        # crear el usuario
+        user = Usuario.objects.create_user(
+            username=username,
+            email=email,
+            password=password1,
+            first_name=first_name,
+            last_name=last_name,
+            role=role,
+            genero=genero
+        )
+
+        # creamos el medico
+        medico = Medico.objects.create(
+            user=user,
+            telefono=telefono
+        )
+
+        messages.success(request, 'El medico se ha registrado correctamente.')
+        return redirect('registrar_medico')
+
+    return render(request, 'citas/registro_medico.html')
