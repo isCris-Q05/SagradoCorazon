@@ -2,7 +2,9 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    /*
     font-family: Arial, sans-serif;
+    */
 }
 
 body {
@@ -27,13 +29,14 @@ body {
 .nav-item {
     padding: 12px;
     color: #333;
+    padding: 12px;
     text-decoration: none;
     display: block;
     margin-bottom: 10px;
     border-radius: 5px;
 }
 
-.nav-item:hover {
+.nav-item:hover,.nav-item.active {
     background-color: rgba(255, 255, 255, 0.2);
 }
 
@@ -102,6 +105,7 @@ th {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 20px;
 }
 
 .icons img {
@@ -109,3 +113,43 @@ th {
     height: 24px; /* Ajusta la altura a tu preferencia */
     object-fit: cover; /* Esto asegura que la imagen mantenga su proporción */
 }
+
+.treatment-card {
+    transition: transform 0.3s;
+}
+.treatment-card:hover {
+    transform: translateY(-5px);
+}
+
+.product-card {
+    transition: transform 0.3s;
+}
+.product-card:hover {
+    transform: translateY(-5px);
+}
+
+.info-card {
+    transition: transform 0.3s;
+}
+.info-card:hover {
+    transform: translateY(-5px);
+}
+
+.doctor-card {
+    transition: transform 0.3s;
+}
+.doctor-card:hover {
+    transform: translateY(-5px);
+}
+
+
+#suggestions {
+    position: absolute;
+    z-index: 1000;
+    max-height: 150px;
+    overflow-y: auto;
+    width: 96%;
+    background: white;
+    border-radius: 5px;
+}
+    
