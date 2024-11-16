@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.core.exceptions import ValidationError
 
-class CustomUser(AbstractUser):
+class Usuario(AbstractUser):
     ROLE_CHOICES = [
         ('Paciente', 'Paciente'),
         ('Medico', 'Medico'),
@@ -29,7 +29,7 @@ class CustomUser(AbstractUser):
         return self.username
 # Create your models here.
 class Paciente(models.Model):
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='paciente_profile')
+    user = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='paciente_profile')
     cedula = models.CharField(max_length=20)
     telefono = models.CharField(max_length=20, blank=True, null=True)
     fecha_nacimiento = models.DateField()
@@ -38,7 +38,7 @@ class Paciente(models.Model):
         return f"{self.user.first_name} {self.user.last_name}"
 
 class Medico(models.Model):
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='medico_profile')
+    user = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='medico_profile')
     telefono = models.CharField(max_length=15, blank=True, null=True)
 
     def __str__(self):

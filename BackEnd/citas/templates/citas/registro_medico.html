@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Médicos</title>
+</head>
+<body>
+    <h1>Registrar Médico</h1>
+    <form method="post">
+        {% csrf_token %}
+        <h2>Información del Usuario</h2>
+        {{ user_form.as_p }}
+        <h2>Información del Médico</h2>
+        {{ medico_form.as_p }}
+        <button type="submit">Registrar</button>
+    </form>
+</body>
+</html>
