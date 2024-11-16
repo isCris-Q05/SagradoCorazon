@@ -1,17 +1,48 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser, Group, Permission
+from django.core.exceptions import ValidationError
 
-# Create your models here.
-class Paciente(models.Model):
-    cedula = models.CharField(max_length=20, primary_key=True)
-    nombres = models.CharField(max_length=100)
-    apellidos = models.CharField(max_length=100)
-    telefono = models.CharField(max_length=20)
-    password = models.CharField(max_length=128)
-    fecha_nacimiento = models.DateField()
-    genero = models.CharField(max_length=10, choices=[('Masculino', 'Masculino'), ('Femenino', 'Femenino')], null=True)
+class CustomUser(AbstractUser):
+    ROLE_CHOICES = [
+        ('Paciente', 'Paciente'),
+        ('Medico', 'Medico'),
+    ]
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, null=True, blank=True)
+    genero = models.CharField(max_length=10, choices=[('Masculino', 'Masculino'), ('Femenino', 'Femenino')], null=True, blank=True)
+
+    groups = models.ManyToManyField(
+        Group,
+        related_name="customuser_set",  # Cambiar el nombre para evitar conflicto
+        blank=True
+    )
+    user_permissions = models.ManyToManyField(
+        Permission,
+        related_name="customuser_permissions",  # Cambiar el nombre para evitar conflicto
+        blank=True
+    )
+
+    def clean(self):
+        if self.role not in dict(self.ROLE_CHOICES):
+            raise ValidationError("Rol inválido.")
 
     def __str__(self):
-        return f"{self.nombres} {self.apellidos}"
+        return self.username
+# Create your models here.
+class Paciente(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='paciente_profile')
+    cedula = models.CharField(max_length=20)
+    telefono = models.CharField(max_length=20, blank=True, null=True)
+    fecha_nacimiento = models.DateField()
+
+    def __str__(self):
+        return f"{self.user.first_name} {self.user.last_name}"
+
+class Medico(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='medico_profile')
+    telefono = models.CharField(max_length=15, blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.user.first_name} {self.user.last_name}"
 
 class Alergia(models.Model):
     codigo = models.AutoField(primary_key=True)
@@ -31,17 +62,6 @@ class PacienteAlergia(models.Model):
     def __str__(self):
         return f"{self.cedula} - {self.codigo}"
 
-class Medico(models.Model):
-    id_medico = models.AutoField(primary_key=True)
-    nombre = models.CharField(max_length=100)
-    apellidos = models.CharField(max_length=100)
-    genero = models.CharField(max_length=10, choices=[('Masculino', 'Masculino'), ('Femenino', 'Femenino')])
-    telefono = models.CharField(max_length=15, blank=True, null=True)
-    username = models.CharField(max_length=50, unique=True)
-    password = models.CharField(max_length=128)
-
-    def __str__(self):
-        return f"{self.nombre} {self.apellidos}"
 
 class Especialidad(models.Model):
     id_especialidad = models.AutoField(primary_key=True)
