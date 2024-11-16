@@ -126,3 +126,5 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'citas.Usuario'
+LOGOUT_REDIRECT_URL = 'login_medico'
+CSRF_COOKIE_SECURE = False # esto pq no es https y es un localhost

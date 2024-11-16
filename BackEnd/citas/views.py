@@ -1,4 +1,6 @@
 from django.shortcuts import render, HttpResponse, redirect
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
 from .models import Usuario, Paciente, Medico
 from django.contrib import messages
 # Create your views here.
@@ -111,3 +113,32 @@ def registrar_medico(request):
         return redirect('registrar_medico')
 
     return render(request, 'citas/registro_medico.html')
+
+# login para medicos
+def login_medico(request):
+    if request.method == "POST":
+        username = request.POST['username']
+        password = request.POST['password']
+
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            if user.role == 'Medico':
+                login(request, user)
+                return redirect('dashboard_medico')
+            else:
+                messages.error(request, 'El usuario no es un medico.')
+                return redirect('login_medico')
+        else:
+            messages.error(request, 'El usuario o la contraseña son incorrectos.')
+            return redirect('login_medico')
+
+    return render(request, 'citas/login_medico.html')
+
+# vista del dashboard del medico
+@login_required(login_url='login_medico')
+def dashboard_medico(request):
+    if request.user.role == 'Medico':
+        return render(request, 'citas/dashboard_medico.html')
+    else:
+        return redirect('login_medico')
