@@ -152,4 +152,14 @@ th {
     background: white;
     border-radius: 5px;
 }
-    
+
+#notificationBar {
+    border-radius: 10px;
+}
+
+#notificationBadge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.4rem;
+    border-radius: 50%;
+    z-index: 1050;
+}
