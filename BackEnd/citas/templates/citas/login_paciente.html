@@ -1,26 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Médico</title>
+    <title>Login Paciente</title>
 </head>
 <body>
-    <h1>Iniciar sesión como médico</h1>
-    <form method="post" action="{% url 'login_medico' %}">
+    <h1>Iniciar sesión como Paciente</h1>
+    <form method="post" action="{% url 'login_paciente' %}">
         {% csrf_token %}
-        
         <label for="username">Usuario:</label>
         <input type="text" id="username" name="username" required>
         <br>
-        
         <label for="password">Contraseña:</label>
         <input type="password" id="password" name="password" required>
         <br>
-        
         <button type="submit">Iniciar sesión</button>
     </form>
-    
+
     {% if messages %}
         <div class="messages">
             {% for message in messages %}

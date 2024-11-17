@@ -1,5 +1,5 @@
 from django.shortcuts import render, HttpResponse, redirect
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from .models import Usuario, Paciente, Medico
 from django.contrib import messages
@@ -123,7 +123,7 @@ def login_medico(request):
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
-            if user.role == 'Medico':
+            if hasattr(user, 'role') and user.role == 'Medico':
                 login(request, user)
                 return redirect('dashboard_medico')
             else:
@@ -135,10 +135,60 @@ def login_medico(request):
 
     return render(request, 'citas/login_medico.html')
 
+# login para pacientes
+def login_paciente(request):
+    if request.method == "POST":
+        username = request.POST['username']
+        password = request.POST['password']
+
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            if  hasattr(user, 'role') and user.role == 'Paciente':
+                login(request, user)
+                return redirect('dashboard_paciente')
+            else:
+                messages.error(request, 'El usuario no es un paciente.')
+                return redirect('login_paciente')
+        else:
+            messages.error(request, 'El usuario o la contraseña son incorrectos.')
+            return redirect('login_paciente')
+        
+
+    return render(request, 'citas/login_paciente.html')
+
+# vista personalizada para el logout
+def logout_user(request):
+
+    #return HttpResponse(f"{request.user.role}")
+    if hasattr(request.user, 'role'):
+        user_role = request.user.role
+    else:
+        user_role = None
+    
+    logout(request)
+
+    # redirigimos segun el rol
+    if user_role == 'Paciente':
+        return redirect('login_paciente')
+    elif user_role == 'Medico':
+        return redirect('login_medico')
+
+    return redirect('login')
+
 # vista del dashboard del medico
 @login_required(login_url='login_medico')
 def dashboard_medico(request):
-    if request.user.role == 'Medico':
+    if hasattr(request.user, 'role') and request.user.role == 'Medico':
         return render(request, 'citas/dashboard_medico.html')
     else:
         return redirect('login_medico')
+    
+
+# vista del dashboard del paciente
+@login_required(login_url='login_paciente')
+def dashboard_paciente(request):
+    if  hasattr(request.user, 'role') and request.user.role == 'Paciente':
+        return render(request, 'citas/dashboard_paciente.html')
+    else:
+        return redirect('login_paciente')
