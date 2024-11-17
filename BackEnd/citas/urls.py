@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import index,registrar_paciente, registrar_medico, login_medico, login_paciente ,dashboard_medico, dashboard_paciente, logout_user
+from .views import index,registrar_paciente, registrar_medico, login_medico, login_paciente ,dashboard_medico, dashboard_paciente, logout_user, crear_alergia
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
@@ -14,5 +14,7 @@ urlpatterns = [
 
     path('dashboard/medico/', dashboard_medico, name='dashboard_medico'),
     path('dashboard/paciente/', dashboard_paciente, name='dashboard_paciente'),
+
+    path('crear/alergia/', crear_alergia, name='crear_alergia'),
 
 ]

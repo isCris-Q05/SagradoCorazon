@@ -1,7 +1,7 @@
 from django.shortcuts import render, HttpResponse, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from .models import Usuario, Paciente, Medico
+from .models import Usuario, Paciente, Medico, Alergia
 from django.contrib import messages
 # Create your views here.
 def index(request):
@@ -192,3 +192,28 @@ def dashboard_paciente(request):
         return render(request, 'citas/dashboard_paciente.html')
     else:
         return redirect('login_paciente')
+
+# vista para crear alergias
+def crear_alergia(request):
+    if request.method == "POST":
+        # datos de la alergia
+        nombre = request.POST['nombre']
+        descripcion = request.POST['descripcion']
+
+        if not nombre:
+            messages.error(request, 'El nombre es obligatorio.')
+            return redirect('crear_alergia')
+
+        if Alergia.objects.filter(nombre=nombre).exists():
+            messages.error(request, 'La alergia ya existe.')
+            return redirect('crear_alergia')
+
+        alergia = Alergia.objects.create(
+            nombre=nombre,
+            descripcion=descripcion
+        )
+
+        messages.success(request, 'La alergia se ha creado correctamente.')
+        return redirect('crear_alergia')
+    
+    return render(request, 'citas/crear_alergia.html')
