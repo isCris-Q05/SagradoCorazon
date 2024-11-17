@@ -9,6 +9,7 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
 </head>
 <body>
     <main class="main-body">
@@ -59,10 +60,8 @@
                                 <div class="card-body">
                                     <h5 class="card-title"><i class="bi bi-exclamation-triangle text-warning me-2"></i>Dermatitis de contacto</h5>
                                     <p class="card-text">Reacción alérgica causada por el contacto con sustancias irritantes.</p>
-                                    <p class="card-text"><small class="text-muted">Gravedad: Moderada</small></p>
                                 </div>
                                 <div class="card-footer">
-                                    <button class="btn btn-outline-primary btn-sm">Ver detalles</button>
                                     <button class="btn btn-outline-secondary btn-sm">Editar</button>
                                 </div>
                             </div>
@@ -72,10 +71,8 @@
                                 <div class="card-body">
                                     <h5 class="card-title"><i class="bi bi-exclamation-circle text-danger me-2"></i>Urticaria</h5>
                                     <p class="card-text">Erupción cutánea caracterizada por ronchas rojas y picazón intensa.</p>
-                                    <p class="card-text"><small class="text-muted">Gravedad: Grave</small></p>
                                 </div>
                                 <div class="card-footer">
-                                    <button class="btn btn-outline-primary btn-sm">Ver detalles</button>
                                     <button class="btn btn-outline-secondary btn-sm">Editar</button>
                                 </div>
                             </div>
@@ -97,10 +94,11 @@
                                 <div class="card-body">
                                     <h5 class="card-title"><i class="bi bi-virus text-info me-2"></i>Psoriasis</h5>
                                     <p class="card-text">Enfermedad inflamatoria crónica que causa escamas y parches rojos en la piel.</p>
-                                    <p class="card-text"><small class="text-muted">Tipo: Autoinmune</small></p>
                                 </div>
                                 <div class="card-footer">
-                                    <button class="btn btn-outline-primary btn-sm">Ver detalles</button>
+                                    <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#detalleModal"  data-nombre="{{ enfermedad.nombre }}" 
+                                    data-descripcion="{{ enfermedad.descripcion }}" 
+                                    data-tratamientos="{{ enfermedad.tratamientos }}">Ver detalles</button>
                                     <button class="btn btn-outline-secondary btn-sm">Editar</button>
                                 </div>
                             </div>
@@ -110,10 +108,9 @@
                                 <div class="card-body">
                                     <h5 class="card-title"><i class="bi bi-bug text-danger me-2"></i>Dermatitis atópica</h5>
                                     <p class="card-text">Inflamación crónica de la piel que causa picazón y enrojecimiento.</p>
-                                    <p class="card-text"><small class="text-muted">Tipo: Inflamatoria</small></p>
                                 </div>
                                 <div class="card-footer">
-                                    <button class="btn btn-outline-primary btn-sm">Ver detalles</button>
+                                    <button class="btn btn-outline-primary btn-sm" >Ver detalles</button>
                                     <button class="btn btn-outline-secondary btn-sm">Editar</button>
                                 </div>
                             </div>
@@ -170,6 +167,27 @@
     </div>
 
 
+    <!--Modal Detalles enfermedades-->
+      <!-- Modal de detalles -->
+      <div class="modal fade" id="detalleModal" tabindex="-1" aria-labelledby="detalleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="detalleModalLabel">Detalles de la Enfermedad</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Nombre:</strong> <span id="modalEnfermedadNombre"></span></p>
+                    <p><strong>Descripción:</strong> <span id="modalEnfermedadDescripcion"></span></p>
+                    <p><strong>Tratamientos:</strong> <span id="modalEnfermedadTratamientos"></span></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!--modal para agregar alergias-->
     <div class="modal fade" id="agregarAlergiaModal" tabindex="-1" aria-labelledby="agregarAlergiaModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -220,7 +238,6 @@
         </div>
     </div>
     </main>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/enfermedades-detalles.js"></script>
 </body>
 </html>

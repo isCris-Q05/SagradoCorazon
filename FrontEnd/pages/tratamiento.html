@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="../css/styles.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
 </head>
 <body>
     <main class="main-body">
@@ -39,14 +40,6 @@
                     <input type="search" id="searchTreatments" class="form-control" placeholder="Buscar tratamientos...">
                 </div>
                 <div class="col-auto">
-                    <select class="form-select" aria-label="Filtrar por tipo">
-                        <option selected>Todos los tipos</option>
-                        <option value="1">Medicamento</option>
-                        <option value="2">Procedimiento</option>
-                        <option value="3">Terapia</option>
-                    </select>
-                </div>
-                <div class="col-auto">
                     <button class="btn btn-primary" id="agregarTratamientoBtn" data-bs-toggle="modal" data-bs-target="#agregarProductoModal">Agregar Tratamiento</button>
                 </div>
             </div>
@@ -57,11 +50,14 @@
                         <div class="card-body">
                             <h5 class="card-title"><i class="bi bi-capsule text-primary me-2"></i>Isotretinoína</h5>
                             <p class="card-text">Medicamento oral para el tratamiento del acné severo.</p>
-                            <p class="card-text"><small class="text-muted">Tipo: Medicamento</small></p>
                             <p class="card-text"><small class="text-muted">Duración típica: 4-6 meses</small></p>
                         </div>
                         <div class="card-footer">
-                            <button class="btn btn-outline-primary btn-sm">Ver detalles</button>
+                            <!--cargar con jinja :3 te ahorro chamba bb-->
+                            <button class="btn btn-outline-primary btn-sm" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#detailsModal"
+                            data-name="{{ tratamiento.nombre }}"
+                        data-enfermedad="{{ tratamiento.enfermedad }}"
+                        data-descripcion="{{ tratamiento.descripcion_enfermedad }}">Ver detalles</button>
                             <button class="btn btn-outline-secondary btn-sm">Editar</button>
                         </div>
                     </div>
@@ -71,7 +67,6 @@
                         <div class="card-body">
                             <h5 class="card-title"><i class="bi bi-lightning text-warning me-2"></i>Terapia fotodinámica</h5>
                             <p class="card-text">Tratamiento con luz para lesiones precancerosas y cáncer de piel superficial.</p>
-                            <p class="card-text"><small class="text-muted">Tipo: Procedimiento</small></p>
                             <p class="card-text"><small class="text-muted">Duración típica: 1-3 sesiones</small></p>
                         </div>
                         <div class="card-footer">
@@ -85,7 +80,6 @@
                         <div class="card-body">
                             <h5 class="card-title"><i class="bi bi-droplet text-info me-2"></i>Hidratación intensiva</h5>
                             <p class="card-text">Terapia de hidratación profunda para pieles secas y deshidratadas.</p>
-                            <p class="card-text"><small class="text-muted">Tipo: Terapia</small></p>
                             <p class="card-text"><small class="text-muted">Duración típica: 4-6 semanas</small></p>
                         </div>
                         <div class="card-footer">
@@ -124,8 +118,27 @@
         </div>
     </div>
 
+    <!--Modal detalles tratamiento-->
+    <div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="detailsModalLabel">Detalles del Tratamiento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h5 id="modalTreatmentName" class="mb-3"></h5>
+                    <p><strong>Enfermedad que trata:</strong> <span id="modalDiseaseName"></span></p>
+                    <p><strong>Descripción Enfermedad:</strong></p>
+                    <p id="modalDiseaseDescription"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
     </main>
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/tratamientos-detalles.js"></script>
 </body>
 </html>
