@@ -1,7 +1,7 @@
 from django.shortcuts import render, HttpResponse, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from .models import Usuario, Paciente, Medico, Alergia, Especialidad, MedicoEspecialidad, Enfermedad, Tratamiento,TratamientoEnfermedad, Producto
+from .models import Usuario, Paciente, Medico, Alergia, Especialidad, MedicoEspecialidad, Enfermedad, Tratamiento,TratamientoEnfermedad, Producto, Cita
 from django.contrib import messages
 # Create your views here.
 def index(request):
@@ -415,3 +415,59 @@ def agregar_producto(request):
 def listar_productos(request):
     productos = Producto.objects.all()
     return render(request, 'citas/listar_productos.html', {'productos': productos})
+
+# crear citas
+def crear_cita(request):
+    if request.method == "POST":
+        id_paciente = request.POST.get('id_paciente')
+        id_medico = request.POST.get('id_medico')
+        id_especialidad = request.POST.get('id_especialidad')
+        fecha = request.POST.get('fecha')
+        hora = request.POST.get('hora')
+
+        print(id_paciente, id_medico, id_especialidad, fecha, hora)
+
+        # validaciones basicas
+        if not id_paciente or not id_medico or not id_especialidad or not fecha or not hora:
+            print("entro")
+            messages.error(request, "Por favor, completa todos los campos obligatorios.")
+            return redirect('crear_cita')
+        
+        # validar que la especialidad del medico este asociada al medico
+        medico_especialidad = MedicoEspecialidad.objects.filter(
+            id_medico=id_medico, id_especialidad=id_especialidad
+        ).first()
+
+        if not medico_especialidad:
+            print("entro2")
+            messages.error(request, "La especialidad seleccionada no está asociada al médico.")
+            return redirect('crear_cita')
+        
+        # crear la cita
+        paciente = get_object_or_404(Paciente, pk=id_paciente)
+        medico = get_object_or_404(Medico, pk=id_medico)
+        especialidad = get_object_or_404(Especialidad, pk=id_especialidad)
+        Cita.objects.create(
+            id_paciente=paciente,
+            id_medico=medico,
+            id_especialidad=especialidad,
+            fecha=fecha,
+            hora=hora
+        )
+
+        print("entro3")
+        messages.success(request, "Cita creada exitosamente.")
+        return redirect('crear_cita')
+    
+    pacientes = Paciente.objects.all()
+    medicos = Medico.objects.all()
+    especialidades = Especialidad.objects.all()
+    return render(request, 'citas/crear_cita.html', {
+        'pacientes': pacientes, 
+        'medicos': medicos, 
+        'especialidades': especialidades,
+        })
+
+def listar_citas(request):
+    citas = Cita.objects.all()
+    return render(request, 'citas/listar_citas.html', {'citas': citas})
