@@ -1,7 +1,7 @@
 from django.shortcuts import render, HttpResponse, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from .models import Usuario, Paciente, Medico, Alergia
+from .models import Usuario, Paciente, Medico, Alergia, Especialidad, MedicoEspecialidad
 from django.contrib import messages
 # Create your views here.
 def index(request):
@@ -217,3 +217,67 @@ def crear_alergia(request):
         return redirect('crear_alergia')
     
     return render(request, 'citas/crear_alergia.html')
+
+# crear especialidades
+def crear_especialidad(request):
+    if request.method == "POST":
+        # datos de la especialidad
+        nombre = request.POST['nombre']
+
+        if not nombre:
+            messages.error(request, 'El nombre es obligatorio.')
+            return redirect('crear_especialidad')
+
+        if Especialidad.objects.filter(nombre=nombre).exists():
+            messages.error(request, 'La especialidad ya existe.')
+            return redirect('crear_especialidad')
+
+        Especialidad.objects.create(
+            nombre=nombre,
+        )
+
+        messages.success(request, 'La especialidad se ha creado correctamente.')
+        return redirect('crear_especialidad')
+    
+    return render(request, 'citas/crear_especialidad.html')
+
+def listar_medicos(request):
+    medicos = Medico.objects.all()
+    return render(request, 'citas/listar_medicos.html', {'medicos': medicos})
+
+def detalle_medico(request, medico_id):
+    try:
+        medico = Medico.objects.get(id=medico_id)
+        especialidades = MedicoEspecialidad.objects.filter(id_medico=medico)
+    except Medico.DoesNotExist:
+        messages.error(request, 'El médico no existe.')
+        return redirect('listar_medicos')
+
+    return render(request, 'citas/detalle_medico.html', {'medico': medico, 'especialidades': especialidades})
+
+def asignar_especialidad(request, medico_id):
+    try:
+        medico = Medico.objects.get(id=medico_id)
+    except Medico.DoesNotExist:
+        messages.error(request, 'El medico no existe.')
+        return redirect('listar_medicos')
+    
+    especialidades = Especialidad.objects.all()
+
+    if request.method == "POST":
+        especialidades_seleccionadas = request.POST.getlist('especialidades')
+
+        for especialidad_id in especialidades_seleccionadas:
+            especialidad = Especialidad.objects.get(id_especialidad=especialidad_id)
+            if not MedicoEspecialidad.objects.filter(id_medico=medico, id_especialidad=especialidad).exists():
+                MedicoEspecialidad.objects.create(id_medico=medico, id_especialidad=especialidad)
+            else:
+                messages.warning(
+                    request, f"La especialidad '{especialidad.nombre}' ya está asignada al médico."
+                )
+                return redirect('asignar_especialidad', medico_id=medico_id)
+        
+        messages.success(request, 'Las especialidades se han asignado correctamente.')
+        return redirect('detalle_medico', medico_id=medico_id)
+    
+    return render(request, 'citas/asignar_especialidad.html', {'medico': medico, 'especialidades': especialidades})

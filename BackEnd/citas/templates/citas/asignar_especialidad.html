@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asignar especialidad</title>
+    <!-- Bootstrap (si lo usas para estilos de los mensajes) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <!-- Mostrar mensajes flash -->
+        {% if messages %}
+        <div class="container mb-3">
+            {% for message in messages %}
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" role="alert">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <!-- Contenido del formulario -->
+        <h2>Asignar Especialidades a {{ medico.user.first_name }} {{ medico.user.last_name }}</h2>
+        <form method="post" action="{% url 'asignar_especialidad' medico.id %}">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="especialidades" class="form-label">Seleccionar Especialidades</label>
+                <select id="especialidades" name="especialidades" class="form-select" multiple>
+                    {% for especialidad in especialidades %}
+                    <option value="{{ especialidad.id_especialidad }}">{{ especialidad.nombre }}</option>
+                    {% endfor %}
+                </select>
+                <small class="form-text text-muted">Mantén presionada la tecla Ctrl (Cmd en Mac) para seleccionar varias especialidades.</small>
+            </div>
+            <button type="submit" class="btn btn-primary">Asignar Especialidades</button>
+        </form>
+        <a href="{% url 'listar_medicos' %}" class="btn btn-secondary mt-3">Regresar</a>
+    </div>
+</body>
+</html>
