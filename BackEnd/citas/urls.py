@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import index,registrar_paciente, registrar_medico, login_medico, login_paciente ,dashboard_medico, dashboard_paciente, logout_user, crear_alergia, crear_especialidad, asignar_especialidad, listar_medicos, detalle_medico
+from .views import index,registrar_paciente, registrar_medico, login_medico, login_paciente ,dashboard_medico, dashboard_paciente, logout_user, crear_alergia, crear_especialidad, asignar_especialidad, listar_medicos, detalle_medico, listar_enfermedades, crear_enfermedad, listar_tratamientos, crear_tratamiento
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
@@ -22,4 +22,9 @@ urlpatterns = [
     path('medicos/', listar_medicos, name='listar_medicos'),
     path('medicos/<int:medico_id>/', detalle_medico, name='detalle_medico'),
     path('medicos/<int:medico_id>/asignar-especialidad/', asignar_especialidad, name='asignar_especialidad'),
+
+    path('enfermedades/', listar_enfermedades, name='listar_enfermedades'),
+    path('enfermedades/nuevo/', crear_enfermedad, name='crear_enfermedad'),
+    path('tratamientos/', listar_tratamientos, name='listar_tratamientos'),
+    path('tratamientos/nuevo/', crear_tratamiento, name='crear_tratamiento'),
 ]

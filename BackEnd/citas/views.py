@@ -1,7 +1,7 @@
-from django.shortcuts import render, HttpResponse, redirect
+from django.shortcuts import render, HttpResponse, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from .models import Usuario, Paciente, Medico, Alergia, Especialidad, MedicoEspecialidad
+from .models import Usuario, Paciente, Medico, Alergia, Especialidad, MedicoEspecialidad, Enfermedad, Tratamiento
 from django.contrib import messages
 # Create your views here.
 def index(request):
@@ -281,3 +281,61 @@ def asignar_especialidad(request, medico_id):
         return redirect('detalle_medico', medico_id=medico_id)
     
     return render(request, 'citas/asignar_especialidad.html', {'medico': medico, 'especialidades': especialidades})
+
+# vistas para enfermedades
+def listar_enfermedades(request):
+    enfermedades = Enfermedad.objects.all()
+    return render(request, 'citas/listar_enfermedades.html', {'enfermedades': enfermedades})
+
+def crear_enfermedad(request):
+    if request.method == "POST":
+        # datos de la enfermedad
+        nombre = request.POST['nombre']
+        descripcion = request.POST['descripcion']
+
+        if not nombre:
+            messages.error(request, 'El nombre es obligatorio.')
+            return redirect('crear_enfermedad')
+
+        if Enfermedad.objects.filter(nombre=nombre).exists():
+            messages.error(request, 'La enfermedad ya existe.')
+            return redirect('crear_enfermedad')
+        
+        Enfermedad.objects.create(
+            nombre=nombre,
+            descripcion=descripcion
+        )
+
+        messages.success(request, 'La enfermedad se ha creado correctamente.')
+        return redirect('crear_enfermedad')
+    
+    return render(request, 'citas/crear_enfermedad.html')
+
+# vistas para tratamentos
+def listar_tratamientos(request):
+    tratamientos = Tratamiento.objects.all()
+    return render(request, 'citas/listar_tratamientos.html', {'tratamientos': tratamientos})
+
+def crear_tratamiento(request):
+    if request.method == "POST":
+        # datos del tratamiento
+        nombre = request.POST['nombre']
+        descripcion = request.POST['descripcion']
+
+        if not nombre:
+            messages.error(request, 'El nombre es obligatorio.')
+            return redirect('crear_tratamiento')
+
+        if Tratamiento.objects.filter(nombre=nombre).exists():
+            messages.error(request, 'El tratamiento ya existe.')
+            return redirect('crear_tratamiento')
+        
+        Tratamiento.objects.create(
+            nombre=nombre,
+            descripcion=descripcion
+        )
+
+        messages.success(request, 'El tratamiento se ha creado correctamente.')
+        return redirect('crear_tratamiento')
+    
+    return render(request, 'citas/crear_tratamiento.html')
