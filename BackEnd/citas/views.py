@@ -1,7 +1,7 @@
 from django.shortcuts import render, HttpResponse, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from .models import Usuario, Paciente, Medico, Alergia, Especialidad, MedicoEspecialidad, Enfermedad, Tratamiento
+from .models import Usuario, Paciente, Medico, Alergia, Especialidad, MedicoEspecialidad, Enfermedad, Tratamiento,TratamientoEnfermedad, Producto
 from django.contrib import messages
 # Create your views here.
 def index(request):
@@ -339,3 +339,79 @@ def crear_tratamiento(request):
         return redirect('crear_tratamiento')
     
     return render(request, 'citas/crear_tratamiento.html')
+
+def asignar_tratamiento(request):
+    if request.method == "POST":
+        tratamiento_id = request.POST.get('tratamiento')
+        enfermedad_id = request.POST.get('enfermedad')
+
+        #tratamiento = Tratamiento.objects.get(id_tratamiento=tratamiento_id)
+        if not enfermedad_id or not tratamiento_id:
+            messages.error(request, 'Debe seleccionar una enfermedad y un tratamiento.')
+            return redirect('asignar_tratamiento')
+        
+        try:
+            tratamiento = Tratamiento.objects.get(id_tratamiento=tratamiento_id)
+            enfermedad = Enfermedad.objects.get(id_enfermedad=enfermedad_id)
+        except (Tratamiento.DoesNotExist, Enfermedad.DoesNotExist):
+            messages.error(request, 'El tratamiento o enfermedad no existe.')
+            return redirect('asignar_tratamiento')
+
+        if TratamientoEnfermedad.objects.filter(id_tratamiento=tratamiento, id_enfermedad=enfermedad).exists():
+            messages.error(request, 'El tratamiento ya está asignado a la enfermedad.')
+            return redirect('asignar_tratamiento')
+
+        TratamientoEnfermedad.objects.create(
+            id_tratamiento=tratamiento,
+            id_enfermedad=enfermedad
+        )
+
+        messages.success(request, 'El tratamiento se ha asignado correctamente.')
+        return redirect('asignar_tratamiento')
+    
+    tratamientos = Tratamiento.objects.all()
+    enfermedades = Enfermedad.objects.all()
+    return render(request, 'citas/asignar_tratamiento.html', {'tratamientos': tratamientos, 'enfermedades': enfermedades})
+
+def listar_enfermedades_tratamientos(request):
+    enfermedades = Enfermedad.objects.all()
+    tratamientos_asociados = {
+        enfermedad: TratamientoEnfermedad.objects.filter(id_enfermedad=enfermedad) for enfermedad in enfermedades
+    }
+
+    return render(request, 'citas/listar_enfermedades_tratamientos.html', {'enfermedades': enfermedades, 'tratamientos_asociados': tratamientos_asociados})
+
+def agregar_producto(request):
+    tipos = ["Cremas", "Geles", "Lociones", "Sueros", "Protector solar", "Jabón dermatológico"]
+
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre')
+        descripcion = request.POST.get('descripcion')
+        precio = request.POST.get('precio')
+        marca = request.POST.get('marca')
+        tipo = request.POST.get('tipo')
+
+        # Validaciones básicas
+        if not nombre or not precio or not marca or not tipo:
+            messages.error(request, "Por favor, completa todos los campos obligatorios.")
+        else:
+            try:
+                # Crear el producto
+                producto = Producto(
+                    nombre=nombre,
+                    descripcion=descripcion,
+                    precio=precio,
+                    marca=marca,
+                    tipo=tipo
+                )
+                producto.save()
+                messages.success(request, "Producto agregado exitosamente.")
+                return redirect('listar_productos')  # Redirigir a la lista de productos
+            except Exception as e:
+                messages.error(request, f"Ocurrió un error al guardar el producto: {e}")
+
+    return render(request, 'citas/agregar_producto.html', {'tipos': tipos})
+
+def listar_productos(request):
+    productos = Producto.objects.all()
+    return render(request, 'citas/listar_productos.html', {'productos': productos})
