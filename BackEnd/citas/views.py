@@ -156,6 +156,10 @@ def login_usuario(request):
 def register(request):
     return render(request, 'citas2/register.html')
 
+def inicio(request):
+    citas = Cita.objects.all()
+    return render(request, "citas2/index.html", {"citas": citas})
+
 # vista personalizada para el logout
 def logout_user(request):
 
@@ -217,6 +221,10 @@ def crear_alergia(request):
     
     return render(request, 'citas/crear_alergia.html')
 
+def listar_alergias(request):
+    alergias = Alergia.objects.all()
+    return render(request, 'citas2/alergias.html', {'alergias': alergias})
+
 # crear especialidades
 def crear_especialidad(request):
     if request.method == "POST":
@@ -241,8 +249,10 @@ def crear_especialidad(request):
     return render(request, 'citas/crear_especialidad.html')
 
 def listar_medicos(request):
-    medicos = Medico.objects.all()
-    return render(request, 'citas/listar_medicos.html', {'medicos': medicos})
+    medicos = Medico.objects.prefetch_related('medicoespecialidad_set__id_especialidad')
+    especialidades = Especialidad.objects.all()
+    print(f"Medicos: {medicos}")
+    return render(request, 'citas2/medicos.html', {'medicos': medicos, 'especialidades': especialidades})
 
 def detalle_medico(request, medico_id):
     try:
@@ -413,7 +423,9 @@ def agregar_producto(request):
 
 def listar_productos(request):
     productos = Producto.objects.all()
-    return render(request, 'citas/listar_productos.html', {'productos': productos})
+    tipos = ["Cremas", "Geles", "Lociones", "Sueros", "Protector solar", "Jabón dermatológico"]
+    print(f"Productos: {productos}")
+    return render(request, 'citas2/productos.html', {'productos': productos, 'tipos': tipos})
 
 # crear citas
 def crear_cita(request):
