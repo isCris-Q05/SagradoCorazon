@@ -72,7 +72,12 @@
                             <p class="card-text"><small class="text-muted">Experiencia: 10 años</small></p>
                         </div>
                         <div class="card-footer">
-                            <button class="btn btn-outline-primary btn-sm">Ver perfil</button>
+                            <button class="btn btn-outline-primary btn-sm"  data-bs-toggle="modal" 
+                            data-bs-target="#perfilDoctorModal"
+                            data-name="{{ doctor.nombre }}"
+                            data-genero="{{ doctor.genero }}"
+                            data-especialidad="{{ doctor.especialidad }}"
+                            data-foto="{{ doctor.foto }}">Ver perfil</button>
                             <button class="btn btn-outline-secondary btn-sm">Editar</button>
                         </div>
                     </div>
@@ -108,6 +113,28 @@
             </div>
         </div>
     </div>
+
+    <!--Modal para prefil doctores-->
+    <div class="modal fade" id="perfilDoctorModal" tabindex="-1" aria-labelledby="perfilDoctorModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="perfilDoctorModalLabel">Perfil del Doctor</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="fotoDoctor" src="" alt="Foto del Doctor" class="rounded-circle mb-3" style="width: 120px; height: 120px; object-fit: cover;">
+                    <h5 id="nombreDoctor" class="mb-2"></h5>
+                    <p id="generoDoctor" class="mb-1 text-muted"></p>
+                    <p id="especialidadDoctor" class="fw-bold"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
 
     <!--Crear model para agregar doctores-->
     <div class="modal fade" id="agregarDoctorModal" tabindex="-1" aria-labelledby="agregarDoctorModalLabel" aria-hidden="true">
@@ -174,6 +201,7 @@
     </div>
 
     </main>
+    <script src="../js/perfil-doctor.js"></script>
     <script src="../js/especialidades.js"></script>
 </body>
 </html>
