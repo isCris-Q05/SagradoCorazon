@@ -30,15 +30,15 @@ def registrar_paciente(request):
         # validaciones
         if Usuario.objects.filter(username=username).exists():
             messages.error(request, 'El nombre de usuario ya está registrado.')
-            return redirect('registrar_paciente')
+            return redirect('register')
         
         if Usuario.objects.filter(email=email).exists():
             messages.error(request, 'El correo electronico ya está registrado.')
-            return redirect('registrar_paciente')
+            return redirect('register')
         
         if password1 != password2:
             messages.error(request, 'Las contraseñas no coinciden.')
-            return redirect('registrar_paciente')
+            return redirect('register')
         
         # crear el usuario
         user = Usuario.objects.create_user(
@@ -60,10 +60,7 @@ def registrar_paciente(request):
         )
 
         messages.success(request, 'El paciente se ha registrado correctamente.')
-        return redirect('registrar_paciente')
-
-    return render(request, 'citas/registro_paciente.html')
-
+        return redirect('register')
 def registrar_medico(request):
     if request.method == "POST":
         # Datos del usuario
@@ -82,15 +79,15 @@ def registrar_medico(request):
         # validaciones
         if Usuario.objects.filter(username=username).exists():
             messages.error(request, 'El nombre de usuario ya está registrado.')
-            return redirect('registrar_medico')
+            return redirect('register')
         
         if Usuario.objects.filter(email=email).exists():
             messages.error(request, 'El correo electronico ya está registrado.')
-            return redirect('registrar_medico')
+            return redirect('register')
         
         if password1 != password2:
             messages.error(request, 'Las contraseñas no coinciden.')
-            return redirect('registrar_medico')
+            return redirect('register')
         
         # crear el usuario
         user = Usuario.objects.create_user(
@@ -110,9 +107,8 @@ def registrar_medico(request):
         )
 
         messages.success(request, 'El medico se ha registrado correctamente.')
-        return redirect('registrar_medico')
+        return redirect('register')
 
-    return render(request, 'citas/registro_medico.html')
 
 # login para medicos
 def login_medico(request):
@@ -128,18 +124,18 @@ def login_medico(request):
                 return redirect('dashboard_medico')
             else:
                 messages.error(request, 'El usuario no es un medico.')
-                return redirect('login_medico')
+                return redirect('login')
         else:
             messages.error(request, 'El usuario o la contraseña son incorrectos.')
-            return redirect('login_medico')
-
-    return render(request, 'citas/login_medico.html')
+            return redirect('login')
 
 # login para pacientes
 def login_paciente(request):
     if request.method == "POST":
         username = request.POST['username']
         password = request.POST['password']
+
+        print(f"username: {username}, password: {password}")
 
         user = authenticate(request, username=username, password=password)
 
@@ -149,13 +145,16 @@ def login_paciente(request):
                 return redirect('dashboard_paciente')
             else:
                 messages.error(request, 'El usuario no es un paciente.')
-                return redirect('login_paciente')
+                return redirect('login')
         else:
             messages.error(request, 'El usuario o la contraseña son incorrectos.')
-            return redirect('login_paciente')
+            return redirect('login')
         
+def login_usuario(request):
+    return render(request, 'citas2/login.html')
 
-    return render(request, 'citas/login_paciente.html')
+def register(request):
+    return render(request, 'citas2/register.html')
 
 # vista personalizada para el logout
 def logout_user(request):
