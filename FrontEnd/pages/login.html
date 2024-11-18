@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
+</head>
+
+<body>
+    <main class="main-container">
+    <div class="register-container">
+        <h1 class="main-title">Sagrado corazón de Jesús</h1>
+        <h2 class="subtitle">Iniciar sesion</h2>
+
+        <div class="btn-group w-100 mb-3" role="group" aria-label="Tipo de registro">
+            <input type="radio" class="btn-check" name="btnradio" id="btnPaciente" autocomplete="off" checked>
+            <label class="btn btn-outline-primary" for="btnPaciente">Paciente</label>
+            <input type="radio" class="btn-check" name="btnradio" id="btnMedico" autocomplete="off">
+            <label class="btn btn-outline-primary" for="btnMedico">Médico</label>
+        </div>
+
+        <div id="formPaciente">
+            <form method="post">
+                <div class="mb-3">
+                    <label for="usuarioPaciente" class="form-label">Usuario</label>
+                    <input type="text" class="form-control" id="usuarioPaciente" required placeholder="Ingrese nombre de usuario">
+                </div>
+                <div class="mb-3">
+                    <label for="emailPaciente" class="form-label">Contrasena</label>
+                    <input type="password" class="form-control" id="passwordPaciente" required placeholder="Ingrese contrasena">
+                </div>
+                <button type="submit" class="btn btn-primary w-100">iniciar sesion</button>
+            </form>
+        </div>
+
+        <div id="formMedico" style="display: none;">
+            <form method="post">
+                <div class="mb-3">
+                    <label for="usuarioMedico" class="form-label">Usuario</label>
+                    <input type="text" class="form-control" id="usuarioMedico" required placeholder="Ingrese nombre de usuario">
+                </div>
+                <div class="mb-3">
+                    <label for="emailMedico" class="form-label">Contrasena</label>
+                    <input type="password" class="form-control" id="passwordMedico" required placeholder="Ingrese contrasena">
+                </div>
+                <button type="submit" class="btn btn-primary w-100">iniciar sesion</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/switch-screen.js">
+    </script>
+    </main>
+</body>
+
+</html>
