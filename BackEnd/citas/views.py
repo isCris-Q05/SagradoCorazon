@@ -121,7 +121,7 @@ def login_medico(request):
         if user is not None:
             if hasattr(user, 'role') and user.role == 'Medico':
                 login(request, user)
-                return redirect('dashboard_medico')
+                return redirect('inicio')
             else:
                 messages.error(request, 'El usuario no es un medico.')
                 return redirect('login')
@@ -170,12 +170,6 @@ def logout_user(request):
         user_role = None
     
     logout(request)
-
-    # redirigimos segun el rol
-    if user_role == 'Paciente':
-        return redirect('login_paciente')
-    elif user_role == 'Medico':
-        return redirect('login_medico')
 
     return redirect('login')
 
@@ -292,9 +286,11 @@ def asignar_especialidad(request, medico_id):
     return render(request, 'citas/asignar_especialidad.html', {'medico': medico, 'especialidades': especialidades})
 
 # vistas para enfermedades
-def listar_enfermedades(request):
+def listar_enfermedades_alergias(request):
     enfermedades = Enfermedad.objects.all()
-    return render(request, 'citas/listar_enfermedades.html', {'enfermedades': enfermedades})
+    alergias = Alergia.objects.all()
+    # ruta_original = citas/listar_enfermedades.html
+    return render(request, 'citas2/enfermedades-alergia.html', {'enfermedades': enfermedades, 'alergias': alergias})
 
 def crear_enfermedad(request):
     if request.method == "POST":
