@@ -1,7 +1,7 @@
 from django.shortcuts import render, HttpResponse, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from .models import Usuario, Paciente, Medico, Alergia, Especialidad, MedicoEspecialidad, Enfermedad, Tratamiento,TratamientoEnfermedad, Producto, Cita
+from .models import Usuario, Paciente, Medico, Alergia, Especialidad, MedicoEspecialidad, Enfermedad, Tratamiento,TratamientoEnfermedad, Producto, Cita, Registro
 from django.contrib import messages
 from django.http import JsonResponse
 from django.db.models import Q
@@ -161,7 +161,8 @@ def register(request):
 
 def inicio(request):
     citas = Cita.objects.all()
-    return render(request, "citas2/index.html", {"citas": citas})
+    enfermedades = Enfermedad.objects.all()
+    return render(request, "citas2/index.html", {"citas": citas, "enfermedades": enfermedades})
 
 # vista personalizada para el logout
 def logout_user(request):
@@ -509,3 +510,56 @@ def obtener_especialidades(request):
         especialidades_data = [{"id": e.id_especialidad.id_especialidad, "nombre": e.id_especialidad.nombre} for e in especialidades]
         return JsonResponse(especialidades_data, safe=False)
     return JsonResponse({"error": "Médico no encontrado"}, status=400)
+
+def buscar_cita(request):
+    if request.method == "GET":
+        codigo_cita = request.GET.get("codigo_cita", None)
+        print(f"Codigo de cita: {codigo_cita}")
+        if codigo_cita:
+            try:
+                cita = Cita.objects.get(id_cita=codigo_cita)
+                data = {
+                    "paciente": f"{cita.id_paciente.user.first_name} {cita.id_paciente.user.last_name}",
+                    "medico": f"{cita.id_medico.user.first_name} {cita.id_medico.user.last_name}"
+                }
+                return JsonResponse({"success": True, "data": data})
+            except Cita.DoesNotExist:
+                return JsonResponse({"success": False, "error": "Cita no encontrada"})
+        
+        return JsonResponse({"success": False, "error": "Código no proporcionado"})
+    
+    return JsonResponse({"success": False, "error": "Metodo no permitido"})
+
+def crear_registro(request):
+    if request.method == "POST":
+        # Obtener los datos del formulario
+        motivo = request.POST.get('motivo')
+        observaciones = request.POST.get('observaciones')
+        id_cita = request.POST.get('codigo_cita')
+        id_enfermedad = request.POST.get('id_enfermedad')
+
+        print(f"Motivo: {motivo}")
+        print(f"Observaciones: {observaciones}")
+        print(f"ID Cita: {id_cita}")
+        print(f"ID Enfermedad: {id_enfermedad}")
+
+        #return HttpResponse("Cita creada")
+
+        # Validación de los campos
+        if motivo and observaciones and id_cita and id_enfermedad:
+            # Crear el registro
+            try:
+                registro = Registro(
+                    motivo=motivo,
+                    observaciones=observaciones,
+                    id_cita_id=id_cita,
+                    id_enfermedad_id=id_enfermedad
+                )
+                registro.save()
+                messages.success(request, '¡Registro creado exitosamente!')
+                return redirect('inicio')  # Redirigir para evitar reenvío de formulario
+            except Exception as e:
+                messages.error(request, f'Error al crear el registro: {e}')
+        else:
+            messages.error(request, 'Todos los campos son obligatorios.')
+
