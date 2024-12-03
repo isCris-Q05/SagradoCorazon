@@ -202,3 +202,9 @@ th {
     margin-bottom: 1rem;
     text-align: center;
 }
+
+#results-paciente li:hover, 
+#results-medico li:hover {
+    cursor: pointer; /* Cambia el cursor a una mano */
+    background-color: #f0f0f0; /* Opcional: Cambia el fondo al pasar el mouse */
+}

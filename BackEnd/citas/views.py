@@ -3,6 +3,9 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from .models import Usuario, Paciente, Medico, Alergia, Especialidad, MedicoEspecialidad, Enfermedad, Tratamiento,TratamientoEnfermedad, Producto, Cita
 from django.contrib import messages
+from django.http import JsonResponse
+from django.db.models import Q
+
 # Create your views here.
 def index(request):
     return render(request, "citas/index.html")
@@ -430,9 +433,16 @@ def crear_cita(request):
         id_medico = request.POST.get('id_medico')
         id_especialidad = request.POST.get('id_especialidad')
         fecha = request.POST.get('fecha')
-        hora = request.POST.get('hora')
+        hora = request.POST.get('hora_inicio')
 
-        print(id_paciente, id_medico, id_especialidad, fecha, hora)
+        
+        print(f"Id_paciente: {id_paciente}")
+        print(f"Id_medico: {id_medico}")
+        print(f"Id_especialidad: {id_especialidad}")
+        print(f"Fecha: {fecha}")
+        print(f"Hora: {hora}")
+
+        #return HttpResponse(f"{id_paciente}, {id_medico}, {id_especialidad}, {fecha}, {hora}")
 
         # validaciones basicas
         if not id_paciente or not id_medico or not id_especialidad or not fecha or not hora:
@@ -462,19 +472,40 @@ def crear_cita(request):
             hora=hora
         )
 
-        print("entro3")
+        print("Cita creada correctamente")
         messages.success(request, "Cita creada exitosamente.")
-        return redirect('crear_cita')
-    
-    pacientes = Paciente.objects.all()
-    medicos = Medico.objects.all()
-    especialidades = Especialidad.objects.all()
-    return render(request, 'citas/crear_cita.html', {
-        'pacientes': pacientes, 
-        'medicos': medicos, 
-        'especialidades': especialidades,
-        })
+        return redirect('inicio')
 
 def listar_citas(request):
     citas = Cita.objects.all()
     return render(request, 'citas/listar_citas.html', {'citas': citas})
+
+# buscar por nombres de pacientes y medicos
+def buscar_pacientes(request):
+    query = request.GET.get('q', '')
+    pacientes = Paciente.objects.filter(user__first_name__icontains=query)[:10]
+    resultados = [
+        {'id': paciente.id, 'nombre': paciente.user.first_name, 'apellido': paciente.user.last_name}
+        for paciente in pacientes
+    ]
+
+    print(f"Resultados: {resultados}")
+
+    return JsonResponse(resultados, safe=False)
+
+def buscar_medicos(request):
+    query = request.GET.get('q', '')
+    medicos = Medico.objects.filter(user__first_name__icontains=query)[:10]
+    resultados = [
+        {'id': medico.id, 'nombre': medico.user.first_name, 'apellido': medico.user.last_name}
+        for medico in medicos
+    ]
+    return JsonResponse(resultados, safe=False)
+
+def obtener_especialidades(request):
+    medico_id = request.GET.get('id_medico')
+    if medico_id:
+        especialidades = MedicoEspecialidad.objects.filter(id_medico=medico_id).select_related('id_especialidad')
+        especialidades_data = [{"id": e.id_especialidad.id_especialidad, "nombre": e.id_especialidad.nombre} for e in especialidades]
+        return JsonResponse(especialidades_data, safe=False)
+    return JsonResponse({"error": "Médico no encontrado"}, status=400)
