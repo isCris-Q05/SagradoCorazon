@@ -322,32 +322,74 @@ def crear_enfermedad(request):
 
 # vistas para tratamentos
 def listar_tratamientos(request):
-    tratamientos = Tratamiento.objects.all()
-    return render(request, 'citas/listar_tratamientos.html', {'tratamientos': tratamientos})
+    tratamientos = Tratamiento.objects.prefetch_related('tratamientoenfermedad_set__id_enfermedad')
+    print(f"Tratamientos: {tratamientos}")
+
+    # mostrando la enfermedad que trata cada tratamiento
+    for tratamiento in tratamientos:
+        print(f"Tratamiento: {tratamiento} - Enfermedades: {tratamiento.tratamientoenfermedad_set.all()}")
+    return render(request, 'citas2/tratamientos.html', {'tratamientos': tratamientos})
+
+# buscar enfermedades
+def buscar_enfermedades(request):
+    if request.method == 'GET':
+        query = request.GET.get("q", "")
+        if query:
+            enfermedades = Enfermedad.objects.filter(
+                nombre__icontains=query
+            ).values('id_enfermedad', 'nombre')
+
+            return JsonResponse(list(enfermedades), safe=False)
+        
+        return JsonResponse([], safe=False)
+
 
 def crear_tratamiento(request):
     if request.method == "POST":
         # datos del tratamiento
         nombre = request.POST['nombre']
         descripcion = request.POST['descripcion']
+        id_enfermedad = request.POST.get('id_enfermedad')
+
+        print(f"Nombre: {nombre}")
+        print(f"Descripcion: {descripcion}")
+        print(f"id_enfermedad: {id_enfermedad}")
+
+        # verificamos si la enfermedad existe
+        enfermedad = get_object_or_404(Enfermedad, id_enfermedad=id_enfermedad)
+
+        #return HttpResponse("tratamiento creado")
+
+        # verificar si ya existe un tratamiento con el mismo nombre
+        if Tratamiento.objects.filter(nombre=nombre).exists():
+            messages.error(request, 'El tratamiento ya existe.')
+            return redirect('tratamientos')
+        
 
         if not nombre:
             messages.error(request, 'El nombre es obligatorio.')
-            return redirect('crear_tratamiento')
+            return redirect('tratamientos')
 
         if Tratamiento.objects.filter(nombre=nombre).exists():
             messages.error(request, 'El tratamiento ya existe.')
-            return redirect('crear_tratamiento')
+            return redirect('tratamientos')
         
-        Tratamiento.objects.create(
+        # creando el tratamiento
+        tratamiento = Tratamiento.objects.create(
             nombre=nombre,
             descripcion=descripcion
         )
 
+        # asociar el tratamiento con la enfermedad a tratar
+        TratamientoEnfermedad.objects.create(
+            id_tratamiento=tratamiento,
+            id_enfermedad=enfermedad
+        )
+
         messages.success(request, 'El tratamiento se ha creado correctamente.')
-        return redirect('crear_tratamiento')
+        return redirect('tratamientos')
     
-    return render(request, 'citas/crear_tratamiento.html')
+    #return render(request, 'citas/crear_tratamiento.html')
 
 def asignar_tratamiento(request):
     if request.method == "POST":

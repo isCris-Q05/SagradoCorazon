@@ -105,6 +105,7 @@ class Registro(models.Model):
     observaciones = models.TextField()
     id_cita = models.ForeignKey(Cita, on_delete=models.CASCADE)
     id_enfermedad = models.ForeignKey(Enfermedad, on_delete=models.CASCADE)
+    # el id del tratamiento
 
     def __str__(self):
         return f"{self.id_registro} - {self.id_enfermedad}"
