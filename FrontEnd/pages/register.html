@@ -12,43 +12,26 @@
 
 <body>
     <main class="main-container">
-    <div class="register-container">
-        <div class="d-flex justify-content-center align-items-center mt-3">
-            <label class="me-2">
-              <a href="../pages/login.html" class="text-decoration-none text-primary fw-bold">
-                Iniciar sesión
-              </a>
-            </label>
-            <span class="mx-2 text-secondary">|</span>
-            <label>
-              <a href="../pages/register.html" class="text-decoration-none text-primary fw-bold">
-                Registrarse
-              </a>
-            </label>
-        </div>
-          
+        <div class="register-container">
+            <div class="d-flex justify-content-center align-items-center mt-3">
+                <label class="me-2">
+                    <a href="../pages/login.html" class="text-decoration-none text-primary fw-bold">
+                        Iniciar sesión
+                    </a>
+                </label>
+                <span class="mx-2 text-secondary">|</span>
+                <label>
+                    <a href="../pages/register.html" class="text-decoration-none text-primary fw-bold">
+                        Registrarse
+                    </a>
+                </label>
+            </div>
 
-        <h1 class="main-title">Sagrado corazón de Jesús</h1>
-        <h2 class="subtitle">Crear una nueva cuenta</h2>
+            <h1 class="main-title">Sagrado Corazón de Jesús</h1>
+            <h2 class="subtitle">Crear una nueva cuenta</h2>
 
-        <div class="btn-group w-100 mb-3" role="group" aria-label="Tipo de registro">
-            <input type="radio" class="btn-check" name="btnradio" id="btnPaciente" autocomplete="off" checked>
-            <label class="btn btn-outline-primary" for="btnPaciente">Paciente</label>
-            <input type="radio" class="btn-check" name="btnradio" id="btnMedico" autocomplete="off">
-            <label class="btn btn-outline-primary" for="btnMedico">Médico</label>
-        </div>
-
-        <div id="formPaciente">
-            <h3 class="form-title">Registrar paciente</h3>
             <form>
-                <div class="mb-3">
-                    <label for="usuarioPaciente" class="form-label">Usuario</label>
-                    <input type="text" class="form-control" id="usuarioPaciente" required>
-                </div>
-                <div class="mb-3">
-                    <label for="emailPaciente" class="form-label">Email</label>
-                    <input type="email" class="form-control" id="emailPaciente" required>
-                </div>
+                <h3 class="form-title">Información básica</h3>
                 <div class="mb-3">
                     <label for="nombrePaciente" class="form-label">Nombre</label>
                     <input type="text" class="form-control" id="nombrePaciente" required>
@@ -56,6 +39,10 @@
                 <div class="mb-3">
                     <label for="apellidoPaciente" class="form-label">Apellido</label>
                     <input type="text" class="form-control" id="apellidoPaciente" required>
+                </div>
+                <div class="mb-3">
+                    <label for="fechaNacimientoPaciente" class="form-label">Fecha de Nacimiento</label>
+                    <input type="date" class="form-control" id="fechaNacimientoPaciente" required>
                 </div>
                 <div class="mb-3">
                     <label for="generoPaciente" class="form-label">Género</label>
@@ -66,75 +53,52 @@
                         <option value="Otro">Otro</option>
                     </select>
                 </div>
-                <div class="mb-3">
-                    <label for="cedulaPaciente" class="form-label">Cédula</label>
-                    <input type="text" class="form-control" id="cedulaPaciente" required>
-                </div>
+
+                <h3 class="form-title">Información de contacto</h3>
                 <div class="mb-3">
                     <label for="telefonoPaciente" class="form-label">Teléfono</label>
                     <input type="tel" class="form-control" id="telefonoPaciente" required>
                 </div>
                 <div class="mb-3">
-                    <label for="fechaNacimientoPaciente" class="form-label">Fecha de nacimiento</label>
-                    <input type="date" class="form-control" id="fechaNacimientoPaciente" required>
+                    <label for="emailPaciente" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="emailPaciente" required>
                 </div>
                 <div class="mb-3">
-                    <label for="passwordPaciente" class="form-label">Contraseña</label>
-                    <input type="password" class="form-control" id="passwordPaciente" required>
+                    <label for="direccionPaciente" class="form-label">Dirección</label>
+                    <textarea class="form-control" id="direccionPaciente" rows="2" required></textarea>
+                </div>
+
+                <h3 class="form-title">Información médica</h3>
+                <div class="mb-3">
+                    <label for="motivoConsulta" class="form-label">Motivo de Consulta</label>
+                    <textarea class="form-control" id="motivoConsulta" rows="3" required></textarea>
                 </div>
                 <div class="mb-3">
-                    <label for="confirmPasswordPaciente" class="form-label">Confirmar contraseña</label>
-                    <input type="password" class="form-control" id="confirmPasswordPaciente" required>
+                    <label for="historialMedico" class="form-label">Historial Médico</label>
+                    <textarea class="form-control" id="historialMedico" rows="3" required></textarea>
                 </div>
+                <div class="mb-3">
+                    <label for="alergiasPaciente" class="form-label">Alergias</label>
+                    <textarea class="form-control" id="alergiasPaciente" rows="2" required></textarea>
+                </div>
+
+                <h3 class="form-title">Información adicional</h3>
+                <div class="mb-3">
+                    <label for="seguroMedico" class="form-label">Número de Seguro Médico</label>
+                    <input type="text" class="form-control" id="seguroMedico">
+                </div>
+                <div class="mb-3">
+                    <label for="contactoEmergencia" class="form-label">Contacto de Emergencia</label>
+                    <input type="text" class="form-control" id="contactoEmergencia" placeholder="Nombre completo" required>
+                </div>
+                <div class="mb-3">
+                    <label for="telefonoEmergencia" class="form-label">Teléfono de Emergencia</label>
+                    <input type="tel" class="form-control" id="telefonoEmergencia" required>
+                </div>
+
                 <button type="submit" class="btn btn-primary w-100">Registrar</button>
             </form>
         </div>
-
-        <div id="formMedico" style="display: none;">
-            <h3 class="form-title">Registrar médico</h3>
-            <form>
-                <div class="mb-3">
-                    <label for="usuarioMedico" class="form-label">Usuario</label>
-                    <input type="text" class="form-control" id="usuarioMedico" required>
-                </div>
-                <div class="mb-3">
-                    <label for="emailMedico" class="form-label">Email</label>
-                    <input type="email" class="form-control" id="emailMedico" required>
-                </div>
-                <div class="mb-3">
-                    <label for="nombreMedico" class="form-label">Nombre</label>
-                    <input type="text" class="form-control" id="nombreMedico" required>
-                </div>
-                <div class="mb-3">
-                    <label for="apellidoMedico" class="form-label">Apellido</label>
-                    <input type="text" class="form-control" id="apellidoMedico" required>
-                </div>
-                <div class="mb-3">
-                    <label for="generoMedico" class="form-label">Género</label>
-                    <select class="form-select" id="generoMedico" required>
-                        <option value="">Seleccione...</option>
-                        <option value="Masculino">Masculino</option>
-                        <option value="Femenino">Femenino</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label for="telefonoMedico" class="form-label">Teléfono</label>
-                    <input type="tel" class="form-control" id="telefonoMedico" required>
-                </div>
-                <div class="mb-3">
-                    <label for="passwordMedico" class="form-label">Contraseña</label>
-                    <input type="password" class="form-control" id="passwordMedico" required>
-                </div>
-                <div class="mb-3">
-                    <label for="confirmPasswordMedico" class="form-label">Confirmar contraseña</label>
-                    <input type="password" class="form-control" id="confirmPasswordMedico" required>
-                </div>
-                <button type="submit" class="btn btn-primary w-100">Registrar</button>
-            </form>
-        </div>
-    </div>
-
-    <script src="../js/switch-screen.js"></script>
     </main>
 </body>
 

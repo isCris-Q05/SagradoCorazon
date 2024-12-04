@@ -21,6 +21,7 @@
         <nav>
             <a href="../pages/index.html" class="nav-item">Inicio</a>
             <a href="../pages/doctores.html" class="nav-item active">Doctores</a>
+            <a href="../pages/pacientes.html" class="nav-item">Pacientes</a>
             <a href="../pages/productos.html" class="nav-item">Productos</a>
             <a href="../pages/enfermedades-alergia.html" class="nav-item">Alergias y Enfermedades</a>
             <a href="../pages/tratamiento.html" class="nav-item">Tratamientos</a>
@@ -182,11 +183,20 @@
                             <label for="direccionDoctor" class="form-label">No. Licencia medica</label>
                             <input type="text" class="form-control" id="Doctor" placeholder="Ingrese la licencia">
                         </div>
+
+                      <!-- Especialidades -->
                         <div class="mb-3">
-                            <label for="direccionDoctor" class="form-label">Especialidad</label>
-                            <input type="text" class="form-control" id="especialidad" placeholder="Ingrese la Especialidad"/>
-                            <div id="suggestions" class="list-group"></div>
+                            <label for="especialidadesPaciente" class="form-label">Especialidades</label>
+                            <div class="input-group mb-2">
+                                <input class="form-control" type="text" id="especialidad" placeholder="Agregar especialidad">
+                                <button class="btn btn-outline-success" type="button" id="agregarEspecialidad">Añadir</button>
+                            </div>
+                      <!-- Contenedor para las sugerencias -->
+                        <div id="suggestions" class="list-group mt-2"></div>
+                            <ul class="list-group" id="listaEspecialidades"></ul>
+                            <input type="hidden" id="campoEspecialidades" name="especialidades">
                         </div>
+                        
                         <div class="mb-3">
                             <label for="usernameDoctor" class="form-label">Username del doctor</label>
                             <input type="text" class="form-control" id="usernameDoctor" placeholder="Ingrese la licencia">
@@ -206,5 +216,6 @@
     </main>
     <script src="../js/perfil-doctor.js"></script>
     <script src="../js/especialidades.js"></script>
+    <script src="../js/anadir-especialidad.js"></script>
 </body>
 </html>
