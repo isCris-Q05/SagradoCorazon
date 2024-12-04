@@ -51,6 +51,25 @@
                 </div>
             </div>
 
+            {% if messages %}
+                <div class="container mt-3">
+                {% for message in messages %}
+                <div
+                    class="alert alert-success alert-dismissible fade show"
+                    role="alert"
+                >
+                    <strong>{{ message }}</strong>
+                    <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close"
+                    ></button>
+                </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
                 {% for producto in productos %}
                 <div class="col">
@@ -100,7 +119,7 @@
                         </div>
                         <div class="mb-3">
                             <label for="precioProducto" class="form-label">Precio del Producto</label>
-                            <input type="number" class="form-control" id="precioProducto" name="precio" placeholder="Ingrese el precio">
+                            <input min="0" step="0.01" type="number" class="form-control" id="precioProducto" name="precio" placeholder="Ingrese el precio">
                         </div>
                         <div class="mb-3">
                             <label for="marcaProducto" class="form-label">Marca del Producto</label>
@@ -108,7 +127,11 @@
                         </div>
                         <div class="mb-3">
                             <label for="tipoProducto" class="form-label">Tipo</label>
-                            <input type="text" class="form-control" id="tipoProducto" name="tipo" placeholder="Escriba el tipo de producto">
+                            <select class="form-select" id="tipoProducto" name="tipo">
+                                {% for tipo in tipos %}
+                                    <option  value="{{ tipo }}">{{ tipo }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
                         <button type="submit" class="btn btn-success">Agregar Producto</button>
                     </form>

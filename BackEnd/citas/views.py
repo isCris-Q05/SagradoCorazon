@@ -400,6 +400,14 @@ def agregar_producto(request):
         marca = request.POST.get('marca')
         tipo = request.POST.get('tipo')
 
+        print(f"Nombre: {nombre}")
+        print(f"Descripción: {descripcion}")
+        print(f"Precio: {precio}")
+        print(f"Marca: {marca}")
+        print(f"Tipo: {tipo}")
+
+        #return HttpResponse("producto agregado")
+
         # Validaciones básicas
         if not nombre or not precio or not marca or not tipo:
             messages.error(request, "Por favor, completa todos los campos obligatorios.")
@@ -415,11 +423,11 @@ def agregar_producto(request):
                 )
                 producto.save()
                 messages.success(request, "Producto agregado exitosamente.")
-                return redirect('listar_productos')  # Redirigir a la lista de productos
+                return redirect('productos')  # Redirigir a la lista de productos
             except Exception as e:
                 messages.error(request, f"Ocurrió un error al guardar el producto: {e}")
 
-    return render(request, 'citas/agregar_producto.html', {'tipos': tipos})
+    #return render(request, 'citas/agregar_producto.html', {'tipos': tipos})
 
 def listar_productos(request):
     productos = Producto.objects.all()
