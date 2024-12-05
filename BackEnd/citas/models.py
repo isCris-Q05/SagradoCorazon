@@ -127,6 +127,16 @@ class TratamientoEnfermedad(models.Model):
 
     def __str__(self):
         return f"{self.id_tratamiento} - {self.id_enfermedad}"
+    
+class RegistroTratamiento(models.Model):
+    id_registro = models.ForeignKey(Registro, on_delete=models.CASCADE, related_name="tratamientos")
+    id_tratamiento = models.ForeignKey(Tratamiento, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('id_registro', 'id_tratamiento')
+
+    def __str__(self):
+        return f"Registro {self.id_registro.id_registro} - Tratamiento {self.id_tratamiento.nombre}"
 
 class Producto(models.Model):
     id_producto = models.AutoField(primary_key=True)

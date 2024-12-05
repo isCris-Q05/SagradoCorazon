@@ -1,7 +1,7 @@
 from django.shortcuts import render, HttpResponse, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from .models import Usuario, Paciente, Medico, Alergia, Especialidad, MedicoEspecialidad, Enfermedad, Tratamiento,TratamientoEnfermedad, Producto, Cita, Registro
+from .models import Usuario, Paciente, Medico, Alergia, Especialidad, MedicoEspecialidad, Enfermedad, Tratamiento,TratamientoEnfermedad, Producto, Cita, Registro, RegistroTratamiento, RegistroProducto
 from django.contrib import messages
 from django.http import JsonResponse
 from django.db.models import Q
@@ -159,10 +159,12 @@ def login_usuario(request):
 def register(request):
     return render(request, 'citas2/register.html')
 
+@login_required
 def inicio(request):
     citas = Cita.objects.all()
     enfermedades = Enfermedad.objects.all()
-    return render(request, "citas2/index.html", {"citas": citas, "enfermedades": enfermedades})
+    productos = Producto.objects.all()
+    return render(request, "citas2/index.html", {"citas": citas, "enfermedades": enfermedades, "productos": productos})
 
 # vista personalizada para el logout
 def logout_user(request):
@@ -219,6 +221,7 @@ def crear_alergia(request):
     
     return render(request, 'citas/crear_alergia.html')
 
+@login_required
 def listar_alergias(request):
     alergias = Alergia.objects.all()
     return render(request, 'citas2/alergias.html', {'alergias': alergias})
@@ -246,6 +249,7 @@ def crear_especialidad(request):
     
     return render(request, 'citas/crear_especialidad.html')
 
+@login_required
 def listar_medicos(request):
     medicos = Medico.objects.prefetch_related('medicoespecialidad_set__id_especialidad')
     especialidades = Especialidad.objects.all()
@@ -290,6 +294,7 @@ def asignar_especialidad(request, medico_id):
     return render(request, 'citas/asignar_especialidad.html', {'medico': medico, 'especialidades': especialidades})
 
 # vistas para enfermedades
+@login_required
 def listar_enfermedades_alergias(request):
     enfermedades = Enfermedad.objects.all()
     alergias = Alergia.objects.all()
@@ -321,6 +326,7 @@ def crear_enfermedad(request):
     return render(request, 'citas/crear_enfermedad.html')
 
 # vistas para tratamentos
+@login_required
 def listar_tratamientos(request):
     tratamientos = Tratamiento.objects.prefetch_related('tratamientoenfermedad_set__id_enfermedad')
     print(f"Tratamientos: {tratamientos}")
@@ -331,6 +337,7 @@ def listar_tratamientos(request):
     return render(request, 'citas2/tratamientos.html', {'tratamientos': tratamientos})
 
 # buscar enfermedades
+@login_required
 def buscar_enfermedades(request):
     if request.method == 'GET':
         query = request.GET.get("q", "")
@@ -344,6 +351,7 @@ def buscar_enfermedades(request):
         return JsonResponse([], safe=False)
 
 
+@login_required
 def crear_tratamiento(request):
     if request.method == "POST":
         # datos del tratamiento
@@ -391,6 +399,7 @@ def crear_tratamiento(request):
     
     #return render(request, 'citas/crear_tratamiento.html')
 
+@login_required
 def asignar_tratamiento(request):
     if request.method == "POST":
         tratamiento_id = request.POST.get('tratamiento')
@@ -432,6 +441,7 @@ def listar_enfermedades_tratamientos(request):
 
     return render(request, 'citas/listar_enfermedades_tratamientos.html', {'enfermedades': enfermedades, 'tratamientos_asociados': tratamientos_asociados})
 
+@login_required
 def agregar_producto(request):
     tipos = ["Cremas", "Geles", "Lociones", "Sueros", "Protector solar", "Jabón dermatológico"]
 
@@ -471,6 +481,7 @@ def agregar_producto(request):
 
     #return render(request, 'citas/agregar_producto.html', {'tipos': tipos})
 
+@login_required
 def listar_productos(request):
     productos = Producto.objects.all()
     tipos = ["Cremas", "Geles", "Lociones", "Sueros", "Protector solar", "Jabón dermatológico"]
@@ -478,6 +489,7 @@ def listar_productos(request):
     return render(request, 'citas2/productos.html', {'productos': productos, 'tipos': tipos})
 
 # crear citas
+@login_required
 def crear_cita(request):
     if request.method == "POST":
         id_paciente = request.POST.get('id_paciente')
@@ -527,11 +539,13 @@ def crear_cita(request):
         messages.success(request, "Cita creada exitosamente.")
         return redirect('inicio')
 
+
 def listar_citas(request):
     citas = Cita.objects.all()
     return render(request, 'citas/listar_citas.html', {'citas': citas})
 
 # buscar por nombres de pacientes y medicos
+@login_required
 def buscar_pacientes(request):
     query = request.GET.get('q', '')
     pacientes = Paciente.objects.filter(user__first_name__icontains=query)[:10]
@@ -544,6 +558,7 @@ def buscar_pacientes(request):
 
     return JsonResponse(resultados, safe=False)
 
+@login_required
 def buscar_medicos(request):
     query = request.GET.get('q', '')
     medicos = Medico.objects.filter(user__first_name__icontains=query)[:10]
@@ -553,6 +568,7 @@ def buscar_medicos(request):
     ]
     return JsonResponse(resultados, safe=False)
 
+@login_required
 def obtener_especialidades(request):
     medico_id = request.GET.get('id_medico')
     if medico_id:
@@ -561,6 +577,7 @@ def obtener_especialidades(request):
         return JsonResponse(especialidades_data, safe=False)
     return JsonResponse({"error": "Médico no encontrado"}, status=400)
 
+@login_required
 def buscar_cita(request):
     if request.method == "GET":
         codigo_cita = request.GET.get("codigo_cita", None)
@@ -580,6 +597,7 @@ def buscar_cita(request):
     
     return JsonResponse({"success": False, "error": "Metodo no permitido"})
 
+@login_required
 def crear_registro(request):
     if request.method == "POST":
         # Obtener los datos del formulario
@@ -587,11 +605,15 @@ def crear_registro(request):
         observaciones = request.POST.get('observaciones')
         id_cita = request.POST.get('codigo_cita')
         id_enfermedad = request.POST.get('id_enfermedad')
+        tratamientos_seleccionados = request.POST.getlist('tratamientos')
+        productos_recomendados = request.POST.getlist('productos')
 
         print(f"Motivo: {motivo}")
         print(f"Observaciones: {observaciones}")
         print(f"ID Cita: {id_cita}")
         print(f"ID Enfermedad: {id_enfermedad}")
+        print(f"Tratamientos seleccionados: {tratamientos_seleccionados}")
+        print(f"Productos recomendados: {productos_recomendados}")
 
         #return HttpResponse("Cita creada")
 
@@ -606,6 +628,21 @@ def crear_registro(request):
                     id_enfermedad_id=id_enfermedad
                 )
                 registro.save()
+
+                # Asociar tratamientos al registro
+                for tratamiento_id in tratamientos_seleccionados:
+                    RegistroTratamiento.objects.create(
+                        id_registro=registro,
+                        id_tratamiento_id=tratamiento_id
+                    )
+
+                # Asociar productos al registro
+                for producto_id in productos_recomendados:
+                    RegistroProducto.objects.create(
+                        id_registro=registro,
+                        id_producto_id=producto_id
+                    )
+
                 messages.success(request, '¡Registro creado exitosamente!')
                 return redirect('inicio')  # Redirigir para evitar reenvío de formulario
             except Exception as e:
@@ -613,3 +650,22 @@ def crear_registro(request):
         else:
             messages.error(request, 'Todos los campos son obligatorios.')
 
+
+@login_required
+def tratamientos_por_enfermedad(request):
+    enfermedad_id = request.GET.get('id_enfermedad')
+    if enfermedad_id:
+        tratamientos = TratamientoEnfermedad.objects.filter(id_enfermedad=enfermedad_id).select_related('id_tratamiento')
+
+        data = [
+            {
+                "id_tratamiento": t.id_tratamiento.id_tratamiento,
+                "nombre": t.id_tratamiento.nombre,
+                "descripcion": t.id_tratamiento.descripcion
+            }
+            for t in tratamientos
+        ]
+        
+        return JsonResponse({"tratamientos": data})
+    
+    return JsonResponse({"error": "Enfermedad no encontrada"}, status=400)

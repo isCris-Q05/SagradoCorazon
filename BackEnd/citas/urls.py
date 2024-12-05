@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import index,registrar_paciente, registrar_medico, login_medico, login_paciente ,dashboard_medico, dashboard_paciente, logout_user, crear_alergia, crear_especialidad, asignar_especialidad, listar_medicos, detalle_medico, listar_enfermedades_alergias, crear_enfermedad, listar_tratamientos, crear_tratamiento, asignar_tratamiento, listar_enfermedades_tratamientos, agregar_producto, listar_productos, crear_cita, listar_citas
-from .views import login_usuario, register, inicio, listar_alergias, buscar_medicos, buscar_pacientes, obtener_especialidades, buscar_cita, crear_registro, buscar_enfermedades
+from .views import login_usuario, register, inicio, listar_alergias, buscar_medicos, buscar_pacientes, obtener_especialidades, buscar_cita, crear_registro, buscar_enfermedades, tratamientos_por_enfermedad
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
@@ -50,6 +50,8 @@ urlpatterns = [
     path('buscar-enfermedades/', buscar_enfermedades, name='buscar_enfermedades'),
 
     path('crear/registro/', crear_registro, name='crear_registro'),
+
+    path('tratamientos-por-enfermedad/', tratamientos_por_enfermedad, name='tratamientos_por_enfermedad'),
 
     path('obtener_especialidades/', obtener_especialidades, name='obtener_especialidades'),
 ]

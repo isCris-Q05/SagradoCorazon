@@ -390,6 +390,38 @@
                     {% endfor %}
                   </select>
                 </div>
+
+                <div id="productosContainer" class="mb-3">
+                  <label for="productosChecklist" class="form-label">Productos Recomendados</label>
+                  <div id="productosChecklist" class="row">
+                    {% for producto in productos %}
+                    <div class="col-md-4 mb-3"> <!-- Tres productos por fila en pantallas medianas -->
+                      <div class="form-check">
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          id="producto{{ producto.id_producto }}"
+                          name="productos"
+                          value="{{ producto.id_producto }}"
+                        />
+                        <label
+                          class="form-check-label"
+                          for="producto{{ producto.id_producto }}"
+                        >
+                          {{ producto.nombre }}
+                        </label>
+                      </div>
+                    </div>
+                    {% endfor %}
+                  </div>
+                </div>
+
+                <!-- Contenedor para los tratamientos -->
+                <div id="tratamientosContainer" style="display: none;" class="mb-3">
+                  <label for="tratamientos" class="form-label">Tratamientos Disponibles</label>
+                  <div id="tratamientosChecklist" class="row"></div>
+                </div>
+
                 <!-- Botón para enviar -->
                 <button type="submit" class="btn btn-success">
                   Agregar registro
@@ -403,5 +435,7 @@
     <script src="{% static 'js/notificaciones.js' %}"></script>
     <script src="{% static 'js/busqueda.js' %}"></script>
     <script src="{% static 'js/buscarCita.js' %}"></script>
+    <script src="{% static 'js/tratamientoEnf.js' %}"></script>
+
   </body>
 </html>
