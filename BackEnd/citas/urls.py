@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import index,registrar_paciente, registrar_medico, login_medico, login_paciente ,dashboard_medico, dashboard_paciente, logout_user, crear_alergia, crear_especialidad, asignar_especialidad, listar_medicos, detalle_medico, listar_enfermedades_alergias, crear_enfermedad, listar_tratamientos, crear_tratamiento, asignar_tratamiento, listar_enfermedades_tratamientos, agregar_producto, listar_productos, crear_cita, listar_citas
-from .views import login_usuario, register, inicio, listar_alergias, buscar_medicos, buscar_pacientes, obtener_especialidades, buscar_cita, crear_registro, buscar_enfermedades, tratamientos_por_enfermedad
+from .views import login_usuario, register, inicio, listar_alergias, buscar_medicos, buscar_pacientes, obtener_especialidades, buscar_cita, crear_registro, buscar_enfermedades, tratamientos_por_enfermedad, paciente_citas,paciente_historial,paciente_inicio, editar_cita,registrar_paciente
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
@@ -9,6 +9,13 @@ urlpatterns = [
     path('login/', login_usuario, name='login'),
     path('register/', register, name='register'),
 
+    #registrar paciente
+    path('registrar_paciente/',registrar_paciente,name="registrar_paciente"),
+
+    #urls vistas paciente
+    path('paciente_inicio/',paciente_inicio,name='inicio_pacientes'),
+    path('paciente_citas/',paciente_citas,name='mis_citas'),
+    path('paciente_historial',paciente_historial,name='historial_medico'),
 
     path('login/medico/', login_medico, name='login_medico'),
     path('login/paciente/', login_paciente, name='login_paciente'),
@@ -42,6 +49,7 @@ urlpatterns = [
 
     path('crear/cita/', crear_cita, name='crear_cita'),
     path('citas/', listar_citas, name='listar_citas'),
+    path('citas/editar/', editar_cita, name='editar_cita'),
 
     path('buscar_pacientes/', buscar_pacientes, name='buscar_pacientes'),
     path('buscar_medicos/', buscar_medicos, name='buscar_medicos'),

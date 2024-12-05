@@ -5,10 +5,30 @@ from .models import Usuario, Paciente, Medico, Alergia, Especialidad, MedicoEspe
 from django.contrib import messages
 from django.http import JsonResponse
 from django.db.models import Q
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.utils.timezone import now
 
 # Create your views here.
 def index(request):
     return render(request, "citas/index.html")
+
+
+def paciente_inicio(request):
+    return render(request,'citas2/vista_pacientes/inicio.html')
+
+def paciente_citas(request):
+    paciente_id = 1
+
+    proximas_citas = Cita.objects.filter(fecha__gte=now(), id_paciente=paciente_id).order_by('fecha')
+    citas_pasadas = Cita.objects.filter(fecha__lt=now(), id_paciente=paciente_id).order_by('-fecha')
+
+    return render(request, 'citas2/vista_pacientes/MisCitas.html', {
+        'proximas_citas': proximas_citas,
+        'citas_pasadas': citas_pasadas
+    })
+
+def paciente_historial(request):
+    return render(request,'citas2/vista_pacientes/HistorialMedico.html')
 
 
 # registrar pacientes
@@ -64,6 +84,8 @@ def registrar_paciente(request):
 
         messages.success(request, 'El paciente se ha registrado correctamente.')
         return redirect('register')
+    return render(request,"citas2/pacientes.html")
+    
 def registrar_medico(request):
     if request.method == "POST":
         # Datos del usuario
@@ -161,10 +183,37 @@ def register(request):
 
 @login_required
 def inicio(request):
-    citas = Cita.objects.all()
+    citas_list = Cita.objects.all()
+    registros_list = Registro.objects.select_related('id_enfermedad', 'id_cita').prefetch_related('tratamientos', 'registroproducto_set')
+    
+    citas_paginator = Paginator(citas_list, 10)
+    registros_paginator = Paginator(registros_list, 10)
+
     enfermedades = Enfermedad.objects.all()
     productos = Producto.objects.all()
-    return render(request, "citas2/index.html", {"citas": citas, "enfermedades": enfermedades, "productos": productos})
+
+    page_number = request.GET.get('page', 1)
+
+    try:
+        citas = citas_paginator.get_page(page_number)
+        registros = registros_paginator.get_page(page_number)
+    except PageNotAnInteger:
+        citas = citas_paginator.page(1)
+        registros = registros_paginator.page(1)
+    except EmptyPage:
+        citas = citas_paginator.page(citas_paginator.num_pages)
+        registros = registros_paginator.page(registros_paginator.num_pages)
+
+    return render(
+        request,
+        "citas2/index.html",
+        {
+            "citas": citas,
+            "registros": registros,
+            "enfermedades": enfermedades,
+            "productos": productos
+        }
+    )
 
 # vista personalizada para el logout
 def logout_user(request):
@@ -487,6 +536,33 @@ def listar_productos(request):
     tipos = ["Cremas", "Geles", "Lociones", "Sueros", "Protector solar", "Jabón dermatológico"]
     print(f"Productos: {productos}")
     return render(request, 'citas2/productos.html', {'productos': productos, 'tipos': tipos})
+
+# editar citas
+def editar_cita(request):
+    if request.method == "POST":
+        id_cita = request.POST.get('id_cita')
+        nuevo_estado = request.POST.get('estado')
+
+        print(f"Id_cita: {id_cita}")
+        print(f"Nuevo estado: {nuevo_estado}")
+
+        #return HttpResponse("Cita editada correctamente")
+
+        # validar datos
+        if not id_cita or not nuevo_estado:
+            messages.error(request, "Por favor, completa todos los campos obligatorios.")
+            return redirect('editar_cita')
+        
+        try:
+            cita = Cita.objects.get(id_cita=id_cita)
+        except Cita.DoesNotExist:
+            messages.error(request, "La cita no existe.")
+            return redirect('inicio')
+        
+        cita.estado = nuevo_estado
+        cita.save()
+        messages.success(request, "Cita actualizada exitosamente.")
+        return redirect('inicio')
 
 # crear citas
 @login_required

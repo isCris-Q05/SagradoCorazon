@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.core.exceptions import ValidationError
 
+# cambios realizados
+
 class Usuario(AbstractUser):
     ROLE_CHOICES = [
         ('Paciente', 'Paciente'),
@@ -81,14 +83,28 @@ class MedicoEspecialidad(models.Model):
         return f"{self.id_medico} - {self.id_especialidad}"
 
 class Cita(models.Model):
+    PENDIENTE = 'pendiente'
+    FINALIZADA = 'finalizada'
+    NO_ASISTIO = 'no_asistio'
+    ELIMINADA = 'eliminada'
+
+    ESTADO_CHOICES = [
+        (PENDIENTE, 'Pendiente'),
+        (FINALIZADA, 'Finalizada'),
+        (NO_ASISTIO, 'No asistió'),
+        (ELIMINADA, 'Eliminada'),
+    ]
+    
     id_cita = models.AutoField(primary_key=True)
     id_paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE)
     id_medico = models.ForeignKey(Medico, on_delete=models.CASCADE)
     id_especialidad = models.ForeignKey(Especialidad, on_delete=models.CASCADE)
     fecha = models.DateField()
     hora = models.TimeField()
+    estado = models.CharField(max_length=15, choices=ESTADO_CHOICES, default=PENDIENTE)
 
     def __str__(self):
+        
         return f"{self.id_paciente} - {self.id_medico} - {self.fecha} - {self.hora}"
     
 class Enfermedad(models.Model):

@@ -1,0 +1,45 @@
+:root {
+    --primary-blue: #87CEEB;
+    --light-blue: #E3F2F9;
+}
+
+.sidebar {
+    background-color: var(--primary-blue);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.nav-link {
+    color: #2c3e50;
+    padding: 10px 15px;
+    margin: 5px 0;
+    border-radius: 5px;
+}
+
+.nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.main-content {
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.appointment-card {
+    border-left: 4px solid var(--primary-blue);
+}
+
+.past-appointment {
+    opacity: 0.7;
+}
+
+.medical-record {
+    background-color: var(--light-blue);
+}

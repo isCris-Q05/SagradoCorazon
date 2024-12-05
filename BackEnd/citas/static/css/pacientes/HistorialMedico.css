@@ -1,0 +1,56 @@
+:root {
+    --primary-blue: #87CEEB;
+    --light-blue: #E3F2F9;
+}
+.sidebar {
+    background-color: var(--primary-blue);
+    min-height: 100vh;
+    padding: 20px;
+}
+.nav-link {
+    color: #2c3e50;
+    padding: 10px 15px;
+    margin: 5px 0;
+    border-radius: 5px;
+}
+.nav-link:hover, .nav-link.active {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+.main-content {
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    padding: 20px;
+}
+.card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+.card-header {
+    background-color: var(--light-blue);
+    border-bottom: none;
+}
+.medical-icon {
+    font-size: 1.2rem;
+    margin-right: 10px;
+    color: var(--primary-blue);
+}
+.timeline {
+    border-left: 2px solid var(--primary-blue);
+    padding-left: 20px;
+    margin-left: 10px;
+}
+.timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+}
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -26px;
+    top: 0;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: var(--primary-blue);
+}

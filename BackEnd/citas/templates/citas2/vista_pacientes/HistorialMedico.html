@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DermaCare - Historial Médico</title>
+    {% load static %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/pacientes/historial_medico.css' %}">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar">
+                <h3 class="mb-4">DermaCare</h3>
+                <div class="nav flex-column">
+                    <a href="{% url 'inicio_pacientes' %}" class="nav-link">Inicio</a>
+                    <a href="{% url 'mis_citas' %}" class="nav-link">Mis Citas</a>
+                    <a href="{% url 'historial_medico' %}" class="nav-link active">Historial Médico</a>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 main-content">
+                <h1 class="mb-4">Historial Médico</h1>
+
+                <!-- Diagnósticos -->
+                <div class="card mb-4">
+                    <div class="card-header bg-white">
+                        <h4>Diagnósticos</h4>
+                    </div>
+                    <div class="card-body">
+                        {% if diagnosticos %}
+                        <ul class="list-group">
+                            {% for diagnostico in diagnosticos %}
+                            <li class="list-group-item">
+                                <h5 class="mb-1">{{ diagnostico.nombre }}</h5>
+                                <p class="mb-1">{{ diagnostico.descripcion }}</p>
+                                <small class="text-muted"><i class="bi bi-calendar"></i> Fecha: {{ diagnostico.fecha }}</small>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <p>No hay diagnósticos registrados.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Tratamientos -->
+                <div class="card mb-4">
+                    <div class="card-header bg-white">
+                        <h4>Tratamientos Activos</h4>
+                    </div>
+                    <div class="card-body">
+                        {% if tratamientos %}
+                        <ul class="list-group">
+                            {% for tratamiento in tratamientos %}
+                            <li class="list-group-item">
+                                <h5 class="mb-1">{{ tratamiento.nombre }}</h5>
+                                <p class="mb-1">{{ tratamiento.indicacion }}</p>
+                                <small class="text-muted"><i class="bi bi-clock"></i> Duración: {{ tratamiento.duracion }}</small>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <p>No hay tratamientos activos.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Notas Médicas -->
+                <div class="card mb-4">
+                    <div class="card-header bg-white">
+                        <h4>Notas Médicas</h4>
+                    </div>
+                    <div class="card-body">
+                        {% if notas %}
+                        <div class="accordion" id="accordionNotas">
+                            {% for nota in notas %}
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="heading{{ forloop.counter }}">
+                                    <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}" aria-controls="collapse{{ forloop.counter }}">
+                                        {{ nota.titulo }} - {{ nota.fecha }}
+                                    </button>
+                                </h2>
+                                <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" aria-labelledby="heading{{ forloop.counter }}" data-bs-parent="#accordionNotas">
+                                    <div class="accordion-body">
+                                        {{ nota.contenido }}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p>No hay notas médicas registradas.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
