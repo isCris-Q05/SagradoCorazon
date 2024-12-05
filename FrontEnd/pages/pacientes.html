@@ -154,7 +154,8 @@
                             </div>
                             <div class="mb-3" id="campoCedula">
                                 <label for="cedulaPaciente" class="form-label">Cédula del Paciente</label>
-                                <input type="text" class="form-control" id="cedulaPaciente" name="cedulaPaciente" placeholder="Ingrese la cédula del paciente" required>
+                                <input type="text" class="form-control" id="cedulaPaciente" name="cedulaPaciente"
+                                       placeholder="Ingrese la cédula del paciente" maxlength="16" required>
                             </div>
                             <div class="mb-3">
                                 <label for="generoPaciente" class="form-label">Género</label>
@@ -171,7 +172,7 @@
                         <div class="tab-pane fade" id="seccionContacto" role="tabpanel" aria-labelledby="tab-contacto">
                             <div class="mb-3">
                                 <label for="telefonoPaciente" class="form-label">Teléfono</label>
-                                <input type="tel" class="form-control" id="telefonoPaciente" name="telefonoPaciente" placeholder="Ingrese el número de teléfono" required>
+                                <input type="tel" class="form-control" id="telefonoPaciente" name="telefonoPaciente" placeholder="Ingrese el número de teléfono" maxlength="8" required>
                             </div>
                             <div class="mb-3">
                                 <label for="emailPaciente" class="form-label">Correo Electrónico</label>
@@ -221,7 +222,7 @@
                             </div>
                             <div class="mb-3">
                                 <label for="telefonoEmergencia" class="form-label">Teléfono del Contacto de Emergencia</label>
-                                <input type="tel" class="form-control" id="telefonoEmergencia" name="telefonoEmergencia" placeholder="Ingrese el teléfono del contacto de emergencia" required>
+                                <input type="tel" class="form-control" id="telefonoEmergencia" name="telefonoEmergencia" placeholder="Ingrese el teléfono del contacto de emergencia" maxlength="8" required>
                             </div>
                         </div>
                     </div>
@@ -244,6 +245,7 @@
     </main>
 
     <script src="../js/anadir.js"></script>
+    <script src="../js/validaciones.js"></script>
     <script src="../js/perfil-paciente.js"></script>
     <script src="../js/menor-edad.js"></script>
 

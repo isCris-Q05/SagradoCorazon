@@ -37,18 +37,23 @@
                 <h2>Inicio</h2>
                 <div class="icons">
                     <div class="position-relative" style="display: inline-block;">
-                        <img src="../imagenes/notificaciones.png" alt="Notificaciones" id="notificationIcon" style="cursor: pointer;">
-                        <span id="notificationBadge" class="badge bg-danger position-absolute top-0 start-100 translate-middle" style=>
+                        <img src="../imagenes/notificaciones.png" alt="Notificaciones" id="notificationIcon"
+                            style="cursor: pointer;">
+                        <span id="notificationBadge"
+                            class="badge bg-danger position-absolute top-0 start-100 translate-middle" style=>
                             0
                         </span>
                     </div>
-                    <img src="../imagenes/usser.png" alt="Usuario" class="user-icon" data-bs-toggle="modal" data-bs-target="#userModal">
+                    <img src="../imagenes/usser.png" alt="Usuario" class="user-icon" data-bs-toggle="modal"
+                        data-bs-target="#userModal">
                 </div>
             </div>
             <div class="header">
                 <input type="text" placeholder="Buscar cita..." class="search-bar">
-                <button class="btn btn-primary" id="crearCitaBtn" data-bs-toggle="modal" data-bs-target="#crearCitaModal">Crear Cita</button>
-                <button class="btn btn-primary" id="crearRegistroBtn" data-bs-toggle="modal" data-bs-target="#crearRegistroModal">Agregar Registro</button>
+                <button class="btn btn-primary" id="crearCitaBtn" data-bs-toggle="modal"
+                    data-bs-target="#crearCitaModal">Crear Cita</button>
+                <button class="btn btn-primary" id="crearRegistroBtn" data-bs-toggle="modal"
+                    data-bs-target="#crearRegistroModal">Agregar Registro</button>
             </div>
             <table>
                 <thead>
@@ -80,10 +85,11 @@
                     </tr>
                 </tbody>
             </table>
-        </div>    
-        
+        </div>
+
         <!--Barra de notificaciones-->
-        <div id="notificationBar" class="card shadow-sm p-3 mb-5 bg-body-tertiary" style="display: none; position: absolute; top: 50px; right: 20px; width: 300px; z-index: 1050;">
+        <div id="notificationBar" class="card shadow-sm p-3 mb-5 bg-body-tertiary"
+            style="display: none; position: absolute; top: 50px; right: 20px; width: 300px; z-index: 1050;">
             <h5 class="card-title">Notificaciones</h5>
             <div class="card-text">
                 <p><strong>Paciente:</strong> Juan Pérez</p>
@@ -104,7 +110,8 @@
                     </div>
                     <div class="modal-body text-center">
                         <!-- Foto de Usuario -->
-                        <img src="../imagenes/usser.png" alt="Foto de Usuario" class="img-fluid rounded-circle mb-3" style="width: 100px; height: 100px;">
+                        <img src="../imagenes/usser.png" alt="Foto de Usuario" class="img-fluid rounded-circle mb-3"
+                            style="width: 100px; height: 100px;">
                         <!-- Nombre de Usuario -->
                         <h5 class="mb-3">Nombre de Usuario</h5>
                         <!-- Botón de Cerrar Sesión -->
@@ -115,7 +122,8 @@
         </div>
 
         <!-- Modal para Crear Cita -->
-        <div class="modal fade" id="crearCitaModal" tabindex="-1" aria-labelledby="crearCitaModalLabel" aria-hidden="true">
+        <div class="modal fade" id="crearCitaModal" tabindex="-1" aria-labelledby="crearCitaModalLabel"
+            aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -123,30 +131,33 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                     </div>
                     <div class="modal-body">
-                        <form method="POST" action="">
+                        <form method="POST" action="#" id="formCrearCita">
                             <div class="mb-3">
                                 <label for="nombrePaciente" class="form-label">Nombre del Paciente</label>
-                                <input type="text" class="form-control" id="nombrePaciente" placeholder="Ingrese el nombre del paciente">
+                                <input type="text" class="form-control" id="nombrePaciente"
+                                    placeholder="Ingrese el nombre del paciente">
                             </div>
                             <div class="mb-3">
-                                <label for="nombrePaciente" class="form-label">Nombre del Medico asignado</label>
-                                <input type="text" class="form-control" id="nombreMedico" placeholder="Ingrese el nombre del medico">
+                                <label for="nombreMedico" class="form-label">Nombre del Médico Asignado</label>
+                                <input type="text" class="form-control" id="nombreMedico"
+                                    placeholder="Ingrese el nombre del médico">
                             </div>
                             <div class="mb-3">
                                 <label for="fechaCita" class="form-label">Fecha de la Cita</label>
                                 <input type="date" class="form-control" id="fechaCita">
                             </div>
                             <div class="mb-3">
-                                <label for="horaCita" class="form-label">Hora inicio</label>
-                                <input type="time" class="form-control" id="horaCita">
+                                <label for="horaInicio" class="form-label">Hora Inicio</label>
+                                <input type="time" class="form-control" id="horaInicio">
                             </div>
                             <div class="mb-3">
-                                <label for="horaCita" class="form-label">Hora final</label>
-                                <input type="time" class="form-control" id="horaCita">
+                                <label for="horaFinal" class="form-label">Hora Final</label>
+                                <input type="time" class="form-control" id="horaFinal">
                             </div>
                             <div class="mb-3">
                                 <label for="comentarios" class="form-label">Comentarios</label>
-                                <textarea class="form-control" id="comentarios" rows="3" placeholder="Detalles adicionales sobre su condicion"></textarea>
+                                <textarea class="form-control" id="comentarios" rows="3"
+                                    placeholder="Detalles adicionales sobre su condición"></textarea>
                             </div>
                             <button type="submit" class="btn btn-success">Guardar Cita</button>
                         </form>
@@ -154,9 +165,9 @@
                 </div>
             </div>
         </div>
-
         <!--Model para los registros-->
-        <div class="modal fade" id="crearRegistroModal" tabindex="-1" aria-labelledby="crearRegistroModalLabel" aria-hidden="true">
+        <div class="modal fade" id="crearRegistroModal" tabindex="-1" aria-labelledby="crearRegistroModalLabel"
+            aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -167,7 +178,8 @@
                         <form method="POST" action="">
                             <div class="mb-3">
                                 <label for="nombrePaciente" class="form-label">Codigo cita</label>
-                                <input type="text" class="form-control" id="codigoCita" placeholder="Ingrese el codigo de la cita">
+                                <input type="text" class="form-control" id="codigoCita"
+                                    placeholder="Ingrese el codigo de la cita">
                             </div>
                             <div class="mb-3">
                                 <label for="Motivo" class="form-label">Motivo</label>
@@ -175,7 +187,8 @@
                             </div>
                             <div class="mb-3">
                                 <label for="comentarios" class="form-label">Observaciones</label>
-                                <textarea class="form-control" id="observaciones" rows="3" placeholder="Observaciones "></textarea>
+                                <textarea class="form-control" id="observaciones" rows="3"
+                                    placeholder="Observaciones "></textarea>
                             </div>
                             <button type="submit" class="btn btn-success">Agregar registro</button>
                         </form>
@@ -186,6 +199,7 @@
     </main>
 
     <script src="../js/notificaciones.js"></script>
+    <script src="../js/validaciones.js"></script>
 </body>
 
 </html>

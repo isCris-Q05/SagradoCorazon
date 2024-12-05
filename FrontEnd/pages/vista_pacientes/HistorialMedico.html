@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DermaCare - Historial Médico</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/pacientes/HistorialMedico.css">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar d-none d-md-block">
+                <h3 class="mb-4 text-white">DermaCare</h3>
+                <div class="nav flex-column">
+                    <a href="../vista_pacientes/inicio.html" class="nav-link active">Inicio</a>
+                    <a href="../vista_pacientes/MisCitas.html" class="nav-link">Mis Citas</a>
+                    <a href="../vista_pacientes/HistorialMedico.html" class="nav-link">Historial Médico</a>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 main-content">
+                <h1 class="mb-4">Historial Médico</h1>
+                
+                <div class="row">
+                    <!-- Resumen Médico -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Resumen Médico</h5>
+                            </div>
+                            <div class="card-body">
+                                <p><i class="bi bi-person medical-icon"></i><strong>Nombre:</strong> Juan Pérez</p>
+                                <p><i class="bi bi-calendar medical-icon"></i><strong>Fecha de Nacimiento:</strong> 15/05/1985</p>
+                                <p><i class="bi bi-heart medical-icon"></i><strong>Alergias:</strong> Penicilina</p>
+                                <p><i class="bi bi-capsule medical-icon"></i><strong>Medicamentos Actuales:</strong> Ninguno</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Diagnósticos Recientes -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Diagnósticos Recientes</h5>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">
+                                        <strong>Dermatitis:</strong> Tratamiento en curso
+                                        <br><small class="text-muted">Diagnosticado: 01/07/2024</small>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <strong>Revisión de lunares:</strong> Sin novedad
+                                        <br><small class="text-muted">Última revisión: 15/06/2024</small>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Historial de Tratamientos -->
+                    <div class="col-12 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Historial de Tratamientos</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="timeline">
+                                    <div class="timeline-item">
+                                        <h6>Tratamiento para Dermatitis</h6>
+                                        <p><strong>Fecha de inicio:</strong> 01/07/2024</p>
+                                        <p><strong>Medicamento:</strong> Crema hidratante con corticosteroides</p>
+                                        <p><strong>Instrucciones:</strong> Aplicar dos veces al día durante 2 semanas</p>
+                                    </div>
+                                    <div class="timeline-item">
+                                        <h6>Tratamiento para Acné</h6>
+                                        <p><strong>Fecha de inicio:</strong> 15/05/2024</p>
+                                        <p><strong>Fecha de finalización:</strong> 15/06/2024</p>
+                                        <p><strong>Medicamento:</strong> Gel de peróxido de benzoilo</p>
+                                        <p><strong>Instrucciones:</strong> Aplicar una vez al día antes de dormir</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Historial de Visitas -->
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Historial de Visitas</h5>
+                            </div>
+                            <div class="card-body">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Fecha</th>
+                                            <th>Motivo</th>
+                                            <th>Doctor</th>
+                                            <th>Diagnóstico</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>01/07/2024</td>
+                                            <td>Consulta por erupción cutánea</td>
+                                            <td>Dra. Jurid Torres</td>
+                                            <td>Dermatitis</td>
+                                            <td><button class="btn btn-sm btn-outline-primary">Ver Detalles</button></td>
+                                        </tr>
+                                        <tr>
+                                            <td>15/06/2024</td>
+                                            <td>Revisión de lunares</td>
+                                            <td>Dr. Carlos Méndez</td>
+                                            <td>Sin novedad</td>
+                                            <td><button class="btn btn-sm btn-outline-primary">Ver Detalles</button></td>
+                                        </tr>
+                                        <tr>
+                                            <td>15/05/2024</td>
+                                            <td>Consulta por acné</td>
+                                            <td>Dra. Jurid Torres</td>
+                                            <td>Acné leve</td>
+                                            <td><button class="btn btn-sm btn-outline-primary">Ver Detalles</button></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
