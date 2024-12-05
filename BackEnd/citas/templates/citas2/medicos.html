@@ -32,6 +32,25 @@
                     <img src="{% static 'imagenes/usser.png' %}" alt="">
                 </div>
             </div>
+
+            {% if messages %}
+                <div class="container mt-3">
+                    {% for message in messages %}
+                    <div
+                        class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %} alert-dismissible fade show"
+                        role="alert"
+                    >
+                        <strong>{{ message }}</strong>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert"
+                            aria-label="Close"
+                        ></button>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
             
             <div class="container-fluid px-0">
                 <div class="row g-3 align-items-center mb-3">
@@ -116,18 +135,74 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                     </div>
                     <div class="modal-body">
-                        <form method="POST">
+                        <form method="POST" action="{% url 'registrar_medico' %}">
                             {% csrf_token %}
-                            <!-- Campos del formulario -->
-                            <!-- Ejemplo para Nombre -->
+                            <!-- Usuario -->
                             <div class="mb-3">
-                                <label for="nombreDoctor" class="form-label">Nombres del Doctor</label>
-                                <input type="text" class="form-control" id="nombreDoctor" name="nombreDoctor" placeholder="Ingrese el nombre del Doctor">
+                                <label for="username" class="form-label">Usuario</label>
+                                <input type="text" class="form-control" id="username" name="username" placeholder="Ingrese el nombre de usuario">
                             </div>
-                            <!-- Más campos aquí -->
+                            <!-- Email -->
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Correo Electrónico</label>
+                                <input type="email" class="form-control" id="email" name="email" placeholder="Ingrese el correo electrónico">
+                            </div>
+                            <!-- Nombre -->
+                            <div class="mb-3">
+                                <label for="first_name" class="form-label">Nombre</label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" placeholder="Ingrese el nombre">
+                            </div>
+                            <!-- Apellido -->
+                            <div class="mb-3">
+                                <label for="last_name" class="form-label">Apellido</label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Ingrese el apellido">
+                            </div>
+                            <!-- Género -->
+                            <div class="mb-3">
+                                <label for="genero" class="form-label">Género</label>
+                                <select class="form-control" id="genero" name="genero">
+                                    <option value="Masculino">Masculino</option>
+                                    <option value="Femenino">Femenino</option>
+                                    <option value="Otro">Otro</option>
+                                </select>
+                            </div>
+                            <!-- Teléfono -->
+                            <div class="mb-3">
+                                <label for="telefono" class="form-label">Teléfono</label>
+                                <input type="tel" class="form-control" id="telefono" name="telefono" placeholder="Ingrese el número de teléfono">
+                            </div>
+                            <!-- Especialidades -->
+                            <div class="mb-3">
+                                <label class="form-label">Especialidades</label>
+                                <div>
+                                    {% for especialidad in especialidades %}
+                                    <div class="form-check">
+                                        <input
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            id="especialidad_{{ especialidad.id_especialidad }}"
+                                            name="especialidades"
+                                            value="{{ especialidad.id_especialidad }}"
+                                        >
+                                        <label class="form-check-label" for="especialidad_{{ especialidad.id_especialidad }}">
+                                            {{ especialidad.nombre }}
+                                        </label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <!-- Es admin -->
+                                <div class="mb-3">
+                                    <label for="is_admin" class="form-label">¿Es administrador?</label>
+                                    <select class="form-control" id="is_admin" name="is_admin">
+                                        <option value="False" selected>No</option>
+                                        <option value="True">Sí</option>
+                                    </select>
+                                </div>
+                            <!-- Botón -->
                             <button type="submit" class="btn btn-success">Agregar Doctor</button>
                         </form>
                     </div>
+                    
                 </div>
             </div>
         </div>

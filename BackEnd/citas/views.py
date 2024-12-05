@@ -91,48 +91,56 @@ def registrar_medico(request):
         # Datos del usuario
         username = request.POST.get('username')
         email = request.POST.get('email')
-        password1 = request.POST.get('password1')
-        password2 = request.POST.get('password2')
+        password = request.POST.get('password', '')  # Solo una contraseña
         first_name = request.POST.get('first_name', '')
         last_name = request.POST.get('last_name', '')
         role = 'Medico'
         genero = request.POST.get('genero', '')
 
-        # datos del medico
+        # Datos del médico
         telefono = request.POST.get('telefono', '')
+        is_admin = request.POST.get('is_admin', 'False') == 'True'
 
-        # validaciones
+        # Validaciones
         if Usuario.objects.filter(username=username).exists():
-            messages.error(request, 'El nombre de usuario ya está registrado.')
-            return redirect('register')
-        
+            messages.error(request, 'El nombre de usuario ya está registrado.')
+            return redirect('doctores')
+
         if Usuario.objects.filter(email=email).exists():
-            messages.error(request, 'El correo electronico ya está registrado.')
-            return redirect('register')
-        
-        if password1 != password2:
-            messages.error(request, 'Las contraseñas no coinciden.')
-            return redirect('register')
-        
-        # crear el usuario
+            messages.error(request, 'El correo electrónico ya está registrado.')
+            return redirect('doctores')
+
+        # Crear el usuario
         user = Usuario.objects.create_user(
             username=username,
             email=email,
-            password=password1,
+            password=password,
             first_name=first_name,
             last_name=last_name,
             role=role,
             genero=genero
         )
 
-        # creamos el medico
+        # Crear el médico
         medico = Medico.objects.create(
             user=user,
-            telefono=telefono
+            telefono=telefono,
+            es_admin=is_admin  # Asignar el valor de is_admin
         )
 
-        messages.success(request, 'El medico se ha registrado correctamente.')
-        return redirect('register')
+        # Guardar especialidades
+        especialidades_ids = request.POST.getlist('especialidades')
+        for especialidad_id in especialidades_ids:
+            especialidad = Especialidad.objects.get(id_especialidad=especialidad_id)
+            MedicoEspecialidad.objects.create(
+                id_medico=medico,
+                id_especialidad=especialidad
+            )
+
+        messages.success(request, 'El médico se ha registrado correctamente.')
+        return redirect('doctores')
+
+    #return redirect('register')
 
 
 # login para medicos

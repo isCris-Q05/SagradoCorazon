@@ -42,7 +42,7 @@ class Paciente(models.Model):
 class Medico(models.Model):
     user = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='medico_profile')
     telefono = models.CharField(max_length=15, blank=True, null=True)
-
+    es_admin = models.BooleanField(default=False)
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name}"
 
