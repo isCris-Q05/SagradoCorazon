@@ -179,14 +179,15 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                     </div>
                     <div class="modal-body">
-                        <form method="POST" action="">
+                        <form method="POST" action="{% url 'crear_alergia' %}">
+                            {% csrf_token %}
                             <div class="mb-3">
                                 <label for="nombreAlergia" class="form-label">Nombre de la Alergia</label>
-                                <input type="text" class="form-control" id="nombreAlergia" placeholder="Ingrese el nombre">
+                                <input name="nombre" type="text" class="form-control" id="nombreAlergia" placeholder="Ingrese el nombre">
                             </div>
                             <div class="mb-3">
                                 <label for="nombreProducto" class="form-label">Descripcion de la Alergia</label>
-                                <textarea class="form-control" id="descripcionAlergia" rows="3" placeholder="Ingrese breve descripcion "></textarea>
+                                <textarea name="descripcion" class="form-control" id="descripcionAlergia" rows="3" placeholder="Ingrese breve descripcion "></textarea>
                             </div>                    
                             <button type="submit" class="btn btn-success">Agregar Alergia</button>
                         </form>
@@ -204,14 +205,15 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                     </div>
                     <div class="modal-body">
-                        <form method="POST" action="">
+                        <form method="POST" action="{% url 'crear_enfermedad' %}">
+                            {% csrf_token %}
                             <div class="mb-3">
                                 <label for="nombreEnfermedad" class="form-label">Nombre de la Enfermedad</label>
-                                <input type="text" class="form-control" id="nombreEnfermedad" placeholder="Ingrese el nombre">
+                                <input name="nombre" type="text" class="form-control" id="nombreEnfermedad" placeholder="Ingrese el nombre">
                             </div>
                             <div class="mb-3">
                                 <label for="DescripcionEnfermedad" class="form-label">Descripcion de la Enfermedad</label>
-                                <textarea class="form-control" id="descripcionAlergia" rows="3" placeholder="Ingrese breve descripcion "></textarea>
+                                <textarea name="descripcion" class="form-control" id="descripcionAlergia" rows="3" placeholder="Ingrese breve descripcion "></textarea>
                             </div>                    
                             <button type="submit" class="btn btn-success">Agregar Enfermedad</button>
                         </form>

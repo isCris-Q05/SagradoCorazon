@@ -252,6 +252,10 @@ def crear_alergia(request):
         nombre = request.POST['nombre']
         descripcion = request.POST['descripcion']
 
+        print(f"Nombre: {nombre}")
+        print(f"Descripcion: {descripcion}")
+        #return HttpResponse("Alergia creada")
+
         if not nombre:
             messages.error(request, 'El nombre es obligatorio.')
             return redirect('crear_alergia')
@@ -266,9 +270,8 @@ def crear_alergia(request):
         )
 
         messages.success(request, 'La alergia se ha creado correctamente.')
-        return redirect('crear_alergia')
-    
-    return render(request, 'citas/crear_alergia.html')
+        return redirect('enfermedades_alergias')
+    #return render(request, 'citas/crear_alergia.html')
 
 @login_required
 def listar_alergias(request):
@@ -359,6 +362,10 @@ def crear_enfermedad(request):
         if not nombre:
             messages.error(request, 'El nombre es obligatorio.')
             return redirect('crear_enfermedad')
+        
+        print(f"Nombre: {nombre}")
+        print(f"Descripcion: {descripcion}")
+        #return HttpResponse("Enfermedad agregada")
 
         if Enfermedad.objects.filter(nombre=nombre).exists():
             messages.error(request, 'La enfermedad ya existe.')
@@ -370,7 +377,7 @@ def crear_enfermedad(request):
         )
 
         messages.success(request, 'La enfermedad se ha creado correctamente.')
-        return redirect('crear_enfermedad')
+        return redirect('enfermedades_alergias')
     
     return render(request, 'citas/crear_enfermedad.html')
 
