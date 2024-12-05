@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -40,6 +41,20 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'citas',
 ]
+
+JAZZMIN_SETTINGS = {
+    "site_title": "Mi Admin",  # Título de la pestaña del navegador
+    "site_header": "Mi Proyecto",  # Título en la cabecera
+    "welcome_sign": "Bienvenido al Admin de Mi Proyecto",  # Texto en la página de inicio
+    "show_sidebar": True,  # Mostrar la barra lateral
+    "navigation_expanded": True,  # Expandir menú de navegación por defecto
+    "search_model": "auth.User",  # Modelo a buscar desde la barra de búsqueda
+    "topmenu_links": [  # Enlaces en el menú superior
+        {"name": "Inicio", "url": "admin:index", "permissions": ["auth.view_user"]},
+        {"name": "Soporte", "url": "https://soporte.ejemplo.com", "new_window": True},
+    ],
+}
+
 
 
 MIDDLEWARE = [

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pacientes</title>
-    {%load static%}
+    {% load static %}
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -20,8 +20,8 @@
             </div>
             <nav>
                 <a href="{% url 'inicio' %}" class="nav-item">Inicio</a>
-                <a href="{% url 'doctores' %}" class="nav-item">Doctores</a>
-                <a href="{% url 'registrar_paciente' %}" class="nav-item active">Pacientes</a>
+                <a href="{% url 'doctores' %}" class="nav-item ">Doctores</a>
+                <a href="{% url 'registrar_pacientes' %}" class="nav-item active">Paciente</a>
                 <a href="{% url 'productos' %}" class="nav-item">Productos</a>
                 <a href="{% url 'enfermedades_alergias' %}" class="nav-item">Alergias y Enfermedades</a>
                 <a href="{% url 'tratamientos' %}" class="nav-item">Tratamientos</a>
@@ -47,13 +47,14 @@
                 </div>
 
                 <div id="items" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                    {% for paciente in pacientes %}
                     <div class="col">
                         <div class="card h-100 paciente-card">
-                            <img src="" class="card-img-top" alt="Juan Pérez">
+                            <img src="" class="card-img-top" alt="">
                             <div class="card-body">
-                                <h5 class="card-title">Juan Pérez</h5>
-                                <p class="card-text">Edad: 25 años</p>
-                                <p class="card-text"><small class="text-muted">Teléfono: +1 555-555-5555</small></p>
+                                <h5 class="card-title">{{paciente.nombre}} {{paciente.apellido}}</h5>
+                                <p class="card-text">{{psciente.cedula}}</p>
+                                <p class="card-text"><small class="text-muted">{{paciente.telefono}}5</small></p>
                             </div>
                             <div class="card-footer">
                                 <button class="btn btn-outline-primary btn-sm"
@@ -68,10 +69,11 @@
                             data-enfermedades="{{ paciente.enfermedades }}"
                             data-telefono="{{ paciente.telefono }}"
                                 >Ver perfil</button>
-                                <button class="btn btn-outline-secondary btn-sm">Editar</button>
                             </div>
                         </div>
                     </div>
+                    {% endfor %}
+
                 </div>
 
                 <!-- Controles de paginación -->
@@ -79,127 +81,177 @@
             </div>
         </div>
 
-        <!-- Modal para el perfil del paciente -->
-        <div class="modal fade" id="perfilPacienteModal" tabindex="-1" aria-labelledby="perfilPacienteModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="perfilPacienteModalLabel">Perfil del Paciente</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <img src="" id="perfilFoto" class="img-fluid" alt="Foto del Paciente">
+
+                <!-- Modal para el perfil del paciente -->
+                <div class="modal fade" id="perfilPacienteModal" tabindex="-1" aria-labelledby="perfilPacienteModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="perfilPacienteModalLabel">Perfil del Paciente</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                             </div>
-                            <div class="col-md-8">
-                                <h4 id="perfilNombre"></h4>
-                                <p><strong>Género:</strong> <span id="perfilGenero"></span></p>
-                                <p><strong>Edad:</strong> <span id="perfilEdad"></span></p>
-                                <p><strong>Teléfono:</strong> <span id="perfilTelefono"></span></p>
-                                <p><strong>Alergias:</strong> <span id="perfilAlergias"></span></p>
-                                <p><strong>Enfermedades:</strong> <span id="perfilEnfermedades"></span></p>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <img src="" id="perfilFoto" class="img-fluid" alt="Foto del Paciente">
+                                    </div>
+                                    <div class="col-md-8">
+                                        <h4 id="perfilNombre"></h4>
+                                        <p><strong>Género:</strong> <span id="perfilGenero"></span></p>
+                                        <p><strong>Edad:</strong> <span id="perfilEdad"></span></p>
+                                        <p><strong>Teléfono:</strong> <span id="perfilTelefono"></span></p>
+                                        <p><strong>Alergias:</strong> <span id="perfilAlergias"></span></p>
+                                        <p><strong>Enfermedades:</strong> <span id="perfilEnfermedades"></span></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                             </div>
                         </div>
                     </div>
+                </div>
+
+<!-- Modal para agregar pacientes -->
+<div class="modal fade" id="agregarPacienteModal" tabindex="-1" aria-labelledby="agregarPacienteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="agregarPacienteModalLabel">Agregar Paciente</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+
+                <form id='forms' method="POST" action="{% url 'registrar_pacientes' %}">
+                    {% csrf_token %}
+                    <!-- Pestañas de navegación -->
+                    <ul class="nav nav-tabs" id="tabPaciente" role="tablist">
+                        <li class="nav-item">
+                            <button class="nav-link active" id="tab-basica" data-bs-toggle="tab" data-bs-target="#seccionBasica" type="button" role="tab" aria-controls="seccionBasica" aria-selected="true">Información Básica</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" id="tab-contacto" data-bs-toggle="tab" data-bs-target="#seccionContacto" type="button" role="tab" aria-controls="seccionContacto" aria-selected="false">Información de Contacto</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" id="tab-medica" data-bs-toggle="tab" data-bs-target="#seccionMedica" type="button" role="tab" aria-controls="seccionMedica" aria-selected="false">Información Médica</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" id="tab-adicional" data-bs-toggle="tab" data-bs-target="#seccionAdicional" type="button" role="tab" aria-controls="seccionAdicional" aria-selected="false">Información Adicional</button>
+                        </li>
+                    </ul>
+
+                    <!-- Contenido de las secciones -->
+                    <div class="tab-content mt-3">
+                        <!-- Sección de Información Básica -->
+                        <div class="tab-pane fade show active" id="seccionBasica" role="tabpanel" aria-labelledby="tab-basica">
+                            <div class="mb-3">
+                                <label for="nombrePaciente" class="form-label">Nombres del Paciente</label>
+                                <input type="text" class="form-control" id="nombrePaciente" name="nombrePaciente" placeholder="Ingrese el nombre del paciente" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="apellidoPaciente" class="form-label">Apellidos del Paciente</label>
+                                <input type="text" class="form-control" id="apellidoPaciente" name="apellidoPaciente" placeholder="Ingrese los apellidos del paciente" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="fechaNacimientoPaciente" class="form-label">Fecha de Nacimiento</label>
+                                <input type="date" class="form-control" id="fechaNacimientoPaciente" name="fechaNacimientoPaciente" required>
+                            </div>
+                            <div class="mb-3" id="campoCedula">
+                                <label for="cedulaPaciente" class="form-label">Cédula del Paciente</label>
+                                <input type="text" class="form-control" id="cedulaPaciente" name="cedulaPaciente"
+                                       placeholder="Ingrese la cédula del paciente" maxlength="16" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="generoPaciente" class="form-label">Género</label>
+                                <select class="form-select" id="generoPaciente" name="generoPaciente" required>
+                                    <option value="" disabled selected>Seleccione el género</option>
+                                    <option value="masculino">Masculino</option>
+                                    <option value="femenino">Femenino</option>
+                                    <option value="otro">Otro</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Sección de Información de Contacto -->
+                        <div class="tab-pane fade" id="seccionContacto" role="tabpanel" aria-labelledby="tab-contacto">
+                            <div class="mb-3">
+                                <label for="telefonoPaciente" class="form-label">Teléfono</label>
+                                <input type="tel" class="form-control" id="telefonoPaciente" name="telefonoPaciente" placeholder="Ingrese el número de teléfono" maxlength="8" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="emailPaciente" class="form-label">Correo Electrónico</label>
+                                <input type="email" class="form-control" id="emailPaciente" name="emailPaciente" placeholder="Ingrese el correo electrónico" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="direccionPaciente" class="form-label">Dirección</label>
+                                <input type="text" class="form-control" id="direccionPaciente" name="direccionPaciente" placeholder="Ingrese la dirección" required>
+                            </div>
+                        </div>
+
+                        <!-- Sección de Información Médica -->
+                        <div class="tab-pane fade" id="seccionMedica" role="tabpanel" aria-labelledby="tab-medica">
+                            <div class="mb-3">
+                                <label for="motivoConsulta" class="form-label">Motivo de Consulta</label>
+                                <textarea class="form-control" id="motivoConsulta" name="motivoConsulta" rows="3" placeholder="Ingrese el motivo de consulta"></textarea>
+                            </div>
+                        
+                            <!-- Enfermedades -->
+                            <div class="mb-3">
+                                <label for="inputEnfermedad" class="form-label">Enfermedades</label>
+                                <div class="input-group mb-2">
+                                    <input class="form-control" type="text" id="inputEnfermedad" placeholder="Agregar enfermedad">           
+                                    <button class="btn btn-outline-success" type="button" id="agregarEnfermedad">Añadir</button>
+                                </div>
+                                <ul class="list-group" id="listaEnfermedades"></ul>
+                                <input type="hidden" id="campoEnfermedades" name="enfermedades">
+                            </div>
+
+                            <!-- Alergias -->
+                            <div class="mb-3">
+                                <label for="inputAlergia" class="form-label">Alergias</label>
+                                <div class="input-group mb-2">
+                                    <input class="form-control" type="text" id="inputAlergia" placeholder="Agregar alergia">
+                                    <button class="btn btn-outline-success" type="button" id="agregarAlergia">Añadir</button>
+                                </div>
+                                <ul class="list-group" id="listaAlergias"></ul>
+                                <input type="hidden" id="campoAlergias" name="alergias">
+                            </div>
+                        </div>
+
+                        <!-- Sección de Información Adicional -->
+                        <div class="tab-pane fade" id="seccionAdicional" role="tabpanel" aria-labelledby="tab-adicional">
+                            <div class="mb-3">
+                                <label for="contactoEmergencia" class="form-label">Nombre del Contacto de Emergencia</label>
+                                <input type="text" class="form-control" id="contactoEmergencia" name="contactoEmergencia" placeholder="Ingrese el nombre del contacto de emergencia" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="telefonoEmergencia" class="form-label">Teléfono del Contacto de Emergencia</label>
+                                <input type="tel" class="form-control" id="telefonoEmergencia" name="telefonoEmergencia" placeholder="Ingrese el teléfono del contacto de emergencia" maxlength="8" required>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="submit" class="btn btn-success">Guardar Paciente</button>
                     </div>
-                </div>
+                </form>
             </div>
         </div>
+    </div>
+</div>
 
-        <!-- Modal para agregar pacientes -->
-        <div class="modal fade" id="agregarPacienteModal" tabindex="-1" aria-labelledby="agregarPacienteModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="agregarPacienteModalLabel">Agregar Paciente</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form id='forms' method="POST" action="">
-                            {% csrf_token %}
-                            <!-- Pestañas de navegación -->
-                            <ul class="nav nav-tabs" id="tabPaciente" role="tablist">
-                                <li class="nav-item">
-                                    <button class="nav-link active" id="tab-basica" data-bs-toggle="tab" data-bs-target="#seccionBasica" type="button" role="tab" aria-controls="seccionBasica" aria-selected="true">Información Básica</button>
-                                </li>
-                                <li class="nav-item">
-                                    <button class="nav-link" id="tab-contacto" data-bs-toggle="tab" data-bs-target="#seccionContacto" type="button" role="tab" aria-controls="seccionContacto" aria-selected="false">Información de Contacto</button>
-                                </li>
-                                <li class="nav-item">
-                                    <button class="nav-link" id="tab-medica" data-bs-toggle="tab" data-bs-target="#seccionMedica" type="button" role="tab" aria-controls="seccionMedica" aria-selected="false">Información Médica</button>
-                                </li>
-                                <li class="nav-item">
-                                    <button class="nav-link" id="tab-adicional" data-bs-toggle="tab" data-bs-target="#seccionAdicional" type="button" role="tab" aria-controls="seccionAdicional" aria-selected="false">Información Adicional</button>
-                                </li>
-                            </ul>
 
-                            <!-- Contenido de las secciones -->
-                            <div class="tab-content mt-3">
-                                <!-- Sección de Información Básica -->
-                                <div class="tab-pane fade show active" id="seccionBasica" role="tabpanel" aria-labelledby="tab-basica">
-                                    <div class="mb-3">
-                                        <label for="nombrePaciente" class="form-label">Nombres del Paciente</label>
-                                        <input type="text" class="form-control" id="nombrePaciente" name="nombrePaciente" placeholder="Ingrese el nombre del paciente" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="apellidoPaciente" class="form-label">Apellidos del Paciente</label>
-                                        <input type="text" class="form-control" id="apellidoPaciente" name="apellidoPaciente" placeholder="Ingrese los apellidos del paciente" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="fechaNacimientoPaciente" class="form-label">Fecha de Nacimiento</label>
-                                        <input type="date" class="form-control" id="fechaNacimientoPaciente" name="fechaNacimientoPaciente" required>
-                                    </div>
-                                    <div class="mb-3" id="campoCedula">
-                                        <label for="cedulaPaciente" class="form-label">Cédula</label>
-                                        <input type="text" class="form-control" id="cedulaPaciente" name="cedulaPaciente" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="fotoPaciente" class="form-label">Foto del Paciente</label>
-                                        <input type="file" class="form-control" id="fotoPaciente" name="fotoPaciente">
-                                    </div>
-                                </div>
 
-                                <!-- Sección de Información de Contacto -->
-                                <div class="tab-pane fade" id="seccionContacto" role="tabpanel" aria-labelledby="tab-contacto">
-                                    <div class="mb-3">
-                                        <label for="telefonoPaciente" class="form-label">Teléfono</label>
-                                        <input type="text" class="form-control" id="telefonoPaciente" name="telefonoPaciente" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="emailPaciente" class="form-label">Correo Electrónico</label>
-                                        <input type="email" class="form-control" id="emailPaciente" name="emailPaciente" required>
-                                    </div>
-                                </div>
 
-                                <!-- Sección de Información Médica -->
-                                <div class="tab-pane fade" id="seccionMedica" role="tabpanel" aria-labelledby="tab-medica">
-                                    <div class="mb-3">
-                                        <label for="enfermedadesPaciente" class="form-label">Enfermedades</label>
-                                        <input type="text" class="form-control" id="enfermedadesPaciente" name="enfermedadesPaciente" placeholder="Ingrese las enfermedades" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="alergiasPaciente" class="form-label">Alergias</label>
-                                        <input type="text" class="form-control" id="alergiasPaciente" name="alergiasPaciente" placeholder="Ingrese las alergias" required>
-                                    </div>
-                                </div>
 
-                                <!-- Sección de Información Adicional -->
-                                <div class="tab-pane fade" id="seccionAdicional" role="tabpanel" aria-labelledby="tab-adicional">
-                                    <div class="mb-3">
-                                        <label for="notaAdicional" class="form-label">Nota Adicional</label>
-                                        <textarea class="form-control" id="notaAdicional" name="notaAdicional"></textarea>
-                                    </div>
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-primary mt-3">Guardar Paciente</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
+
     </main>
+
+    <script src="{% static 'js/anadir.js' %}"></script>
+    <script src="{% static 'js/validaciones.js' %}"></script>
+    <script src="{% static 'js/perfil-paciente.js' %}"></script>
+    <script src="{% static 'js/menor-edad.js' %}"></script>
+
 </body>
 </html>

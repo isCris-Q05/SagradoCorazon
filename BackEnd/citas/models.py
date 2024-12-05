@@ -2,8 +2,6 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.core.exceptions import ValidationError
 
-# cambios realizados
-
 class Usuario(AbstractUser):
     ROLE_CHOICES = [
         ('Paciente', 'Paciente'),
@@ -29,12 +27,20 @@ class Usuario(AbstractUser):
 
     def __str__(self):
         return self.username
-# Create your models here.
+
 class Paciente(models.Model):
     user = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='paciente_profile')
+    genero = models.CharField(max_length=200, null=True, blank=True)
+    direccion = models.TextField(default='')  # Asignar un valor predeterminado para evitar el error
+    motivo = models.TextField(null=True, blank=True)
     cedula = models.CharField(max_length=20)
     telefono = models.CharField(max_length=20, blank=True, null=True)
     fecha_nacimiento = models.DateField()
+    enfermedadess = models.JSONField(null=True, blank=True)
+    alergiass = models.JSONField(null=True, blank=True)
+    contacto_emergencias = models.CharField(max_length=200, null=True)
+    telefono_emergencia = models.CharField(max_length=20, blank=True, null=True)
+    apellido = models.CharField(max_length=100, default='Desconocido')  # Asignamos un valor predeterminado
 
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name}"
@@ -43,6 +49,7 @@ class Medico(models.Model):
     user = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='medico_profile')
     telefono = models.CharField(max_length=15, blank=True, null=True)
     es_admin = models.BooleanField(default=False)
+
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name}"
 
@@ -55,15 +62,14 @@ class Alergia(models.Model):
         return self.nombre
 
 class PacienteAlergia(models.Model):
-    cedula = models.ForeignKey(Paciente, on_delete=models.CASCADE) # FK a Paciente
-    codigo = models.ForeignKey(Alergia, on_delete=models.CASCADE) # FK a Alergia
+    id_paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, related_name='alergias')
+    codigo = models.ForeignKey(Alergia, on_delete=models.CASCADE, related_name='pacientes')
 
     class Meta:
-        unique_together = ('cedula', 'codigo')
+        unique_together = ('id_paciente', 'codigo')
 
     def __str__(self):
-        return f"{self.cedula} - {self.codigo}"
-
+        return f"{self.id_paciente} - {self.codigo}"
 
 class Especialidad(models.Model):
     id_especialidad = models.AutoField(primary_key=True)
@@ -104,7 +110,6 @@ class Cita(models.Model):
     estado = models.CharField(max_length=15, choices=ESTADO_CHOICES, default=PENDIENTE)
 
     def __str__(self):
-        
         return f"{self.id_paciente} - {self.id_medico} - {self.fecha} - {self.hora}"
     
 class Enfermedad(models.Model):
@@ -115,13 +120,22 @@ class Enfermedad(models.Model):
     def __str__(self):
         return self.nombre
 
+class PacienteEnfermedad(models.Model):
+    id_paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE)
+    id_enfermedad = models.ForeignKey(Enfermedad, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('id_paciente', 'id_enfermedad')
+
+    def __str__(self):
+        return f"{self.id_paciente} - {self.id_enfermedad}"
+
 class Registro(models.Model):
     id_registro = models.AutoField(primary_key=True)
     motivo = models.TextField()
     observaciones = models.TextField()
     id_cita = models.ForeignKey(Cita, on_delete=models.CASCADE)
     id_enfermedad = models.ForeignKey(Enfermedad, on_delete=models.CASCADE)
-    # el id del tratamiento
 
     def __str__(self):
         return f"{self.id_registro} - {self.id_enfermedad}"

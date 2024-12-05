@@ -7,6 +7,7 @@ from django.http import JsonResponse
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.utils.timezone import now
+from citas.utils import admin_medico_required
 
 # Create your views here.
 def index(request):
@@ -17,7 +18,7 @@ def paciente_inicio(request):
     return render(request,'citas2/vista_pacientes/inicio.html')
 
 def paciente_citas(request):
-    paciente_id = 1
+    paciente_id = 5
 
     proximas_citas = Cita.objects.filter(fecha__gte=now(), id_paciente=paciente_id).order_by('fecha')
     citas_pasadas = Cita.objects.filter(fecha__lt=now(), id_paciente=paciente_id).order_by('-fecha')
@@ -33,59 +34,56 @@ def paciente_historial(request):
 
 # registrar pacientes
 def registrar_paciente(request):
+    pacientes = Paciente.objects.all()
+
     if request.method == "POST":
-        # Datos del usuario
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        password1 = request.POST.get('password1')
-        password2 = request.POST.get('password2')
-        first_name = request.POST.get('first_name', '')
-        last_name = request.POST.get('last_name', '')
-        role = 'Paciente'
-        genero = request.POST.get('genero', '')
+        username = request.POST.get('nombrePaciente')
+        nombre = request.POST.get('nombrePaciente')
+        apellido = request.POST.get('apellidoPaciente')
+        fecha_nacimiento = request.POST.get('fechaNacimientoPaciente')
+        cedula = request.POST.get('cedulaPaciente')
+        genero = request.POST.get('generoPaciente')
+        telefono = request.POST.get('telefonoPaciente')
+        email = request.POST.get('emailPaciente')
+        direccion = request.POST.get('direccionPaciente')
+        motivo = request.POST.get('motivoConsulta')
+        enfermedades = request.POST.getlist('enfermedades')  # Recoger enfermedades como lista
+        alergias = request.POST.getlist('alergias')  # Recoger alergias como lista
+        contacto_emergencia = request.POST.get('contactoEmergencia')
+        telefono_emergencia = request.POST.get('telefonoEmergencia')
 
-        # datos del paciente
-        cedula = request.POST.get('cedula', '')
-        cedula = request.POST.get('cedula')
-        telefono = request.POST.get('telefono', '')
-        fecha_nacimiento = request.POST.get('fecha_nacimiento')
-
-        # validaciones
-        if Usuario.objects.filter(username=username).exists():
-            messages.error(request, 'El nombre de usuario ya está registrado.')
-            return redirect('register')
+        print(f"user: {username}")
+        #return HttpResponse("pacientte creado")
         
-        if Usuario.objects.filter(email=email).exists():
-            messages.error(request, 'El correo electronico ya está registrado.')
-            return redirect('register')
-        
-        if password1 != password2:
-            messages.error(request, 'Las contraseñas no coinciden.')
-            return redirect('register')
-        
-        # crear el usuario
-        user = Usuario.objects.create_user(
-            username=username,
-            email=email,
-            password=password1,
-            first_name=first_name,
-            last_name=last_name,
-            role=role,
-            genero=genero
+         # Crear un usuario si es necesario (ejemplo: se puede tener un usuario para el paciente)
+        usuario = Usuario.objects.create(
+            username = username,
+            first_name=nombre,
+            last_name=apellido,
+            email=email
         )
-
-        # creamos el paciente
+        
+        # Crear el paciente
         paciente = Paciente.objects.create(
-            user=user,
+            user=usuario,
+            genero=genero,
+            direccion=direccion,
+            motivo=motivo,
             cedula=cedula,
             telefono=telefono,
-            fecha_nacimiento=fecha_nacimiento
+            fecha_nacimiento=fecha_nacimiento,
+            enfermedadess=enfermedades,
+            alergiass=alergias,
+            contacto_emergencias=contacto_emergencia,
+            telefono_emergencia=telefono_emergencia,
+            apellido=apellido
         )
 
         messages.success(request, 'El paciente se ha registrado correctamente.')
-        return redirect('register')
-    return render(request,"citas2/pacientes.html")
-    
+        return redirect('inicio')
+    return render(request,"citas2/pacientes.html",{'pacientes':pacientes})
+
+@admin_medico_required    
 def registrar_medico(request):
     if request.method == "POST":
         # Datos del usuario
@@ -100,6 +98,19 @@ def registrar_medico(request):
         # Datos del médico
         telefono = request.POST.get('telefono', '')
         is_admin = request.POST.get('is_admin', 'False') == 'True'
+
+        print(f"is_admin: {is_admin}")
+
+        print(f"username: {username}")
+        print(f"email: {email}")
+        print(f"password: {password}")
+        print(f"first_name: {first_name}")
+        print(f"last_name: {last_name}")
+        print(f"role: {role}")
+        print(f"genero: {genero}")
+        print(f"telefono: {telefono}")
+
+        #return HttpResponse("adadhadhad creado")
 
         # Validaciones
         if Usuario.objects.filter(username=username).exists():
@@ -202,6 +213,7 @@ def inicio(request):
 
     page_number = request.GET.get('page', 1)
 
+
     try:
         citas = citas_paginator.get_page(page_number)
         registros = registros_paginator.get_page(page_number)
@@ -211,6 +223,9 @@ def inicio(request):
     except EmptyPage:
         citas = citas_paginator.page(citas_paginator.num_pages)
         registros = registros_paginator.page(registros_paginator.num_pages)
+    
+    print(f"Citas: {citas}")
+    print(f"Registros: {registros}")
 
     return render(
         request,
@@ -309,8 +324,13 @@ def crear_especialidad(request):
     
     return render(request, 'citas/crear_especialidad.html')
 
+def vista_error(request):
+    return render(request, 'citas2/vista_error.html')
+
+@admin_medico_required
 @login_required
 def listar_medicos(request):
+    
     medicos = Medico.objects.prefetch_related('medicoespecialidad_set__id_especialidad')
     especialidades = Especialidad.objects.all()
     print(f"Medicos: {medicos}")
@@ -354,6 +374,7 @@ def asignar_especialidad(request, medico_id):
     return render(request, 'citas/asignar_especialidad.html', {'medico': medico, 'especialidades': especialidades})
 
 # vistas para enfermedades
+@admin_medico_required
 @login_required
 def listar_enfermedades_alergias(request):
     enfermedades = Enfermedad.objects.all()
@@ -545,6 +566,7 @@ def agregar_producto(request):
 
     #return render(request, 'citas/agregar_producto.html', {'tipos': tipos})
 
+@admin_medico_required
 @login_required
 def listar_productos(request):
     productos = Producto.objects.all()
