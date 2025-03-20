@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tratamientos</title>
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+    <script src="{% static 'js/pagination.js' %}" defer></script>
+</head>
+<body>
+    <main class="main-body">
+    <div class="sidebar">
+        <div class="logo">
+            🏥 DermaCare
+        </div>
+        <nav>
+            <a href="{% url 'inicio' %}" class="nav-item">Inicio</a>
+            <a href="{% url 'doctores' %}" class="nav-item">Doctores</a>
+            <a href="{% url 'registrar_pacientes' %}" class="nav-item">Pacientes</a>
+            <a href="{% url 'productos' %}" class="nav-item">Productos</a>
+            <a href="{% url 'enfermedades_alergias' %}" class="nav-item">Alergias y Enfermedades</a>
+            <a href="{% url 'tratamientos' %}" class="nav-item active">Tratamientos</a>
+          </nav>
+    </div>
+    <div class="main-content">
+        <div class="top-bar">
+            <h2>Tratamientos</h2>
+            <div class="icons">
+                <img src="{% static 'imagenes/notificaciones.png' %}" alt="">
+                <img src="{% static 'imagenes/usser.png' %}" alt="">
+            </div>
+        </div>
+        
+        <div class="container-fluid px-0">
+            <div class="row g-3 align-items-center mb-3">
+                <div class="col-auto">
+                    <input type="search" id="searchTreatments" class="form-control" placeholder="Buscar tratamientos...">
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-primary" id="agregarTratamientoBtn" data-bs-toggle="modal" data-bs-target="#agregarProductoModal">Agregar Tratamiento</button>
+                </div>
+            </div>
+
+            {% if messages %}
+                <div class="container mt-3">
+                {% for message in messages %}
+                <div
+                    class="alert alert-success alert-dismissible fade show"
+                    role="alert"
+                >
+                    <strong>{{ message }}</strong>
+                    <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close"
+                    ></button>
+                </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+
+            <div id="items" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                {% for tratamiento in tratamientos %}
+                <div class="col">
+                    <div class="card h-100 treatment-card">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="bi bi-capsule text-primary me-2"></i>{{ tratamiento.nombre }}</h5>
+                            <p class="card-text">{{ tratamiento.descripcion }}</p>
+                        </div>
+                        <div class="card-footer">
+                            <button 
+                                class="btn btn-outline-primary btn-sm" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#detailsModal"
+                                data-name="{{ tratamiento.nombre }}"
+                                data-enfermedades="{% for relacion in tratamiento.tratamientoenfermedad_set.all %}{{ relacion.id_enfermedad.nombre }}{% if not forloop.last %}, {% endif %}{% endfor %}"
+                                data-descripcion="{% for relacion in tratamiento.tratamientoenfermedad_set.all %}{{ relacion.id_enfermedad.descripcion }}{% if not forloop.last %}; {% endif %}{% endfor %}">
+                                Ver detalles</button>
+                            <button class="btn btn-outline-secondary btn-sm">Editar</button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+             <!-- Controles de paginación -->
+             <div id="paginationControls" class="mt-3 d-flex justify-content-center"></div>
+        </div>
+    </div>
+
+     <!--modal para agregar tratamiento-->
+     <div class="modal fade" id="agregarProductoModal" tabindex="-1" aria-labelledby="agregarTratamientoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="agregarTratamientoModalLabel">Agregar Tratamiento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" action="{% url 'crear_tratamiento' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="nombreTratamiento" class="form-label">Nombre del Tratamiento</label>
+                            <input name="nombre" type="text" class="form-control" id="nombreTratamiento" placeholder="Ingrese el nombre">
+                        </div>
+                        <div class="mb-3">
+                            <label for="descripcionTratamiento" class="form-label">Descripción del Tratamiento</label>
+                            <textarea name="descripcion" class="form-control" id="descripcionTratamiento" rows="3" placeholder="Ingrese descripción"></textarea>
+                        </div>
+                        <div class="mb-3 position-relative">
+                            <label for="buscarEnfermedad" class="form-label">Buscar Enfermedad</label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="buscarEnfermedad"
+                                placeholder="Ingrese el nombre de la enfermedad"
+                                autocomplete="off"
+                            />
+                            <input type="hidden" name="id_enfermedad" id="idEnfermedadSeleccionada" />
+                            <ul class="list-group mt-1 position-absolute w-100" id="resultadosEnfermedad" style="z-index: 1000; display: none;">
+                                <!-- Resultados aparecerán aquí -->
+                            </ul>
+                        </div>
+                        <button type="submit" class="btn btn-success">Agregar Tratamiento</button>
+                    </form>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+    <!--Modal detalles tratamiento-->
+    <div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="detailsModalLabel">Detalles del Tratamiento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h5 id="modalTreatmentName" class="mb-3"></h5>
+                    <p><strong>Enfermedad que trata:</strong> <span id="modalDiseases"></span></p>
+                    <p><strong>Descripción Enfermedad:</strong></p>
+                    <p id="modalTreatmentDescription"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    </main>
+    <script src="{% static 'js/tratamientos-detalles.js' %}"></script>
+    <script src="{% static 'js/buscarEnfermedades.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle Médico</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <!-- Mostrar mensajes flash -->
+        {% if messages %}
+        <div class="mb-3">
+            {% for message in messages %}
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" role="alert">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <!-- Contenido principal -->
+        <h2 class="mb-4">Detalle del Médico</h2>
+        <p><strong>Nombre:</strong> {{ medico.user.first_name }} {{ medico.user.last_name }}</p>
+        <p><strong>Teléfono:</strong> {{ medico.telefono }}</p>
+        
+        <h4 class="mt-4">Especialidades Asignadas:</h4>
+        <ul class="list-group">
+            {% for especialidad in especialidades %}
+            <li class="list-group-item">{{ especialidad.id_especialidad.nombre }}</li>
+            {% empty %}
+            <li class="list-group-item text-muted">No hay especialidades asignadas.</li>
+            {% endfor %}
+        </ul>
+        
+        <!-- Botones -->
+        <div class="mt-4">
+            <a href="{% url 'listar_medicos' %}" class="btn btn-secondary">Volver a la Lista</a>
+            <a href="{% url 'asignar_especialidad' medico.id %}" class="btn btn-primary">Asignar Especialidades</a>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

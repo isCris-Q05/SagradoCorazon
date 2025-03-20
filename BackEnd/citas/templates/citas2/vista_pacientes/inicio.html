@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DermaCare - Portal del Paciente</title>
+    {% load static %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/pacientes/inicio.css' %}">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar">
+                <h3 class="mb-4">DermaCare</h3>
+                <div class="nav flex-column">
+                    <a href="{% url 'inicio_pacientes' %}" class="nav-link active">Inicio</a>
+                    <a href="{% url 'mis_citas' %}" class="nav-link">Mis Citas</a>
+                    <a href="{% url 'historial_medico' %}" class="nav-link">Historial Médico</a>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 main-content">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>Bienvenido, {{ paciente.nombre }}</h2>
+                </div>
+
+                <!-- Próxima Cita -->
+                <div class="card appointment-card mb-4">
+                    <div class="card-header bg-white">
+                        <h4>Próxima Cita</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <p class="mb-1"><strong>Fecha:</strong> {{ proxima_cita.fecha }}</p>
+                                <p class="mb-1"><strong>Hora:</strong> {{ proxima_cita.hora }}</p>
+                            </div>
+                            <div class="col-md-4">
+                                <p class="mb-1"><strong>Doctor:</strong> {{ proxima_cita.doctor }}</p>
+                                <p class="mb-1"><strong>Tipo:</strong> {{ proxima_cita.tipo }}</p>
+                            </div>
+                            <div class="col-md-4 text-md-end">
+                                <button class="btn btn-outline-primary btn-sm">Ver Detalles</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Historial de Citas -->
+                <div class="card mb-4">
+                    <div class="card-header bg-white">
+                        <h4>Historial de Citas</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Doctor</th>
+                                        <th>Tipo de Consulta</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for cita in historial_citas %}
+                                    <tr class="{% if cita.estado == 'Completada' %}past-appointment{% endif %}">
+                                        <td>{{ cita.fecha }}</td>
+                                        <td>{{ cita.doctor }}</td>
+                                        <td>{{ cita.tipo }}</td>
+                                        <td><span class="badge {% if cita.estado == 'Completada' %}bg-success{% else %}bg-warning{% endif %}">{{ cita.estado }}</span></td>
+                                        <td>
+                                            <button class="btn btn-outline-secondary btn-sm">Ver Detalles</button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Registro Médico -->
+                <div class="card medical-record">
+                    <div class="card-header bg-white">
+                        <h4>Resumen Médico</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>Diagnósticos Recientes</h5>
+                                <ul class="list-unstyled">
+                                    {% for diagnostico in diagnosticos %}
+                                    <li class="mb-2">
+                                        <strong>{{ diagnostico.nombre }}:</strong> {{ diagnostico.descripcion }}
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h5>Tratamientos Activos</h5>
+                                <ul class="list-unstyled">
+                                    {% for tratamiento in tratamientos %}
+                                    <li class="mb-2">
+                                        <strong>{{ tratamiento.nombre }}:</strong> {{ tratamiento.indicacion }}
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

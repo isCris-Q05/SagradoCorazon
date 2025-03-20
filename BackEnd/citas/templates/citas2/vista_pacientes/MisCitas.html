@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DermaCare - Mis Citas</title>
+    {% load static %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/pacientes/MisCitas.css' %}">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar">
+                <h3 class="mb-4">DermaCare</h3>
+                <div class="nav flex-column">
+                    <a href="{% url 'inicio_pacientes' %}" class="nav-link">Inicio</a>
+                    <a href="{% url 'mis_citas' %}" class="nav-link active">Mis Citas</a>
+                    <a href="{% url 'historial_medico' %}" class="nav-link">Historial Médico</a>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 main-content">
+                <h1 class="mb-4">Mis Citas</h1>
+                
+                <div class="row mb-4">
+                    <div class="col-md-8 mb-3 mb-md-0">
+                        <div class="input-group">
+                            <input type="date" class="form-control" style="max-width: 200px;">
+                            <select class="form-select" style="max-width: 200px;">
+                                <option selected>Estado</option>
+                                <option value="1">Todas</option>
+                                <option value="2">Pendientes</option>
+                                <option value="3">Completadas</option>
+                                <option value="4">Canceladas</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="proximas-tab" data-bs-toggle="tab" data-bs-target="#proximas" type="button" role="tab" aria-controls="proximas" aria-selected="true">Próximas Citas</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pasadas-tab" data-bs-toggle="tab" data-bs-target="#pasadas" type="button" role="tab" aria-controls="pasadas" aria-selected="false">Citas Pasadas</button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="myTabContent">
+                    <!-- Próximas Citas -->
+                    <div class="tab-pane fade show active" id="proximas" role="tabpanel" aria-labelledby="proximas-tab">
+                        <div class="row">
+                            {% for cita in proximas_citas %}
+                            <div class="col-md-6 col-lg-4 mb-4">
+                                <div class="card past-appointment">
+                                    <div class="card-header">
+                                        <small class="text-muted 
+                                        {% if cita.estado == 'Pendiente' %}bg-warning{% elif cita.estado == 'Finalizada' %}bg-success{% elif cita.estado == 'No asistió' %}bg-danger{% else %}bg-light{% endif %}">
+                                        {{ cita.estado }}
+                                    </small>
+                                </div>
+                                
+                                
+                                    
+                                    <div class="card-body">
+                                        <p><i class="bi bi-calendar appointment-icon"></i>{{ cita.fecha }}</p>
+                                        <p><i class="bi bi-clock appointment-icon"></i>{{ cita.hora}}</p>
+                                        <p><i class="bi bi-person appointment-icon"></i>{{ cita.id_medico }}</p>
+                                    </div>
+                                    <div class="card-footer bg-transparent">
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Citas Pasadas -->
+                    <div class="tab-pane fade" id="pasadas" role="tabpanel" aria-labelledby="pasadas-tab">
+                        <div class="row">
+                            {% for cita in citas_pasadas %}
+                            <div class="col-md-6 col-lg-4 mb-4">
+                                <div class="card past-appointment">
+                                    <div class="card-header">
+                                        <small class="text-muted 
+                                        {% if cita.estado == 'Pendiente' %}bg-warning{% elif cita.estado == 'Finalizado' %}bg-success{% elif cita.estado == 'No asistió' %}bg-danger{% else %}bg-light{% endif %}">
+                                        {{ cita.estado }}
+                                    </small>
+                                </div>
+                                
+                                    <div class="card-body">
+                                        <p><i class="bi bi-calendar appointment-icon"></i>{{ cita.fecha }}</p>
+                                        <p><i class="bi bi-clock appointment-icon"></i>{{ cita.hora}}</p>
+                                        <p><i class="bi bi-person appointment-icon"></i>{{ cita.id_medico }}</p>
+                                    </div>
+                                    <div class="card-footer bg-transparent">
+                                        <button class="btn btn-outline-secondary btn-sm w-100">Ver Detalles</button>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
