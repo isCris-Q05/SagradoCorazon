@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar usuarios</title>
+</head>
+<body>
+    <h2>Formulario de registro</h2>
+    <form method="post" action="/registrar/">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <label for="username">Nombre de usuario:</label>
+        {{ form.username.errors }}
+        <input type="text" id="username" name="username" value="{{ form.username.value }}">
+
+        <label for="email">Correo electrónico:</label>
+        {{ form.email.errors }}
+        <input type="email" id="email" name="email" value="{{ form.email.value }}">
+
+        <button type="submit">Registrar</button>
+    </form>
+</body>
+</html>

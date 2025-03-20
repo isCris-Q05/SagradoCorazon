@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listar Médicos</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <!-- Mostrar mensajes flash -->
+        {% if messages %}
+        <div class="mb-3">
+            {% for message in messages %}
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" role="alert">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <!-- Título principal -->
+        <h2 class="mb-4">Lista de Médicos</h2>
+        
+        <!-- Tabla de médicos -->
+        <table class="table table-striped table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Id</th>
+                    <th>Nombre</th>
+                    <th>Teléfono</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for medico in medicos %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ medico.id }}</td>
+                    <td>{{ medico.user.first_name }} {{ medico.user.last_name }}</td>
+                    <td>{{ medico.telefono }}</td>
+                    <td>
+                        <a href="{% url 'detalle_medico' medico.id %}" class="btn btn-info btn-sm">Ver Detalles</a>
+                        <a href="{% url 'asignar_especialidad' medico.id %}" class="btn btn-primary btn-sm">Asignar Especialidades</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted">No hay médicos registrados.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

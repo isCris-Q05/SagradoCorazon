@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inicio</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/inicio.css' %}" />
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+      defer
+    ></script>
+  </head>
+
+  <body>
+    <main class="main-body">
+      <div class="sidebar">
+        <div class="logo">🏥 DermaCare</div>
+        <nav>
+          <a
+            href="{% url 'inicio' %}"
+            class="nav-item {% if request.path == '/' %}active{% endif %}"
+            >Inicio</a
+          >
+          <a
+            href="{% url 'doctores' %}"
+            class="nav-item {% if request.path == '/doctores/' %}active{% endif %}"
+            >Doctores</a
+          >
+          <a href="{% url 'registrar_pacientes' %}" class="nav-item">Pacientes</a>
+          <a
+            href="{% url 'productos' %}"
+            class="nav-item {% if request.path == '/productos/' %}active{% endif %}"
+            >Productos</a
+          >
+          <a
+            href="{% url 'enfermedades_alergias' %}"
+            class="nav-item {% if request.path == '/enfermedades-alergia/' %}active{% endif %}"
+            >Alergias y Enfermedades</a
+          >
+          <a
+            href="{% url 'tratamientos' %}"
+            class="nav-item {% if request.path == '/tratamiento/' %}active{% endif %}"
+            >Tratamientos</a
+          >
+        </nav>
+      </div>
+      <div class="main-content">
+        <div class="top-bar">
+          <h2>Inicio</h2>
+          <div class="icons">
+            <span class="user-name" style="font-weight: bold"
+              >{{ user.username }}</span
+            >
+            <a href="{% url 'logout' %}" class="logout-link">Cerrar sesión</a>
+          </div>
+        </div>
+        <div class="header">
+          <input type="text" placeholder="Buscar cita..." class="search-bar" />
+          <button
+            class="btn btn-primary"
+            id="crearCitaBtn"
+            data-bs-toggle="modal"
+            data-bs-target="#crearCitaModal"
+          >
+            Crear Cita
+          </button>
+          <button
+            class="btn btn-primary"
+            id="crearRegistroBtn"
+            data-bs-toggle="modal"
+            data-bs-target="#crearRegistroModal"
+          >
+            Agregar Registro
+          </button>
+        </div>
+
+        <div class="header">
+          <button class="btn btn-info" id="mostrarCitasBtn">
+            Mostrar Citas
+          </button>
+          <button class="btn btn-info" id="mostrarRegistrosBtn">
+            Mostrar Registros
+          </button>
+        </div>
+        {% if messages %}
+        <div class="container mt-3">
+          {% for message in messages %}
+          <div
+            class="alert alert-success alert-dismissible fade show"
+            role="alert"
+          >
+            <strong>{{ message }}</strong>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="alert"
+              aria-label="Close"
+            ></button>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+        <!-- Tabla de citas -->
+        <div id="tablaCitas">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Código de cita</th>
+                <th>Nombre completo</th>
+                <th>Estado</th>
+                <th>Fecha</th>
+                <th>Hora inicio</th>
+                <th>Doctor asignado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for cita in citas %}
+              <tr>
+                <td>{{ cita.id_cita }}</td>
+                <td>{{ cita.id_paciente }}</td>
+                <td>
+                  {% if cita.estado == 'pendiente' %}
+                  <span class="badge bg-warning">Pendiente</span>
+                  {% elif cita.estado == 'finalizada' %}
+                  <span class="badge bg-success">Finalizada</span>
+                  {% elif cita.estado == 'no_asistio' %}
+                  <span class="badge bg-danger">No asistió</span>
+                  {% endif %}
+                </td>
+                <td>{{ cita.fecha }}</td>
+                <td>{{ cita.hora }}</td>
+                <td>{{ cita.id_medico }}</td>
+                <td>
+                  <button
+                    class="btn btn-outline-success btn-sm"
+                    data-bs-toggle="modal"
+                    data-bs-target="#editCitaModal"
+                    data-id="{{ cita.id_cita }}"
+                    data-paciente="{{ cita.id_paciente }}"
+                    data-estado="{{ cita.estado }}"
+                    data-fecha="{{ cita.fecha }}"
+                    data-hora="{{ cita.hora }}"
+                    data-medico="{{ cita.id_medico }}"
+                  >
+                    Editar
+                  </button>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Tabla de registros -->
+        <div id="tablaRegistros" style="display: none">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Código de registro</th>
+                <th>Código de cita</th>
+                <th>Motivo</th>
+                <th>Observaciones</th>
+                <th>Enfermedad</th>
+                <th>Tratamientos</th>
+                <th>Productos</th>
+                <th>Asistencia</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for registro in registros %}
+              <tr>
+                <td>{{ registro.id_registro }}</td>
+                <td>{{ registro.id_cita.id_cita }}</td>
+                <td>{{ registro.motivo }}</td>
+                <td>{{ registro.observaciones }}</td>
+                <td>{{ registro.id_enfermedad.nombre }}</td>
+                <td>
+                  {% for tratamiento in registro.tratamientos.all %}
+                  <span class="badge bg-info"
+                    >{{ tratamiento.id_tratamiento.nombre }}</span
+                  >
+                  {% endfor %}
+                </td>
+                <td>
+                  {% for producto in registro.registroproducto_set.all %}
+                  <span class="badge bg-warning"
+                    >{{ producto.id_producto.nombre }}</span
+                  >
+                  {% endfor %}
+                </td>
+                <td>
+                  {% if registro.id_cita.estado == 'finalizada' %}
+                  <span class="badge bg-success">Asitió</span>
+                  {% else %}
+                  <span class="badge bg-danger">No asistió</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Paginación -->
+        <div class="d-flex justify-content-between align-items-center mt-3">
+          {% if citas.has_previous %}
+          <a
+            href="?page={{ citas.previous_page_number }}"
+            class="btn btn-primary btn-next-prev"
+          >
+            &laquo; Anterior
+          </a>
+          {% else %}
+          <span class="btn btn-secondary btn-next-prev disabled"
+            >&laquo; Anterior</span
+          >
+          {% endif %}
+
+          <span
+            >Página {{ citas.number }} de {{ citas.paginator.num_pages }}</span
+          >
+
+          {% if citas.has_next %}
+          <a
+            href="?page={{ citas.next_page_number }}"
+            class="btn btn-primary btn-next-prev"
+          >
+            Siguiente &raquo;
+          </a>
+          {% else %}
+          <span class="btn btn-secondary btn-next-prev disabled"
+            >Siguiente &raquo;</span
+          >
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Barra de notificaciones -->
+      <div
+        id="notificationBar"
+        class="card shadow-sm p-3 mb-5 bg-body-tertiary"
+        style="
+          display: none;
+          position: absolute;
+          top: 50px;
+          right: 20px;
+          width: 300px;
+          z-index: 1050;
+        "
+      >
+        <h5 class="card-title">Notificaciones</h5>
+        <div class="card-text">
+          {% for notificacion in notificaciones %}
+          <p><strong>Paciente:</strong> {{ notificacion.paciente }}</p>
+          <p><strong>Fecha:</strong> {{ notificacion.fecha }}</p>
+          <p><strong>Hora:</strong> {{ notificacion.hora }}</p>
+          <hr />
+          {% endfor %}
+        </div>
+        <button class="btn btn-primary btn-sm w-100" id="clearNotifications">
+          Cerrar
+        </button>
+      </div>
+
+      <!-- Modal para mostrar Usuario -->
+      <div
+        class="modal fade"
+        id="userModal"
+        tabindex="-1"
+        aria-labelledby="userModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="userModalLabel">
+                Información del Usuario
+              </h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body text-center">
+              <img
+                src="{% static 'imagenes/usser.png' %}"
+                alt="Foto de Usuario"
+                class="img-fluid rounded-circle mb-3"
+                style="width: 100px; height: 100px"
+              />
+              <h5 class="mb-3">{{ user.nombre }}</h5>
+              <button
+                type="button"
+                id="cerrarSesionbtn"
+                class="btn btn-danger w-100"
+              >
+                Cerrar Sesión
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal para editar cita -->
+      <div
+        class="modal fade"
+        id="editCitaModal"
+        tabindex="-1"
+        aria-labelledby="editCitaModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="editCitaModalLabel">Editar Cita</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <form id="editCitaForm" method="POST" action="{% url 'editar_cita' %}">
+                {% csrf_token %}
+                <input type="hidden" name="id_cita" id="editIdCita" />
+                <div class="mb-3">
+                  <label for="editPaciente" class="form-label">Paciente</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="editPaciente"
+                    name="paciente"
+                    readonly
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="editEstado" class="form-label">Estado</label>
+                  <select class="form-select" id="editEstado" name="estado">
+                    <option value="pendiente">Pendiente</option>
+                    <option value="finalizada">Finalizada</option>
+                    <option value="no_asistio">No asistió</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label for="editFecha" class="form-label">Fecha</label>
+                  <input
+                    type="date"
+                    class="form-control"
+                    id="editFecha"
+                    name="fecha"
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="editHora" class="form-label">Hora</label>
+                  <input
+                    type="time"
+                    class="form-control"
+                    id="editHora"
+                    name="hora"
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="editMedico" class="form-label">Médico</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="editMedico"
+                    name="medico"
+                    readonly
+                  />
+                </div>
+                <button type="submit" class="btn btn-primary">
+                  Guardar cambios
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal para Crear Cita -->
+      <div
+        class="modal fade"
+        id="crearCitaModal"
+        tabindex="-1"
+        aria-labelledby="crearCitaModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="crearCitaModalLabel">Crear Cita</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Cerrar"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <form method="POST" action="{% url 'crear_cita' %}">
+                {% csrf_token %}
+                <!-- Campo oculto para almacenar el ID del paciente -->
+                <input type="hidden" name="id_paciente" id="id_paciente" />
+                <!-- Campo oculto para almacenar el ID del médico -->
+                <input type="hidden" name="id_medico" id="id_medico" />
+                <input
+                  type="hidden"
+                  name="id_especialidad"
+                  id="id_especialidad"
+                  value="1"
+                />
+
+                <!-- Campo de búsqueda para pacientes -->
+                <div class="mb-3">
+                  <label for="search-paciente" class="form-label"
+                    >Nombre del Paciente</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="search-paciente"
+                    placeholder="Ingrese el nombre del paciente"
+                    autocomplete="off"
+                  />
+                  <ul class="list-group mt-1" id="results-paciente"></ul>
+                </div>
+
+                <!-- Campo de búsqueda para médicos -->
+                <div class="mb-3">
+                  <label for="search-medico" class="form-label"
+                    >Nombre del Médico</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="search-medico"
+                    placeholder="Ingrese el nombre del médico"
+                    autocomplete="off"
+                  />
+                  <ul class="list-group mt-1" id="results-medico"></ul>
+                </div>
+
+                <!-- Especialidades del medico seleccionado en el input -->
+                <div class="mb-3">
+                  <label for="especialidades" class="form-label"
+                    >Especialidad</label
+                  >
+                  <select
+                    id="especialidades"
+                    class="form-select"
+                    name="id_especialidad"
+                    required
+                  >
+                    <option value="">Seleccione una especialidad</option>
+                  </select>
+                </div>
+
+                <!-- Fecha y hora -->
+                <div class="mb-3">
+                  <label for="fechaCita" class="form-label"
+                    >Fecha de la Cita</label
+                  >
+                  <input
+                    type="date"
+                    class="form-control"
+                    name="fecha"
+                    id="fechaCita"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="horaInicioCita" class="form-label"
+                    >Hora de Inicio</label
+                  >
+                  <input
+                    type="time"
+                    class="form-control"
+                    name="hora_inicio"
+                    id="horaInicioCita"
+                    required
+                  />
+                </div>
+
+                <!-- Botón para enviar -->
+                <button type="submit" class="btn btn-success">
+                  Guardar Cita
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal para los registros -->
+      <div
+        class="modal fade"
+        id="crearRegistroModal"
+        tabindex="-1"
+        aria-labelledby="crearRegistroModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="crearRegistroModalLabel">
+                Agregar Registro
+              </h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Cerrar"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <form method="POST" action="{% url 'crear_registro' %}">
+                {% csrf_token %}
+                <!-- Campo para buscar código de cita -->
+                <div class="mb-3">
+                  <label for="codigoCita" class="form-label">Código cita</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="codigoCita"
+                    placeholder="Ingrese el código de la cita"
+                    name="codigo_cita"
+                  />
+                </div>
+                <!-- Resultados del código de cita -->
+                <div id="resultadosCita" class="mb-3" style="display: none">
+                  <p>
+                    <strong>Paciente:</strong> <span id="nombrePaciente"></span>
+                  </p>
+                  <p>
+                    <strong>Médico:</strong> <span id="nombreMedico"></span>
+                  </p>
+                </div>
+                <!-- Campo de motivo -->
+                <div class="mb-3">
+                  <label for="Motivo" class="form-label">Motivo</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="Motivo"
+                    placeholder="Motivo"
+                    name="motivo"
+                  />
+                </div>
+                <!-- Campo de observaciones -->
+                <div class="mb-3">
+                  <label for="observaciones" class="form-label"
+                    >Observaciones</label
+                  >
+                  <textarea
+                    class="form-control"
+                    id="observaciones"
+                    rows="3"
+                    placeholder="Observaciones"
+                    name="observaciones"
+                  ></textarea>
+                </div>
+                <!-- Enfermedades en un select -->
+                <div class="mb-3">
+                  <label for="enfermedades" class="form-label"
+                    >Enfermedades</label
+                  >
+                  <select
+                    id="enfermedades"
+                    class="form-select"
+                    name="id_enfermedad"
+                    required
+                  >
+                    <option value="">Seleccione una enfermedad</option>
+                    {% for enfermedad in enfermedades %}
+                    <option value="{{ enfermedad.id_enfermedad }}">
+                      {{ enfermedad.nombre }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                </div>
+
+                <div id="productosContainer" class="mb-3">
+                  <label for="productosChecklist" class="form-label"
+                    >Productos Recomendados</label
+                  >
+                  <div id="productosChecklist" class="row">
+                    {% for producto in productos %}
+                    <div class="col-md-4 mb-3">
+                      <!-- Tres productos por fila en pantallas medianas -->
+                      <div class="form-check">
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          id="producto{{ producto.id_producto }}"
+                          name="productos"
+                          value="{{ producto.id_producto }}"
+                        />
+                        <label
+                          class="form-check-label"
+                          for="producto{{ producto.id_producto }}"
+                        >
+                          {{ producto.nombre }}
+                        </label>
+                      </div>
+                    </div>
+                    {% endfor %}
+                  </div>
+                </div>
+
+                <!-- Contenedor para los tratamientos -->
+                <div
+                  id="tratamientosContainer"
+                  style="display: none"
+                  class="mb-3"
+                >
+                  <label for="tratamientos" class="form-label"
+                    >Tratamientos Disponibles</label
+                  >
+                  <div id="tratamientosChecklist" class="row"></div>
+                </div>
+
+                <!-- Botón para enviar -->
+                <button type="submit" class="btn btn-success">
+                  Agregar registro
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <script src="{% static 'js/notificaciones.js' %}"></script>
+    <script src="{% static 'js/busqueda.js' %}"></script>
+    <script src="{% static 'js/buscarCita.js' %}"></script>
+    <script src="{% static 'js/tratamientoEnf.js' %}"></script>
+    <!--optionShow.js-->
+    <script src="{% static 'js/optionShow.js' %}"></script>
+    
+  </body>
+</html>

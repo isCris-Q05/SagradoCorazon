@@ -1,0 +1,9 @@
+/* Efecto hover para los botones de paginación */
+.btn-next-prev {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.btn-next-prev:hover {
+    background-color: #0056b3; /* Cambia el color de fondo en hover */
+    color: #ffffff; /* Asegura que el texto sea legible */
+}
