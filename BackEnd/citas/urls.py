@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import index,registrar_paciente, registrar_medico, login_medico, login_paciente ,dashboard_medico, dashboard_paciente, logout_user, crear_alergia, crear_especialidad, asignar_especialidad, listar_medicos, detalle_medico, listar_enfermedades_alergias, crear_enfermedad, listar_tratamientos, crear_tratamiento, asignar_tratamiento, listar_enfermedades_tratamientos, agregar_producto, listar_productos, crear_cita, listar_citas
-from .views import login_usuario, register, inicio, listar_alergias, buscar_medicos, buscar_pacientes, obtener_especialidades, buscar_cita, crear_registro, buscar_enfermedades, tratamientos_por_enfermedad, paciente_citas,paciente_historial,paciente_inicio, editar_cita,registrar_paciente, vista_error
+from .views import login_usuario, register, inicio, listar_alergias, buscar_medicos, buscar_pacientes, obtener_especialidades, buscar_cita, crear_registro, buscar_enfermedades, tratamientos_por_enfermedad, paciente_citas,paciente_historial,paciente_inicio, editar_cita,registrar_paciente, vista_error, forgot_password_medico, validate_otp, change_password
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
@@ -22,6 +22,10 @@ urlpatterns = [
     path('login/medico/', login_medico, name='login_medico'),
     path('login/paciente/', login_paciente, name='login_paciente'),
     path('logout/', logout_user, name='logout'),
+    path('forgot-password-med/', forgot_password_medico, name='forgot_password_med'),
+    path('validate-otp/', validate_otp, name='validate_otp'),
+    path('change-password/', change_password, name='change_password'),
+
 
     path('registrar/paciente/', registrar_paciente, name='registrar_paciente'),
     path('registrar/medico/', registrar_medico, name='registrar_medico'),

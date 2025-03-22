@@ -208,3 +208,28 @@ th {
     cursor: pointer; /* Cambia el cursor a una mano */
     background-color: #f0f0f0; /* Opcional: Cambia el fondo al pasar el mouse */
 }
+
+/* Estilos para el modal */
+.modal-content {
+    border-radius: 10px;
+}
+
+.modal-header {
+    background-color: #007bff;
+    color: white;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.modal-title {
+    font-size: 1.25rem;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-footer {
+    border-top: 1px solid #ddd;
+    padding: 15px;
+}
