@@ -40,7 +40,17 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'citas',
+    'django_otp',
+    'django_otp.plugins.otp_email',  # Plugin para enviar OTP por correo
 ]
+
+# Configuración para Gmail
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # Servidor SMTP de Gmail
+EMAIL_PORT = 587  # Puerto para TLS
+EMAIL_USE_TLS = True  # Usar TLS para seguridad
+EMAIL_HOST_USER = 'cristopherquintana2725@gmail.com'  # Tu dirección de Gmail
+EMAIL_HOST_PASSWORD = 'stwf kgfq jgxo fppm'  # Contraseña de aplicación
 
 JAZZMIN_SETTINGS = {
     "site_title": "Mi Admin",  # Título de la pestaña del navegador

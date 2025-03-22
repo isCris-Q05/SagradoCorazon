@@ -9,6 +9,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.utils.timezone import now
 from citas.utils import admin_medico_required
 
+
 # Create your views here.
 def index(request):
     return render(request, "citas/index.html")
@@ -173,6 +174,77 @@ def login_medico(request):
             messages.error(request, 'El usuario o la contraseña son incorrectos.')
             return redirect('login')
 
+import random
+import json
+from django.core.mail import EmailMessage
+from django.http import JsonResponse
+from django.contrib import messages
+from .models import Usuario  # Asegúrate de importar tu modelo Usuario
+
+def forgot_password_medico(request):
+    if request.method == "POST":
+        email = request.POST['email_recovery']
+        print(f"email: {email}")
+
+        # Validamos que el email exista
+        if Usuario.objects.filter(email=email).exists():
+            user = Usuario.objects.get(email=email)
+            if user.role == 'Medico':
+                # Generar OTP
+                otp = random.randint(100000, 999999)
+                request.session['otp'] = otp
+                request.session['email'] = email
+
+                # Crear el mensaje del correo
+                subject = 'Recuperación de contraseña'
+                message = f'Su código de recuperación es: {otp}'
+                from_email = 'cristopherquintana2725@gmail.com'  # Remitente (tu dirección de Gmail)
+                recipient_list = [email]  # Destinatario
+
+                # Enviar el correo
+                try:
+                    email_message = EmailMessage(subject, message, from_email, recipient_list)
+                    email_message.send(fail_silently=False)
+                    return JsonResponse({'status': 'success', 'message': 'Se ha enviado un correo para restablecer la contraseña.'})
+                except Exception as e:
+                    print(f"Error al enviar el correo: {e}")
+                    return JsonResponse({'status': 'error', 'message': 'Error al enviar el correo. Inténtelo de nuevo más tarde.'}, status=500)
+            else:
+                return JsonResponse({'status': 'error', 'message': 'El usuario no es un médico.'}, status=400)
+        else:
+            return JsonResponse({'status': 'error', 'message': 'El correo no existe.'}, status=400)
+
+
+from django.http import JsonResponse
+from django.contrib.auth.hashers import make_password
+
+def validate_otp(request):
+    if request.method == "POST":
+        otp_entered = request.POST.get('otp')
+        otp_session = request.session.get('otp')
+
+        if otp_entered and otp_session and int(otp_entered) == otp_session:
+            # OTP correcto, permitir cambiar la contraseña
+            return JsonResponse({'status': 'success', 'message': 'OTP correcto.', 'allow_password_change': True})
+        else:
+            return JsonResponse({'status': 'error', 'message': 'OTP incorrecto.'}, status=400)
+
+def change_password(request):
+    if request.method == "POST":
+        new_password = request.POST.get('new_password')
+        email = request.session.get('email')
+
+        if email and new_password:
+            try:
+                user = Usuario.objects.get(email=email)
+                user.password = make_password(new_password)  # Hashear la nueva contraseña
+                user.save()
+                return JsonResponse({'status': 'success', 'message': 'Contraseña cambiada correctamente.'})
+            except Usuario.DoesNotExist:
+                return JsonResponse({'status': 'error', 'message': 'Usuario no encontrado.'}, status=400)
+        else:
+            return JsonResponse({'status': 'error', 'message': 'Datos incompletos.'}, status=400)
+        
 # login para pacientes
 def login_paciente(request):
     if request.method == "POST":
