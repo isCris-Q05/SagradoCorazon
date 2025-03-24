@@ -139,7 +139,11 @@
                 <td>{{ cita.hora }}</td>
                 <td>{{ cita.id_medico }}</td>
                 <td>
+                  <!--
+                  {{ cita.id_paciente.telefono }}
+                  -->
                   <input class="form-check-input" type="checkbox" name="doctor" id="doctor2" value="2">
+                  
                 </td>
                 <td>
                   <button
@@ -149,9 +153,10 @@
                     data-id="{{ cita.id_cita }}"
                     data-paciente="{{ cita.id_paciente }}"
                     data-estado="{{ cita.estado }}"
-                    data-fecha="{{ cita.fecha }}"
-                    data-hora="{{ cita.hora }}"
+                    data-fecha="{{ cita.fecha | date:'Y-m-d' }}"
+                    data-hora="{{ cita.hora | time:'H:i' }}"
                     data-medico="{{ cita.id_medico }}"
+                    data-telefono=" {{ cita.id_paciente.telefono }} "
                   >
                     Editar
                   </button>
@@ -338,6 +343,7 @@
               <form id="editCitaForm" method="POST" action="{% url 'editar_cita' %}">
                 {% csrf_token %}
                 <input type="hidden" name="id_cita" id="editIdCita" />
+                <input type="hidden" id="editTelefono" />  <!-- Campo oculto para el teléfono -->
                 <div class="mb-3">
                   <label for="editPaciente" class="form-label">Paciente</label>
                   <input
@@ -656,8 +662,9 @@
     <script src="{% static 'js/tratamientoEnf.js' %}"></script>
     <!--optionShow.js-->
     <script src="{% static 'js/optionShow.js' %}"></script>
-
-    <script src="{% static 'js/sendReminder.js' %}"></script>
+    <!--
+      <script src="{% static 'js/sendReminder.js' %}"></script>
+    -->
 
     
   </body>

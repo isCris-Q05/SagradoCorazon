@@ -13,3 +13,43 @@ Time: 23:12
 Phone Number: +50581558317
 Message: Hola, este es un recordatorio de su cita en la clínica dermatológica.
 --------------------
+Date: 23/3/2025
+Time: 23:45
+Phone Number:  +50575463081 
+Message: Hola, este es un recordatorio de su cita en la clínica dermatológica.
+--------------------
+Date: 23/3/2025
+Time: 23:46
+Phone Number:  +50581274657 
+Message: Hola, este es un recordatorio de su cita en la clínica dermatológica.
+--------------------
+Date: 23/3/2025
+Time: 23:49
+Phone Number:  +50575463081 
+Message: Hola, este es un recordatorio de su cita en la clínica dermatológica. Fecha: , Hora: .  en la clinica dermatologica de Matagalpa con el doctor Evelyng Judith Torres
+--------------------
+Date: 23/3/2025
+Time: 23:56
+Phone Number:  +50575463081 
+Message: Hola, este es un recordatorio de su cita en la clínica dermatológica. Fecha: 2024-12-05, Hora: 11:00.  en la clinica dermatologica de Matagalpa con el doctor Evelyng Judith Torres
+--------------------
+Date: 24/3/2025
+Time: 0:1
+Phone Number:  +50575463081 
+Message: Hola, este es un recordatorio de su cita en la clínica dermatológica. Fecha: 4 de diciembre de 2024, Hora: 11:00.  en la clinica dermatologica de Matagalpa con el doctor Evelyng Judith Torres
+--------------------
+Date: 24/3/2025
+Time: 0:5
+Phone Number:  +50575463081 
+Message: Hola, este es un recordatorio de su cita en la clínica dermatológica. Fecha: 5 de diciembre de 2024, Hora: 11:00.  en la clinica dermatologica de Matagalpa con el doctor Evelyng Judith Torres
+--------------------
+Date: 24/3/2025
+Time: 0:7
+Phone Number:  +50581274657 
+Message: Hola, este es un recordatorio de su cita en la clínica dermatológica. Fecha: 5 de diciembre de 2024, Hora: 11:41.  en la clinica dermatologica de Matagalpa con el doctor Evelyng Judith Torres
+--------------------
+Date: 24/3/2025
+Time: 0:7
+Phone Number:  +50581274657 
+Message: Hola, este es un recordatorio de su cita en la clínica dermatológica. Fecha: 5 de diciembre de 2024, Hora: 11:41.  en la clinica dermatologica de Matagalpa con el doctor Evelyng Judith Torres
+--------------------

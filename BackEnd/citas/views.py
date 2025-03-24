@@ -256,12 +256,14 @@ def send_reminder(request):
         phone_number = request.POST.get('phone_number')
         message = request.POST.get('message')
 
+        print(f"phone_number: {phone_number}")
+
         try:
             # Enviar mensaje de recordatorio
             kit.sendwhatmsg_instantly(phone_number, message)
-            return JsonResponse({'status': 'success', 'message': 'Mensaje enviado correctamente.'})
+            return JsonResponse({'status': 'success', 'message': 'Recordatorio enviado correctamente.'})
         except Exception as e:
-            return JsonResponse({'status': 'error', 'message': f'Error al enviar el mensaje: {str(e)}'}, status=500)
+            return JsonResponse({'status': 'error', 'message': f'Error al enviar el recordatorio: {str(e)}'}, status=500)
     else:
         return JsonResponse({'status': 'error', 'message': 'Método no permitido.'}, status=405)
 
