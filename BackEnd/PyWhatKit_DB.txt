@@ -1,0 +1,15 @@
+Date: 23/3/2025
+Time: 23:8
+Phone Number: +50575463081
+Message: Hola, este es un recordatorio de su cita en la clínica dermatológica.
+--------------------
+Date: 23/3/2025
+Time: 23:10
+Phone Number: +50583821815
+Message: Hola, este es un recordatorio de su cita en la clínica dermatológica.
+--------------------
+Date: 23/3/2025
+Time: 23:12
+Phone Number: +50581558317
+Message: Hola, este es un recordatorio de su cita en la clínica dermatológica.
+--------------------

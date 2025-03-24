@@ -8,6 +8,8 @@ from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.utils.timezone import now
 from citas.utils import admin_medico_required
+import pywhatkit as kit
+from django.views.decorators.csrf import csrf_exempt
 
 from django.conf import settings
 from twilio.rest import Client
@@ -248,6 +250,20 @@ def change_password(request):
         else:
             return JsonResponse({'status': 'error', 'message': 'Datos incompletos.'}, status=400)
 
+@csrf_exempt
+def send_reminder(request):
+    if request.method == "POST":
+        phone_number = request.POST.get('phone_number')
+        message = request.POST.get('message')
+
+        try:
+            # Enviar mensaje de recordatorio
+            kit.sendwhatmsg_instantly(phone_number, message)
+            return JsonResponse({'status': 'success', 'message': 'Mensaje enviado correctamente.'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': f'Error al enviar el mensaje: {str(e)}'}, status=500)
+    else:
+        return JsonResponse({'status': 'error', 'message': 'Método no permitido.'}, status=405)
 
 # login para pacientes
 def login_paciente(request):

@@ -118,6 +118,7 @@
                 <th>Fecha</th>
                 <th>Hora inicio</th>
                 <th>Doctor asignado</th>
+                <th>Notificado</th>
               </tr>
             </thead>
             <tbody>
@@ -138,6 +139,9 @@
                 <td>{{ cita.hora }}</td>
                 <td>{{ cita.id_medico }}</td>
                 <td>
+                  <input class="form-check-input" type="checkbox" name="doctor" id="doctor2" value="2">
+                </td>
+                <td>
                   <button
                     class="btn btn-outline-success btn-sm"
                     data-bs-toggle="modal"
@@ -152,6 +156,7 @@
                     Editar
                   </button>
                 </td>
+                <td>
               </tr>
               {% endfor %}
             </tbody>
@@ -379,6 +384,11 @@
                     readonly
                   />
                 </div>
+                <div class="mb-3">
+                  <label for="editMedico" class="form-label">Enviar recordatorio</label>
+                  <button type="button" class="btn btn-secondary" id="sendNotification">Enviar</button>
+                </div>
+
                 <button type="submit" class="btn btn-primary">
                   Guardar cambios
                 </button>
@@ -646,6 +656,9 @@
     <script src="{% static 'js/tratamientoEnf.js' %}"></script>
     <!--optionShow.js-->
     <script src="{% static 'js/optionShow.js' %}"></script>
+
+    <script src="{% static 'js/sendReminder.js' %}"></script>
+
     
   </body>
 </html>
