@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enviar SMS</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles2.css' %}">    <!-- Bootstrap -->
+</head>
+<body>
+    <div class="container">
+        <h1>Recordatorio de Cita</h1>
+        <form method="post" action="{% url 'send_sms' %}"> <!-- Usa el método POST -->
+            {% csrf_token %} <!-- Asegúrate de incluir el token CSRF -->
+            
+            <label for="phoneNumber">Número de Teléfono (Nicaragua):</label>
+            <input type="text" id="phoneNumber" name="phoneNumber" placeholder="Ingrese el número de teléfono (8 dígitos)" required>
+            
+            <label for="appointmentDate">Fecha de la Cita:</label>
+            <input type="date" id="appointmentDate" name="appointmentDate" required>
+            
+            <label for="appointmentTime">Hora de la Cita:</label>
+            <input type="time" id="appointmentTime" name="appointmentTime" required>
+            
+            <button type="submit">Enviar Recordatorio</button>
+        </form>
+
+        
+        <!-- Mensaje de respuesta -->
+        {% if message %}
+            {% if success %}
+                <p style="color: green;">
+            {% else %}
+                <p style="color: red;">
+            {% endif %}
+                {{ message }}
+            </p>
+        {% endif %}
+    </div>
+</body>
+</html>

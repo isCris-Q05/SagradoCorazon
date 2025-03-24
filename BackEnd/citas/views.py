@@ -9,6 +9,9 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.utils.timezone import now
 from citas.utils import admin_medico_required
 
+from django.conf import settings
+from twilio.rest import Client
+
 
 # Create your views here.
 def index(request):
@@ -244,7 +247,52 @@ def change_password(request):
                 return JsonResponse({'status': 'error', 'message': 'Usuario no encontrado.'}, status=400)
         else:
             return JsonResponse({'status': 'error', 'message': 'Datos incompletos.'}, status=400)
-        
+
+# views.py
+import re
+
+# views.py
+def send_sms(request):
+    message = ""
+    success = False
+
+    if request.method == 'POST':
+        phone_number = request.POST.get('phoneNumber')
+        appointment_date = request.POST.get('appointmentDate')
+        appointment_time = request.POST.get('appointmentTime')
+
+        # Asegúrate de que el número de teléfono tenga el código de país +505
+        if not phone_number.startswith('+505'):
+            phone_number = f'+505{phone_number}'  # Agrega el código de país si no está presente
+
+        # Validación del número de teléfono (8 dígitos después de +505)
+        if not re.match(r'^\+505\d{8}$', phone_number):
+            message = "Número de teléfono inválido. Debe tener 8 dígitos después de +505."
+            return render(request, 'citas2/sms.html', {'message': message, 'success': success})
+
+        # Construye el mensaje
+        message_body = f"Recuerde su cita por favor, el día {appointment_date} a las {appointment_time}."
+
+        # Envía el SMS usando Twilio
+        client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+        try:
+            message = client.messages.create(
+                body=message_body,
+                from_=settings.TWILIO_PHONE_NUMBER,
+                to=phone_number
+            )
+            message = "Mensaje enviado correctamente."
+            success = True
+        except Exception as e:
+            # Mensaje más descriptivo para el usuario
+            if "unverified" in str(e):
+                message = "Error: El número de teléfono no está verificado en Twilio. Solo puedes enviar mensajes a números verificados en una cuenta de prueba."
+            else:
+                message = f"Error al enviar el mensaje: {str(e)}"
+            success = False
+
+    return render(request, 'citas2/sms.html', {'message': message, 'success': success})
+
 # login para pacientes
 def login_paciente(request):
     if request.method == "POST":
