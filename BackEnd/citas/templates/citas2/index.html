@@ -90,22 +90,20 @@
           </button>
         </div>
         {% if messages %}
-        <div class="container mt-3">
-          {% for message in messages %}
-          <div
-            class="alert alert-success alert-dismissible fade show"
-            role="alert"
-          >
-            <strong>{{ message }}</strong>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="alert"
-              aria-label="Close"
-            ></button>
-          </div>
-          {% endfor %}
-        </div>
+            <div class="container mt-3">
+              {% for message in messages %}
+                {% if message.tags == 'error' %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {% elif message.tags == 'warning' %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                {% else %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {% endif %}
+                  <strong>{{ message }}</strong>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+              {% endfor %}
+            </div>
         {% endif %}
         <!-- Tabla de citas -->
         <div id="tablaCitas">

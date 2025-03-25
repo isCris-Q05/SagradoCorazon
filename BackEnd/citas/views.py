@@ -11,6 +11,8 @@ from citas.utils import admin_medico_required
 import pywhatkit as kit
 from django.views.decorators.csrf import csrf_exempt
 
+from datetime import datetime, timedelta
+
 from django.conf import settings
 from twilio.rest import Client
 
@@ -702,49 +704,83 @@ def crear_cita(request):
         id_paciente = request.POST.get('id_paciente')
         id_medico = request.POST.get('id_medico')
         id_especialidad = request.POST.get('id_especialidad')
-        fecha = request.POST.get('fecha')
-        hora = request.POST.get('hora_inicio')
+        fecha_str = request.POST.get('fecha')
+        hora_str = request.POST.get('hora_inicio')
 
+        # Validaciones básicas
+        if not all([id_paciente, id_medico, id_especialidad, fecha_str, hora_str]):
+            messages.warning(request, "Por favor, completa todos los campos obligatorios.")
+            return redirect('inicio')
         
-        print(f"Id_paciente: {id_paciente}")
-        print(f"Id_medico: {id_medico}")
-        print(f"Id_especialidad: {id_especialidad}")
-        print(f"Fecha: {fecha}")
-        print(f"Hora: {hora}")
+        try:
+            # Convertir strings a objetos de fecha/hora
+            fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date()
+            hora_inicio = datetime.strptime(hora_str, '%H:%M').time()
+            
+            # Validar que la especialidad del médico esté asociada al médico
+            if not MedicoEspecialidad.objects.filter(
+                id_medico=id_medico, 
+                id_especialidad=id_especialidad
+            ).exists():
+                messages.error(request, "La especialidad seleccionada no está asociada al médico.")
+                return redirect('inicio')
 
-        #return HttpResponse(f"{id_paciente}, {id_medico}, {id_especialidad}, {fecha}, {hora}")
+            # Calcular hora de fin (asumiendo 1 hora de duración)
+            hora_fin = (datetime.combine(fecha, hora_inicio) + timedelta(hours=1)).time()
 
-        # validaciones basicas
-        if not id_paciente or not id_medico or not id_especialidad or not fecha or not hora:
-            print("entro")
-            messages.error(request, "Por favor, completa todos los campos obligatorios.")
-            return redirect('crear_cita')
-        
-        # validar que la especialidad del medico este asociada al medico
-        medico_especialidad = MedicoEspecialidad.objects.filter(
-            id_medico=id_medico, id_especialidad=id_especialidad
-        ).first()
+            # 1. Verificar colisiones con citas existentes del MÉDICO
+            citas_medico = Cita.objects.filter(
+                id_medico=id_medico,
+                fecha=fecha,
+                estado__in=['pendiente', 'finalizada']
+            ).exclude(estado='eliminada')
 
-        if not medico_especialidad:
-            print("entro2")
-            messages.error(request, "La especialidad seleccionada no está asociada al médico.")
-            return redirect('crear_cita')
-        
-        # crear la cita
-        paciente = get_object_or_404(Paciente, pk=id_paciente)
-        medico = get_object_or_404(Medico, pk=id_medico)
-        especialidad = get_object_or_404(Especialidad, pk=id_especialidad)
-        Cita.objects.create(
-            id_paciente=paciente,
-            id_medico=medico,
-            id_especialidad=especialidad,
-            fecha=fecha,
-            hora=hora
-        )
+            for cita in citas_medico:
+                cita_hora_fin = (datetime.combine(fecha, cita.hora) + timedelta(hours=1)).time()
+                
+                if (hora_inicio < cita_hora_fin) and (hora_fin > cita.hora):
+                    messages.warning(
+                        request, 
+                        f"El médico ya tiene una cita programada de {cita.hora.strftime('%H:%M')} a {cita_hora_fin.strftime('%H:%M')}."
+                    )
+                    return redirect('inicio')
 
-        print("Cita creada correctamente")
-        messages.success(request, "Cita creada exitosamente.")
-        return redirect('inicio')
+            # 2. Verificar colisiones con citas existentes del PACIENTE
+            citas_paciente = Cita.objects.filter(
+                id_paciente=id_paciente,
+                fecha=fecha,
+                estado__in=['pendiente', 'finalizada']
+            ).exclude(estado='eliminada')
+
+            for cita in citas_paciente:
+                cita_hora_fin = (datetime.combine(fecha, cita.hora) + timedelta(hours=1)).time()
+                
+                if (hora_inicio < cita_hora_fin) and (hora_fin > cita.hora):
+                    messages.warning(
+                        request, 
+                        f"El paciente ya tiene una cita programada de {cita.hora.strftime('%H:%M')} a {cita_hora_fin.strftime('%H:%M')} Dr. {cita.id_medico.user.get_full_name()}."
+                    )
+                    return redirect('inicio')
+
+            # Si no hay colisiones, crear la cita
+            paciente = get_object_or_404(Paciente, pk=id_paciente)
+            medico = get_object_or_404(Medico, pk=id_medico)
+            especialidad = get_object_or_404(Especialidad, pk=id_especialidad)
+            
+            Cita.objects.create(
+                id_paciente=paciente,
+                id_medico=medico,
+                id_especialidad=especialidad,
+                fecha=fecha,
+                hora=hora_inicio
+            )
+
+            messages.success(request, "Cita creada exitosamente.")
+            return redirect('inicio')
+
+        except ValueError as e:
+            messages.error(request, f"Error en el formato de fecha u hora: {str(e)}")
+            return redirect('inicio')
 
 
 def listar_citas(request):
