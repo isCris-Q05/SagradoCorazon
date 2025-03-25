@@ -7,3 +7,21 @@
     background-color: #0056b3; /* Cambia el color de fondo en hover */
     color: #ffffff; /* Asegura que el texto sea legible */
 }
+
+/* Estilo para botones activos/inactivos */
+.btn-info.active {
+    background-color: #0dcaf0;
+    border-color: #0dcaf0;
+    box-shadow: 0 0 0 0.25rem rgba(13, 202, 240, 0.25);
+  }
+  
+  /* Transiciones suaves */
+  #vistaToggleContainer {
+    transition: opacity 0.3s ease;
+  }
+  
+  /* Estilo para el grupo de botones de vista */
+  .btn-group-vista {
+    margin-left: 1rem;
+    display: inline-block;
+  }

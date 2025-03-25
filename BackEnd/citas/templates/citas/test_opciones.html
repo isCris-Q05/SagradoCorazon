@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vista de Tabla y Calendario</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FullCalendar CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .icon-button {
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 12px 25px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #555;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .icon-button:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .icon-button.active {
+            background-color: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+        
+        .view-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 25px;
+            min-height: 500px;
+        }
+        
+        /* Estilo para la tabla */
+        .data-table {
+            width: 100%;
+        }
+        
+        .data-table th {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        .data-table td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .data-table tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        /* Ajustes para FullCalendar */
+        #calendar {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        
+        .fc-event {
+            cursor: pointer;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="button-container">
+            <button class="icon-button active" id="tableButton">
+                <i class="fas fa-table"></i>
+                Vista de Tabla
+            </button>
+            <button class="icon-button" id="calendarButton">
+                <i class="fas fa-calendar-alt"></i>
+                Vista de Calendario
+            </button>
+        </div>
+        
+        <div class="view-container">
+            <!-- Vista de Tabla -->
+            <div id="tableView">
+                <h2 class="mb-4">Reporte de Datos</h2>
+                <table class="data-table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Departamento</th>
+                            <th>Fecha</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Juan Pérez</td>
+                            <td>Ventas</td>
+                            <td>2025-03-25</td>
+                            <td><span class="badge bg-success">Activo</span></td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>María Gómez</td>
+                            <td>Marketing</td>
+                            <td>2025-03-24</td>
+                            <td><span class="badge bg-warning text-dark">Pendiente</span></td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>Carlos Ruiz</td>
+                            <td>IT</td>
+                            <td>2025-03-26</td>
+                            <td><span class="badge bg-danger">Inactivo</span></td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>Ana López</td>
+                            <td>Recursos Humanos</td>
+                            <td>2025-03-23</td>
+                            <td><span class="badge bg-success">Activo</span></td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>Pedro Sánchez</td>
+                            <td>Finanzas</td>
+                            <td>2025-03-27</td>
+                            <td><span class="badge bg-info">Nuevo</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Vista de Calendario -->
+            <div id="calendarView" class="hidden">
+                <div id="calendar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- FullCalendar JS -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/es.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tableButton = document.getElementById('tableButton');
+            const calendarButton = document.getElementById('calendarButton');
+            const tableView = document.getElementById('tableView');
+            const calendarView = document.getElementById('calendarView');
+            
+            // Inicializar calendario
+            const calendarEl = document.getElementById('calendar');
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'es',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                events: [
+                    {
+                        title: 'Reunión de equipo',
+                        start: '2025-03-25',
+                        color: '#4CAF50'
+                    },
+                    {
+                        title: 'Entrega de proyecto',
+                        start: '2025-03-28',
+                        color: '#2196F3'
+                    },
+                    {
+                        title: 'Cumpleaños de María',
+                        start: '2025-03-24',
+                        color: '#FF9800'
+                    },
+                    {
+                        title: 'Presentación a cliente',
+                        start: '2025-03-27T10:30:00',
+                        end: '2025-03-27T12:30:00',
+                        color: '#9C27B0'
+                    }
+                ],
+                eventClick: function(info) {
+                    alert('Evento: ' + info.event.title + '\nFecha: ' + info.event.start.toLocaleString());
+                }
+            });
+            calendar.render();
+            
+            // Función para cambiar vistas
+            function switchView(showTableView) {
+                if (showTableView) {
+                    tableView.classList.remove('hidden');
+                    calendarView.classList.add('hidden');
+                    tableButton.classList.add('active');
+                    calendarButton.classList.remove('active');
+                } else {
+                    tableView.classList.add('hidden');
+                    calendarView.classList.remove('hidden');
+                    tableButton.classList.remove('active');
+                    calendarButton.classList.add('active');
+                    calendar.updateSize(); // Asegurar que el calendario se redibuje correctamente
+                }
+            }
+            
+            // Event listeners
+            tableButton.addEventListener('click', function() {
+                switchView(true);
+            });
+            
+            calendarButton.addEventListener('click', function() {
+                switchView(false);
+            });
+            
+            // Mostrar tabla por defecto
+            switchView(true);
+        });
+    </script>
+</body>
+</html>

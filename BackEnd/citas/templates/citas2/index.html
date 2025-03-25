@@ -7,7 +7,18 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
     <link rel="stylesheet" href="{% static 'css/inicio.css' %}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- En el head de tu HTML -->
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
+    <!-- Al final del body, antes de tu script.js -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales-all.min.js'></script>
+    <script src="tu_script.js"></script> <!-- Tu archivo JS con el código del calendario -->
+    
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -16,6 +27,8 @@
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
       defer
     ></script>
+
+
   </head>
 
   <body>
@@ -89,6 +102,18 @@
             Mostrar Registros
           </button>
         </div>
+
+        <!-- Nuevos botones para vista tabla/calendario (ocultos inicialmente) -->
+        <div id="vistaToggleContainer" class="btn-group ms-3" role="group" style="display: none;">
+          <button id="vistaTablaBtn" class="btn btn-success active">
+            <i class="fas fa-table"></i> Tabla
+          </button>
+          <button id="vistaCalendarioBtn" class="btn btn-outline-success">
+            <i class="fas fa-calendar-alt"></i> Calendario
+          </button>
+        </div>
+
+
         {% if messages %}
             <div class="container mt-3">
               {% for message in messages %}
@@ -105,116 +130,128 @@
               {% endfor %}
             </div>
         {% endif %}
-        <!-- Tabla de citas -->
-        <div id="tablaCitas">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Código de cita</th>
-                <th>Nombre completo</th>
-                <th>Estado</th>
-                <th>Fecha</th>
-                <th>Hora inicio</th>
-                <th>Doctor asignado</th>
-                <th>Notificado</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for cita in citas %}
-              <tr>
-                <td>{{ cita.id_cita }}</td>
-                <td>{{ cita.id_paciente }}</td>
-                <td>
-                  {% if cita.estado == 'pendiente' %}
-                  <span class="badge bg-warning">Pendiente</span>
-                  {% elif cita.estado == 'finalizada' %}
-                  <span class="badge bg-success">Finalizada</span>
-                  {% elif cita.estado == 'no_asistio' %}
-                  <span class="badge bg-danger">No asistió</span>
-                  {% endif %}
-                </td>
-                <td>{{ cita.fecha }}</td>
-                <td>{{ cita.hora }}</td>
-                <td>{{ cita.id_medico }}</td>
-                <td>
-                  <!--
-                  {{ cita.id_paciente.telefono }}
-                  -->
-                  <input class="form-check-input" type="checkbox" name="doctor" id="doctor2" value="2">
-                  
-                </td>
-                <td>
-                  <button
-                    class="btn btn-outline-success btn-sm"
-                    data-bs-toggle="modal"
-                    data-bs-target="#editCitaModal"
-                    data-id="{{ cita.id_cita }}"
-                    data-paciente="{{ cita.id_paciente }}"
-                    data-estado="{{ cita.estado }}"
-                    data-fecha="{{ cita.fecha | date:'Y-m-d' }}"
-                    data-hora="{{ cita.hora | time:'H:i' }}"
-                    data-medico="{{ cita.id_medico }}"
-                    data-telefono=" {{ cita.id_paciente.telefono }} "
-                  >
-                    Editar
-                  </button>
-                </td>
-                <td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
 
-        <!-- Tabla de registros -->
-        <div id="tablaRegistros" style="display: none">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Código de registro</th>
-                <th>Código de cita</th>
-                <th>Motivo</th>
-                <th>Observaciones</th>
-                <th>Enfermedad</th>
-                <th>Tratamientos</th>
-                <th>Productos</th>
-                <th>Asistencia</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for registro in registros %}
-              <tr>
-                <td>{{ registro.id_registro }}</td>
-                <td>{{ registro.id_cita.id_cita }}</td>
-                <td>{{ registro.motivo }}</td>
-                <td>{{ registro.observaciones }}</td>
-                <td>{{ registro.id_enfermedad.nombre }}</td>
-                <td>
-                  {% for tratamiento in registro.tratamientos.all %}
-                  <span class="badge bg-info"
-                    >{{ tratamiento.id_tratamiento.nombre }}</span
-                  >
-                  {% endfor %}
-                </td>
-                <td>
-                  {% for producto in registro.registroproducto_set.all %}
-                  <span class="badge bg-warning"
-                    >{{ producto.id_producto.nombre }}</span
-                  >
-                  {% endfor %}
-                </td>
-                <td>
-                  {% if registro.id_cita.estado == 'finalizada' %}
-                  <span class="badge bg-success">Asitió</span>
-                  {% else %}
-                  <span class="badge bg-danger">No asistió</span>
-                  {% endif %}
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
+      <!-- Contenedor principal -->
+       <div id="contenedorPrincipal">
+          <!-- Tabla de citas -->
+
+         <div id="tablaCitas">
+           <table class="table">
+             <thead>
+               <tr>
+                 <th>Código de cita</th>
+                 <th>Nombre completo</th>
+                 <th>Estado</th>
+                 <th>Fecha</th>
+                 <th>Hora inicio</th>
+                 <th>Doctor asignado</th>
+                 <th>Notificado</th>
+               </tr>
+             </thead>
+             <tbody>
+               {% for cita in citas %}
+               <tr>
+                 <td>{{ cita.id_cita }}</td>
+                 <td>{{ cita.id_paciente }}</td>
+                 <td>
+                   {% if cita.estado == 'pendiente' %}
+                   <span class="badge bg-warning">Pendiente</span>
+                   {% elif cita.estado == 'finalizada' %}
+                   <span class="badge bg-success">Finalizada</span>
+                   {% elif cita.estado == 'no_asistio' %}
+                   <span class="badge bg-danger">No asistió</span>
+                   {% endif %}
+                 </td>
+                 <td>{{ cita.fecha }}</td>
+                 <td>{{ cita.hora }}</td>
+                 <td>{{ cita.id_medico }}</td>
+                 <td>
+                   <!--
+                   {{ cita.id_paciente.telefono }}
+                   -->
+                   <input class="form-check-input" type="checkbox" name="doctor" id="doctor2" value="2">
+                   
+                 </td>
+                 <td>
+                   <button
+                     class="btn btn-outline-success btn-sm"
+                     data-bs-toggle="modal"
+                     data-bs-target="#editCitaModal"
+                     data-id="{{ cita.id_cita }}"
+                     data-paciente="{{ cita.id_paciente }}"
+                     data-estado="{{ cita.estado }}"
+                     data-fecha="{{ cita.fecha | date:'Y-m-d' }}"
+                     data-hora="{{ cita.hora | time:'H:i' }}"
+                     data-medico="{{ cita.id_medico }}"
+                     data-telefono=" {{ cita.id_paciente.telefono }} "
+                   >
+                     Editar
+                   </button>
+                 </td>
+                 <td>
+               </tr>
+               {% endfor %}
+             </tbody>
+           </table>
+         </div>
+
+          <!-- Calendario de citas -->
+          <div id="calendarioCitas" class="view-content hidden">
+            <div id="calendar"></div>
+          </div>
+         
+          <!-- Tabla de registros -->
+          <div id="tablaRegistros" class="hidden">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Código de registro</th>
+                  <th>Código de cita</th>
+                  <th>Motivo</th>
+                  <th>Observaciones</th>
+                  <th>Enfermedad</th>
+                  <th>Tratamientos</th>
+                  <th>Productos</th>
+                  <th>Asistencia</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for registro in registros %}
+                <tr>
+                  <td>{{ registro.id_registro }}</td>
+                  <td>{{ registro.id_cita.id_cita }}</td>
+                  <td>{{ registro.motivo }}</td>
+                  <td>{{ registro.observaciones }}</td>
+                  <td>{{ registro.id_enfermedad.nombre }}</td>
+                  <td>
+                    {% for tratamiento in registro.tratamientos.all %}
+                    <span class="badge bg-info"
+                      >{{ tratamiento.id_tratamiento.nombre }}</span
+                    >
+                    {% endfor %}
+                  </td>
+                  <td>
+                    {% for producto in registro.registroproducto_set.all %}
+                    <span class="badge bg-warning"
+                      >{{ producto.id_producto.nombre }}</span
+                    >
+                    {% endfor %}
+                  </td>
+                  <td>
+                    {% if registro.id_cita.estado == 'finalizada' %}
+                    <span class="badge bg-success">Asitió</span>
+                    {% else %}
+                    <span class="badge bg-danger">No asistió</span>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+       </div>
+
 
         <!-- Paginación -->
         <div class="d-flex justify-content-between align-items-center mt-3">

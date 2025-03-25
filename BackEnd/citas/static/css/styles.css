@@ -233,3 +233,80 @@ th {
     border-top: 1px solid #ddd;
     padding: 15px;
 }
+
+/* Estilos para el contenedor principal */
+#contenedorPrincipal {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    padding: 25px;
+    margin-top: 20px;
+    /* Eliminamos la altura mínima fija */
+    min-height: auto;
+    transition: height 0.3s ease;
+  }
+
+  /* Estilo cuando está activa la vista de calendario */
+#contenedorPrincipal.calendar-view {
+    min-height: 700px; /* Altura adecuada para el calendario */
+  }
+
+  /* Estilos para las tablas (citas y registros) */
+#tablaCitas, #tablaRegistros {
+    width: 100%;
+    /* El contenido de la tabla determinará la altura */
+  }
+  
+  /* Estilos para los contenidos de las vistas */
+  .view-content {
+    width: 100%;
+  }
+  
+  .hidden {
+    display: none;
+  }
+  
+  /* Estilos específicos para el calendario */
+  #calendar {
+    width: 100%;
+    height: 600px; /* Altura fija para el calendario */
+  }
+  
+  .fc .fc-toolbar.fc-header-toolbar {
+    margin-bottom: 1.5em;
+  }
+  
+  .fc .fc-toolbar-title {
+    font-size: 1.5rem;
+    color: #333;
+    font-weight: 600;
+  }
+  
+  .fc .fc-button {
+    background-color: #0d6efd;
+    border: none;
+    padding: 6px 12px;
+    font-size: 0.9rem;
+  }
+  
+  .fc .fc-button:hover {
+    background-color: #0b5ed7;
+  }
+  
+  .fc .fc-button-primary:not(:disabled).fc-button-active {
+    background-color: #0b5ed7;
+  }
+  
+  .fc-event {
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 3px;
+  }
+  
+  .fc-daygrid-day-frame {
+    min-height: 80px;
+  }
+
+  .hidden {
+    display: none !important;
+  }
