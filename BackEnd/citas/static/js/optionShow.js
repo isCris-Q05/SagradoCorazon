@@ -28,8 +28,69 @@ document.addEventListener("DOMContentLoaded", function () {
     },
     height: "auto",
     contentHeight: "auto",
-    events: function (fetchInfo, successCallback, failureCallback) {
+    events: async function (fetchInfo, successCallback, failureCallback) {
+      try {
+        const citas = await obtenerCitas(); // Llamar a la función para obtener citas
+
+        const eventos = citas.map((cita) => {
+
+          try {
+            // Validación de campos obligatorios
+            if (!cita.id_cita || !cita.fecha || !cita.hora || !cita.paciente || !cita.medico || !cita.especialidad) {
+              console.error("Cita incompleta:", cita);
+              return null;
+            }
+
+            // Parseo seguro de fechas
+            const [year, month, day] = cita.fecha.split('-');
+            const [hours, minutes] = cita.hora.split(':');
+            const startDateTime = new Date(year, month - 1, day, hours, minutes);
+            
+            if (isNaN(startDateTime.getTime())) {
+              throw new Error(`Fecha inválida: ${cita.fecha} ${cita.hora}`);
+            }
+
+            const endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000); // +1 hora
+
+            return {
+              id: String(cita.id_cita), // FullCalendar espera el id como string
+              title: `${cita.paciente.nombre} - ${cita.medico.nombre}`,
+              start: startDateTime,
+              end: endDateTime,
+              color: getEventColor(cita.estado),
+              extendedProps: {
+                id_cita: cita.id_cita,
+                estado: cita.estado,
+                estado_display: cita.estado_display,
+                especialidad: cita.especialidad.nombre,
+                paciente: {
+                  nombre: cita.paciente.nombre,
+                  telefono: cita.paciente.telefono,
+                  cedula: cita.paciente.cedula
+                },
+                medico: {
+                  nombre: cita.medico.nombre
+                }
+              }
+            };
+
+          } catch (error) {
+            console.error("Error procesando cita:", cita, error);
+            return null;
+          }
+          
+        }).filter(evento => evento !== null);
+
+        successCallback(eventos);
+      } catch (error) {
+        console.error("Error al cargar eventos:", error);
+        failureCallback(error);
+        
+        // Mostrar mensaje al usuario
+        showAlert("Error al cargar citas", "danger");
+      }
       // Convertir las citas de la tabla a eventos del calendario
+      /* 
       const events = Array.from(
         document.querySelectorAll("#tablaCitas tbody tr")
       ).map((row) => {
@@ -53,28 +114,68 @@ document.addEventListener("DOMContentLoaded", function () {
           },
         };
       });
-
       successCallback(events);
+
+      */
     },
     eventClick: function (info) {
-      // Mostrar detalles de la cita
-      const startStr = info.event.start.toLocaleString("es-ES", {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
+      const opcionesFecha = {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      };
+      
+      const fechaHora = info.event.start.toLocaleString("es-ES", opcionesFecha);
+      const { extendedProps } = info.event;
+    
+      // Crear modal dinámico con más información
+      const modalHTML = `
+        <div class="modal fade" id="eventoModal" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Detalles de la cita</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <p><strong>ID:</strong> ${extendedProps.id_cita || extendedProps.id || 'N/A'}</p>
+                <p><strong>Paciente:</strong> ${extendedProps.paciente?.nombre || extendedProps.paciente || 'N/A'}</p>
+                <p><strong>Médico:</strong> ${extendedProps.medico?.nombre || extendedProps.medico || 'N/A'}</p>
+                <p><strong>Especialidad:</strong> ${extendedProps.especialidad || 'N/A'}</p>
+                <p><strong>Fecha y Hora:</strong> ${fechaHora}</p>
+                <p><strong>Estado:</strong> <span class="badge ${getBadgeClass(extendedProps.estado)}">
+                  ${extendedProps.estado_display || extendedProps.estado || 'N/A'}
+                </span></p>
+                ${extendedProps.paciente?.telefono || extendedProps.telefono ? 
+                  `<p><strong>Teléfono:</strong> ${extendedProps.paciente?.telefono || extendedProps.telefono}</p>` : ''}
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // Insertar modal en el DOM
+      const modalContainer = document.createElement('div');
+      modalContainer.innerHTML = modalHTML;
+      document.body.appendChild(modalContainer);
+      
+      // Mostrar modal
+      const modal = new bootstrap.Modal(modalContainer.querySelector('#eventoModal'));
+      modal.show();
+      
+      // Eliminar modal cuando se cierre
+      modalContainer.querySelector('#eventoModal').addEventListener('hidden.bs.modal', () => {
+        document.body.removeChild(modalContainer);
       });
-
-      alert(`Detalles de la cita:
-ID: ${info.event.extendedProps.id}
-Paciente: ${info.event.title.split(" - ")[0]}
-Médico: ${info.event.title.split(" - ")[1]}
-Fecha: ${startStr}
-Estado: ${info.event.extendedProps.estado}`);
-    },
-  });
+    }, // aca acaba
+    });
 
   calendar.render();
 
@@ -263,4 +364,65 @@ Estado: ${info.event.extendedProps.estado}`);
     }
     return cookieValue;
   }
+  
 });
+
+function showAlert(message, type = 'danger') {
+  const alertDiv = document.createElement('div');
+  alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+  alertDiv.role = 'alert';
+  alertDiv.innerHTML = `
+    ${message}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  `;
+  
+  const container = document.getElementById('calendar-container') || document.body;
+  container.prepend(alertDiv);
+  
+  setTimeout(() => {
+    alertDiv.classList.remove('show');
+    setTimeout(() => alertDiv.remove(), 150);
+  }, 5000);
+}
+
+// Consumiendo endpoint, trayendo todas las citas
+async function obtenerCitas() {
+  try {
+    const response = await fetch("/api/citas/");
+    
+    if (!response.ok) {
+      throw new Error(`Error HTTP: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    // Verificación exhaustiva de la estructura de datos
+    if (!data || !data.success || !Array.isArray(data.citas)) {
+      throw new Error("Formato de respuesta inválido");
+    }
+    
+    console.log('Datos recibidos:', data);
+    return data.citas;
+    
+  } catch (error) {
+    console.error("Error al obtener citas:", error);
+    throw error;
+  }
+}
+
+function getBadgeClass(estado) {
+  // Normaliza el estado para comparación
+  const estadoNormalizado = estado ? estado.toLowerCase().trim() : '';
+  
+  // Mapeo de estados a clases Bootstrap
+  const clases = {
+    'pendiente': 'bg-warning',
+    'finalizada': 'bg-success',
+    'no asistió': 'bg-danger',
+    'no_asistio': 'bg-danger', // alternativa
+    'cancelada': 'bg-secondary',
+    'default': 'bg-primary'
+  };
+  
+  return clases[estadoNormalizado] || clases.default;
+}

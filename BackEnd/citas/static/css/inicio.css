@@ -25,3 +25,112 @@
     margin-left: 1rem;
     display: inline-block;
   }
+
+/* Estilo para el botón de Excel */
+#generarReporteBtn {
+  margin-left: auto; /* Empuja el botón a la derecha */
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Si usas Font Awesome para el icono */
+.fas.fa-file-excel {
+  font-size: 1.1em;
+}
+
+/* Alerta personalizada */
+.custom-alert {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.custom-alert.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.alert-content {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  transform: translateY(20px);
+  transition: transform 0.4s ease, opacity 0.4s ease;
+  opacity: 0;
+}
+
+.custom-alert.show .alert-content {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.alert-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #87CEEB, #007bff);
+  border-radius: 50%;
+  color: white;
+}
+
+.alert-icon svg {
+  width: 48px;
+  height: 48px;
+}
+
+.alert-content h3 {
+  color: #333;
+  margin-bottom: 10px;
+  font-size: 1.5rem;
+}
+
+.alert-content p {
+  color: #666;
+  margin-bottom: 25px;
+  font-size: 1rem;
+}
+
+.alert-btn {
+  background: linear-gradient(135deg, #87CEEB, #007bff);
+  color: white;
+  border: none;
+  padding: 10px 25px;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+}
+
+.alert-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 123, 255, 0.3);
+}
+
+/* Animación de check */
+@keyframes checkmark {
+  0% {
+    stroke-dashoffset: 100;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}

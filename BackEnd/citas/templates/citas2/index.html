@@ -94,13 +94,25 @@
           </button>
         </div>
 
-        <div class="header">
-          <button class="btn btn-info" id="mostrarCitasBtn">
-            Mostrar Citas
-          </button>
-          <button class="btn btn-info" id="mostrarRegistrosBtn">
-            Mostrar Registros
-          </button>
+        <div class="header d-flex justify-content-between">
+          <div class="left-buttons">
+              <button class="btn btn-info" id="mostrarCitasBtn">
+                  <i class="fas fa-calendar-day"></i> Mostrar Citas
+              </button>
+              <button class="btn btn-info" id="mostrarRegistrosBtn">
+                  <i class="fas fa-clipboard-list"></i> Mostrar Registros
+              </button>
+          </div>
+          <div class="right-buttons d-flex align-items-center gap-2">  <!-- Añadido gap-2 para separación controlada -->
+              <form action="{% url 'generar_reporte' %}" method="get" id="exportForm" class="m-0">  <!-- m-0 para eliminar márgenes -->
+                  <button class="btn btn-success" id="generarReporteBtn">
+                      <i class="fas fa-file-excel"></i> Generar Reporte
+                  </button>
+              </form>
+              <button class="btn btn-primary" id="subirReporteBtn">
+                  <i class="fas fa-upload"></i> Subir Reporte
+              </button>
+          </div>
         </div>
 
         <!-- Nuevos botones para vista tabla/calendario (ocultos inicialmente) -->
@@ -691,15 +703,32 @@
         </div>
       </div>
     </main>
+
+    <!-- Alerta personalizada -->
+    <div id="customAlert" class="custom-alert">
+      <div class="alert-content">
+        <div class="alert-icon">
+          <svg viewBox="0 0 24 24">
+            <path fill="currentColor" d="M12,2C6.48,2,2,6.48,2,12s4.48,10,10,10s10-4.48,10-10S17.52,2,12,2z M10,17l-5-5l1.41-1.41L10,14.17l7.59-7.59L19,8l-9,9z"/>
+          </svg>
+        </div>
+        <h3>¡Reporte subido con éxito!</h3>
+        <p>El archivo se ha cargado correctamente al sistema.</p>
+        <button id="closeAlert" class="alert-btn">Aceptar</button>
+      </div>
+    </div>
+
     <script src="{% static 'js/notificaciones.js' %}"></script>
     <script src="{% static 'js/busqueda.js' %}"></script>
     <script src="{% static 'js/buscarCita.js' %}"></script>
     <script src="{% static 'js/tratamientoEnf.js' %}"></script>
     <!--optionShow.js-->
     <script src="{% static 'js/optionShow.js' %}"></script>
+    <script src="{% static 'js/alertCustom.js' %}"></script>
     <!--
       <script src="{% static 'js/sendReminder.js' %}"></script>
     -->
+
 
     
   </body>

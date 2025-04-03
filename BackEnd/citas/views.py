@@ -10,6 +10,12 @@ from django.utils.timezone import now
 from citas.utils import admin_medico_required
 import pywhatkit as kit
 from django.views.decorators.csrf import csrf_exempt
+import random
+
+from openpyxl import Workbook
+from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
+from openpyxl.utils import get_column_letter
+
 
 from datetime import datetime, timedelta
 
@@ -181,7 +187,6 @@ def login_medico(request):
             messages.error(request, 'El usuario o la contraseña son incorrectos.')
             return redirect('login')
 
-import random
 import json
 from django.core.mail import EmailMessage
 from django.http import JsonResponse
@@ -333,6 +338,151 @@ def inicio(request):
             "productos": productos
         }
     )
+
+from django.http import JsonResponse
+from django.views.decorators.http import require_GET
+from django.contrib.auth.decorators import login_required
+from .models import Cita, Paciente, Medico, Especialidad
+import json
+
+#@login_required
+@require_GET
+def todas_las_citas_json(request):
+    # Obtener todas las citas con sus relaciones
+    citas = Cita.objects.select_related(
+        'id_paciente__user',
+        'id_medico__user',
+        'id_especialidad'
+    ).all()
+    
+    # Preparar los datos para el JSON
+    citas_data = []
+    for cita in citas:
+        citas_data.append({
+            'id_cita': cita.id_cita,
+            'paciente': {
+                'id': cita.id_paciente.id,
+                'nombre': f"{cita.id_paciente.user.first_name} {cita.id_paciente.user.last_name}",
+                'cedula': cita.id_paciente.cedula,
+                'telefono': cita.id_paciente.telefono,
+            },
+            'medico': {
+                'id': cita.id_medico.id,
+                'nombre': f"{cita.id_medico.user.first_name} {cita.id_medico.user.last_name}",
+            },
+            'especialidad': {
+                'id': cita.id_especialidad.id_especialidad,
+                'nombre': cita.id_especialidad.nombre,
+            },
+            'fecha': cita.fecha.strftime('%Y-%m-%d'),
+            'hora': cita.hora.strftime('%H:%M:%S'),
+            'estado': cita.estado,
+            'estado_display': cita.get_estado_display(),
+        })
+    
+    # Devolver la respuesta JSON
+    return JsonResponse({
+        'success': True,
+        'count': len(citas_data),
+        'citas': citas_data,
+    }, safe=False, json_dumps_params={'ensure_ascii': False, 'indent': 2})
+
+def generar_reporte(request):
+
+    citas = Cita.objects.select_related('id_paciente__user', 'id_medico__user', 'id_especialidad').all()
+
+    # Paleta de colores verde
+    # Paleta de colores verde
+    COLOR_ENCABEZADO = '006400'  # Verde oscuro
+    COLOR_FONDO = 'E8F5E9'       # Verde claro
+    COLOR_BORDE = '2E7D32'       # Verde medio
+
+    # Estilos definidos
+    estilo_encabezado = Font(name='Calibri', size=12, bold=True, color='FFFFFF')
+    estilo_normal = Font(name='Calibri', size=11)
+    relleno_encabezado = PatternFill(start_color=COLOR_ENCABEZADO, end_color=COLOR_ENCABEZADO, fill_type='solid')
+    relleno_fila = PatternFill(start_color=COLOR_FONDO, end_color=COLOR_FONDO, fill_type='solid')
+    borde_fino = Side(border_style='thin', color=COLOR_BORDE)
+    borde_celda = Border(left=borde_fino, right=borde_fino, top=borde_fino, bottom=borde_fino)
+    alineacion_centro = Alignment(horizontal='center', vertical='center')
+
+    for i in citas:
+        print(f"Paciente: {i.id_paciente.user.first_name} -- Medico: {i.id_medico.user.first_name} -- fecha: {i.fecha} -- hora: {i.hora} -- estado: {i.estado}")
+    
+    encabezados_citas = ['Nombre Paciente', 'Apellido Paciente', 'Estado', 'Fecha', 'Hora', 'Medico', 'Especialidad']
+    years = []
+    for i in citas:
+        if i.fecha:  # Asegúrate de que la fecha no sea None
+            year = i.fecha.year  # Lee el año
+            if year not in years:
+                years.append(year)
+    print(f"Years: {years}")
+
+    wb = Workbook()
+    wb.remove(wb.active)  # Eliminar la hoja activa por defecto
+    
+
+    # iteramos en cada year, cada year es una hoja de excel
+    for year in years:
+        hoja_citas = wb.create_sheet(title=str(year))
+
+        hoja_citas.append(encabezados_citas)
+
+        # Aplicando estilos a encabezados
+        for col in range(1, len(encabezados_citas) + 1):
+            celda = hoja_citas.cell(row=1, column=col)
+            celda.font = estilo_encabezado
+            celda.fill = relleno_encabezado
+            celda.alignment = alineacion_centro
+            celda.border = borde_celda
+
+        # agregar datos
+        fila_num = 2
+
+        for cita in citas:
+            if cita.fecha.year == year:
+                hoja_citas.append([
+                    cita.id_paciente.user.first_name,
+                    cita.id_paciente.user.last_name,
+                    cita.estado,
+                    cita.fecha.strftime('%Y-%m-%d'),
+                    cita.hora.strftime('%H:%M:%S'),
+                    cita.id_medico.user.first_name,
+                    cita.id_especialidad.nombre
+                ])
+
+                # aplicar datos a la fila de datos
+                for col in range(1, len(encabezados_citas) + 1):
+                    celda = hoja_citas.cell(row=fila_num, column=col)
+                    celda.font = estilo_normal
+                    celda.alignment = alineacion_centro
+                    celda.border = borde_celda
+
+                    # Alternar colores de fila
+                    if fila_num % 2 == 0:
+                        celda.fill = relleno_fila
+                
+                fila_num += 1
+
+        # ajustando ancho de las columnas
+        for col in range(1, len(encabezados_citas) + 1):
+            col_letter = get_column_letter(col)
+            hoja_citas.column_dimensions[col_letter].width = max(
+                len(encabezados_citas[col-1]) + 2,  # Ancho mínimo basado en encabezado
+                15  # Ancho mínimo predeterminado
+            )
+        # Congelar encabezados para scroll
+        hoja_citas.freeze_panes = 'A2'
+
+    # preparar la respuesta HTTP
+    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response['Content-Disposition'] = 'attachment; filename="reporte_citas.xlsx"'
+
+    wb.save(response)
+
+    return response
+
+
 
 # vista personalizada para el logout
 def logout_user(request):
