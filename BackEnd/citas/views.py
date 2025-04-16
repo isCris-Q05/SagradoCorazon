@@ -16,6 +16,8 @@ from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
 
+import pandas as pd
+from .forms import UploadExcelForm
 
 from datetime import datetime, timedelta
 
@@ -294,7 +296,7 @@ def login_paciente(request):
         else:
             messages.error(request, 'El usuario o la contraseña son incorrectos.')
             return redirect('login')
-        
+    
 def login_usuario(request):
     return render(request, 'citas2/login.html')
 
@@ -303,8 +305,9 @@ def register(request):
 
 @login_required
 def inicio(request):
-    citas_list = Cita.objects.all()
-    registros_list = Registro.objects.select_related('id_enfermedad', 'id_cita').prefetch_related('tratamientos', 'registroproducto_set')
+    # Procesamiento inicial para la página (sin cambios)
+    citas_list = Cita.objects.all().order_by('-fecha', '-hora')
+    registros_list = Registro.objects.select_related('id_enfermedad', 'id_cita').prefetch_related('tratamientos', 'registroproducto_set').order_by('-id_cita')
     
     citas_paginator = Paginator(citas_list, 10)
     registros_paginator = Paginator(registros_list, 10)
@@ -313,7 +316,6 @@ def inicio(request):
     productos = Producto.objects.all()
 
     page_number = request.GET.get('page', 1)
-
 
     try:
         citas = citas_paginator.get_page(page_number)
@@ -324,20 +326,168 @@ def inicio(request):
     except EmptyPage:
         citas = citas_paginator.page(citas_paginator.num_pages)
         registros = registros_paginator.page(registros_paginator.num_pages)
-    
-    print(f"Citas: {citas}")
-    print(f"Registros: {registros}")
 
-    return render(
-        request,
-        "citas2/index.html",
-        {
-            "citas": citas,
-            "registros": registros,
-            "enfermedades": enfermedades,
-            "productos": productos
-        }
-    )
+    # Manejo del formulario de Excel (AJAX)
+    if request.method == 'POST' and request.FILES.get('excel_file'):
+        excel_file = request.FILES['excel_file']
+        response_data = {'status': 'success', 'message': '', 'created': 0, 'skipped': 0, 'errors': []}
+        print(f"excel_file: {excel_file}")
+        try:
+            xls = pd.ExcelFile(excel_file)
+
+            for sheet_name in xls.sheet_names:
+                df = pd.read_excel(excel_file, sheet_name=sheet_name)
+            
+                # Convertir nombres de columnas a minúsculas y sin espacios
+                df.columns = [col.strip().lower().replace(' ', '_') for col in df.columns]
+            
+                # Columnas requeridas con diferentes posibles nombres
+                column_mapping = {
+                    'cedula': ['cedula', 'cédula', 'cédula_paciente'],
+                    'id_cita': ['id_cita', 'idcita', 'cita', 'n°_cita'],
+                    'medico_user': ['medico_user', 'medicouser', 'username_medico', 'usuario_medico'],
+                    'fecha': ['fecha', 'fecha_cita'],
+                    'hora': ['hora', 'hora_cita', 'hora_cita'],
+                    'id_especialidad': ['id_especialidad', 'especialidad'],
+                    'estado': ['estado', 'estado_cita']
+                }
+            
+                # Verificar columnas
+                missing_cols = []
+                for key, aliases in column_mapping.items():
+                    if not any(alias in df.columns for alias in aliases):
+                        missing_cols.append(key)
+            
+                if missing_cols:
+                    return JsonResponse({
+                        'status': 'error',
+                        'message': f'Columnas requeridas faltantes: {", ".join(missing_cols)}'
+                    }, status=400)
+            
+                # Normalizar nombres de columnas
+                df = df.rename(columns={
+                    next(alias for alias in column_mapping['cedula'] if alias in df.columns): 'cedula',
+                    next(alias for alias in column_mapping['id_cita'] if alias in df.columns): 'id_cita',
+                    next(alias for alias in column_mapping['medico_user'] if alias in df.columns): 'medico_user',
+                    next(alias for alias in column_mapping['fecha'] if alias in df.columns): 'fecha',
+                    next(alias for alias in column_mapping['hora'] if alias in df.columns): 'hora',
+                    next(alias for alias in column_mapping['estado'] if alias in df.columns): 'estado',
+                    next(alias for alias in column_mapping['id_especialidad'] if alias in df.columns): 'especialidad',  # Cambiado a 'especialidad'
+                })
+            
+                for index, row in df.iterrows():
+                    try:
+                        # Saltar filas vacías
+                        if pd.isna(row['id_cita']):
+                            continue
+                        
+                        # Verificar si la cita ya existe
+                        if Cita.objects.filter(id_cita=row['id_cita']).exists():
+                            response_data['skipped'] += 1
+                            continue
+                        
+                        # Buscar paciente por cédula
+                        try:
+                            paciente = Paciente.objects.get(cedula=row['cedula'])
+                        except Paciente.DoesNotExist:
+                            print(f"Error 1")
+                            response_data['errors'].append(f"Fila {index+1}: Paciente con cédula {row['cedula']} no encontrado")
+                            continue
+                        
+                        # Buscar médico por username
+                        try:
+                            medico_user = Usuario.objects.get(username=row['medico_user'], role='Medico')
+                            medico = Medico.objects.get(user=medico_user)
+                        except Usuario.DoesNotExist:
+                            print(f"Error 2")
+                            response_data['errors'].append(f"Hoja '{sheet_name}', Fila {index+2}: Médico con username {row['medico_user']} no encontrado")                            
+                            continue
+                        except Medico.DoesNotExist:
+                            print(f"Error 3")
+                            response_data['errors'].append(f"Hoja '{sheet_name}', Fila {index+2}: Perfil médico no existe para {row['medico_user']}")                            
+                            continue
+                        
+                        # Convertir fecha y hora
+                        try:
+                            fecha = pd.to_datetime(row['fecha']).date()
+                            hora = pd.to_datetime(row['hora']).time()
+                        except Exception as e:
+                            print(f"Error 4")
+                            response_data['errors'].append(f"Hoja '{sheet_name}', Fila {index+2}: Error en fecha/hora - {str(e)}")
+                            continue
+
+                        # antes de crear la cita, tomamos la especialidad
+                        try:
+                            if pd.isna(row['especialidad']):
+                                raise ValueError("Especialidad no proporcionada")
+                            
+                            especialidad_nombre = str(row['especialidad']).strip()
+
+                            # Buscar especialidad
+                            especialidad = Especialidad.objects.filter(
+                                            nombre__iexact=especialidad_nombre
+                                        ).first()
+
+                            if not especialidad:
+                                print(f"Error 6: Especialidad '{row['especialidad']}' no encontrada")
+                                response_data['errors'].append(
+                                    f"Hoja '{sheet_name}', Fila {index+2}: Especialidad '{row['especialidad']}' no encontrada. "
+                                    f"Especialidades disponibles: {list(Especialidad.objects.values_list('nombre', flat=True))}"
+                                )
+                                continue
+
+                        except Exception as e:
+                            print(f"Error al procesar especialidad: {str(e)}")
+                            response_data['errors'].append(
+                                f"Hoja '{sheet_name}', Fila {index+2}: Error en especialidad - {str(e)}"
+                            )
+                            continue  
+
+                        # Crear la cita
+                        Cita.objects.create(
+                            id_cita=row['id_cita'],
+                            id_paciente=paciente,
+                            id_medico=medico,
+                            fecha=fecha,
+                            hora=hora,
+                            id_especialidad=especialidad,
+                            estado=row['estado']
+                        )
+                        response_data['created'] += 1
+                        
+                    except Exception as e:
+                        print(f"Error 5")
+                        response_data['errors'].append(f"Hoja '{sheet_name}', Fila {index+2}: Error - {str(e)}")
+                        print(f"Error: {str(e)}")
+                        continue
+            
+            # Construir mensaje final
+            if response_data['errors']:
+                response_data['status'] = 'partial'
+            
+            response_data['message'] = (
+                f"Procesado: {response_data['created']} nuevas citas, "
+                f"{response_data['skipped']} existentes, "
+                f"{len(response_data['errors'])} errores"
+            )
+            
+            return JsonResponse(response_data)
+        
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': f'Error al procesar el archivo: {str(e)}'
+            }, status=400)
+
+    # GET request normal
+    form = UploadExcelForm()
+    return render(request, "citas2/index.html", {
+        "citas": citas,
+        "registros": registros,
+        "enfermedades": enfermedades,
+        "productos": productos,
+        "form": form
+    })
 
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
@@ -409,7 +559,7 @@ def generar_reporte(request):
     for i in citas:
         print(f"Paciente: {i.id_paciente.user.first_name} -- Medico: {i.id_medico.user.first_name} -- fecha: {i.fecha} -- hora: {i.hora} -- estado: {i.estado}")
     
-    encabezados_citas = ['Nombre Paciente', 'Apellido Paciente', 'Estado', 'Fecha', 'Hora', 'Medico', 'Especialidad']
+    encabezados_citas = ['Cedula' ,'Id Cita' ,'Nombre Paciente', 'Apellido Paciente', 'Estado', 'Fecha', 'Hora', 'Medico', 'Medico_user' ,'Especialidad']
     years = []
     for i in citas:
         if i.fecha:  # Asegúrate de que la fecha no sea None
@@ -442,12 +592,15 @@ def generar_reporte(request):
         for cita in citas:
             if cita.fecha.year == year:
                 hoja_citas.append([
+                    cita.id_paciente.cedula,
+                    cita.id_cita,
                     cita.id_paciente.user.first_name,
                     cita.id_paciente.user.last_name,
                     cita.estado,
                     cita.fecha.strftime('%Y-%m-%d'),
                     cita.hora.strftime('%H:%M:%S'),
                     cita.id_medico.user.first_name,
+                    cita.id_medico.user.username,
                     cita.id_especialidad.nombre
                 ])
 

@@ -104,14 +104,25 @@
               </button>
           </div>
           <div class="right-buttons d-flex align-items-center gap-2">  <!-- Añadido gap-2 para separación controlada -->
-              <form action="{% url 'generar_reporte' %}" method="get" id="exportForm" class="m-0">  <!-- m-0 para eliminar márgenes -->
-                  <button class="btn btn-success" id="generarReporteBtn">
-                      <i class="fas fa-file-excel"></i> Generar Reporte
-                  </button>
-              </form>
-              <button class="btn btn-primary" id="subirReporteBtn">
-                  <i class="fas fa-upload"></i> Subir Reporte
+            <form action="{% url 'generar_reporte' %}" method="get" id="exportForm" class="m-0">  <!-- m-0 para eliminar márgenes -->
+                <button class="btn btn-success" id="generarReporteBtn">
+                    <i class="fas fa-file-excel"></i> Generar Reporte
+                </button>
+            </form>
+            <!--<button  type="submit" ="btn btn-primary" id="subirReporteBtn">
+                <i class="fas fa-upload"></i> Subir Reporte
+            </button>-->
+            <!-- Formulario de subida (en tu index.html existente) -->
+            <form id="excelUploadForm" method="post" enctype="multipart/form-data">
+              {% csrf_token %}
+              <div class="form-group">
+                  {{ form.excel_file.label_tag }}
+                  {{ form.excel_file }}
+              </div>
+              <button type="submit" id="subirReporteBtn" class="btn btn-primary">
+                  <i class="fas fa-upload"></i> Subir Excel
               </button>
+            </form>
           </div>
         </div>
 

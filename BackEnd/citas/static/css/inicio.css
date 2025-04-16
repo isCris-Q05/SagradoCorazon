@@ -38,8 +38,7 @@
 .fas.fa-file-excel {
   font-size: 1.1em;
 }
-
-/* Alerta personalizada */
+/* Alerta personalizada - Versión mejorada */
 .custom-alert {
   position: fixed;
   top: 0;
@@ -74,6 +73,15 @@
   opacity: 0;
 }
 
+/* Estados dinámicos para éxito/error */
+.alert-content.success {
+  border-top: 4px solid #28a745;
+}
+
+.alert-content.error {
+  border-top: 4px solid #dc3545;
+}
+
 .custom-alert.show .alert-content {
   transform: translateY(0);
   opacity: 1;
@@ -86,9 +94,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #87CEEB, #007bff);
   border-radius: 50%;
   color: white;
+}
+
+/* Colores dinámicos para el icono */
+.alert-content.success .alert-icon {
+  background: linear-gradient(135deg, #5cb85c, #28a745);
+}
+
+.alert-content.error .alert-icon {
+  background: linear-gradient(135deg, #e74c3c, #dc3545);
 }
 
 .alert-icon svg {
@@ -106,6 +122,7 @@
   color: #666;
   margin-bottom: 25px;
   font-size: 1rem;
+  line-height: 1.5;
 }
 
 .alert-btn {
@@ -118,6 +135,7 @@
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+  min-width: 120px;
 }
 
 .alert-btn:hover {
@@ -125,12 +143,200 @@
   box-shadow: 0 6px 12px rgba(0, 123, 255, 0.3);
 }
 
-/* Animación de check */
-@keyframes checkmark {
+/* Spinner para el botón de carga */
+.spinner-border {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  vertical-align: middle;
+  border: 0.2em solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spinner-border .75s linear infinite;
+  margin-right: 8px;
+}
+
+@keyframes spinner-border {
+  to { transform: rotate(360deg); }
+}
+
+/* Adaptación para móviles */
+@media (max-width: 576px) {
+  .alert-content {
+    padding: 20px;
+  }
+  
+  .alert-icon {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 15px;
+  }
+  
+  .alert-icon svg {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+/* Estilos para el modal y la subida de archivos */
+.modal-content {
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+  border-bottom: none;
+  padding: 1.5rem;
+}
+
+.modal-body {
+  padding: 2rem;
+}
+
+.modal-footer {
+  border-top: none;
+  padding: 1.5rem;
+  background-color: #f8f9fa;
+}
+
+/* Estilo para el área de subida de archivos */
+.file-upload-wrapper {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.file-upload-label {
+  display: block;
+  cursor: pointer;
+}
+
+.file-upload-design {
+  border: 2px dashed #dee2e6;
+  border-radius: 10px;
+  padding: 2.5rem 1rem;
+  transition: all 0.3s ease;
+  background-color: #f8f9fa;
+}
+
+.file-upload-design:hover {
+  border-color: #0d6efd;
+  background-color: #f0f7ff;
+}
+
+.file-name-display {
+  font-size: 0.9rem;
+  color: #495057;
+  padding: 0.5rem;
+  background-color: #f1f1f1;
+  border-radius: 5px;
+  word-break: break-all;
+}
+
+/* Ocultar el input file nativo */
+#excelFileInput {
+  position: absolute;
+  left: -9999px;
+}
+
+/* Botón de submit con animación */
+#submitUploadBtn {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+
+#submitUploadBtn:after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1, 1) translate(-50%);
+  transform-origin: 50% 50%;
+}
+
+#submitUploadBtn:focus:not(:active)::after {
+  animation: ripple 1s ease-out;
+}
+
+@keyframes ripple {
   0% {
-    stroke-dashoffset: 100;
+      transform: scale(0, 0);
+      opacity: 0.5;
   }
   100% {
-    stroke-dashoffset: 0;
+      transform: scale(20, 20);
+      opacity: 0;
   }
+}
+
+/* Spinner para carga */
+.upload-spinner {
+  display: none;
+  margin-right: 8px;
+}
+
+.uploading .upload-spinner {
+  display: inline-block;
+}
+
+.uploading .btn-text {
+  display: none;
+}
+
+/* Estilos para el área de subida de archivos */
+.file-upload-wrapper {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.file-upload-label {
+  display: block;
+  padding: 2rem;
+  border: 2px dashed #dee2e6;
+  border-radius: 0.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.file-upload-label:hover {
+  border-color: #0d6efd;
+  background-color: #f8f9fa;
+}
+
+.file-upload-design i {
+  transition: all 0.3s;
+}
+
+.file-upload-label:hover .file-upload-design i {
+  transform: translateY(-5px);
+}
+
+.file-name-display {
+  font-weight: bold;
+}
+
+/* Ocultar el input file nativo */
+input[type="file"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/* Estilos para los resultados de subida */
+#uploadResult {
+  max-height: 200px;
+  overflow-y: auto;
 }

@@ -31,3 +31,13 @@ class MedicoForm(forms.ModelForm):
     class Meta:
         model = Medico
         fields = ['telefono']
+
+class UploadExcelForm(forms.Form):
+    excel_file = forms.FileField(
+        label='Selecciona archivo Excel',
+        help_text='Formatos soportados: .xlsx, .xls',
+        widget=forms.FileInput(attrs={
+            'accept': '.xlsx,.xls',
+            'class': 'form-control-file'
+        })
+    )
