@@ -95,6 +95,7 @@ def registrar_paciente(request):
             apellido=apellido
         )
 
+        request.session['paciente_nombre'] = f"{usuario.first_name} {usuario.last_name}"
         messages.success(request, 'El paciente se ha registrado correctamente.')
         return redirect('inicio')
     return render(request,"citas2/pacientes.html",{'pacientes':pacientes})
@@ -480,8 +481,11 @@ def inicio(request):
             }, status=400)
 
     # GET request normal
+    paciente_nombre = request.session.pop('paciente_nombre', None)
+    print(paciente_nombre)
     form = UploadExcelForm()
     return render(request, "citas2/index.html", {
+        "paciente_nombre": paciente_nombre,
         "citas": citas,
         "registros": registros,
         "enfermedades": enfermedades,

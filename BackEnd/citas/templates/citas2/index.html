@@ -736,6 +736,7 @@
     <!--optionShow.js-->
     <script src="{% static 'js/optionShow.js' %}"></script>
     <script src="{% static 'js/alertCustom.js' %}"></script>
+    <script src="{% static 'js/cargarNombrePaciente.js' %}"></script>
     <!--
       <script src="{% static 'js/sendReminder.js' %}"></script>
     -->
@@ -743,4 +744,8 @@
 
     
   </body>
+
+  <script>
+       window.pacienteNombre = "{{ paciente_nombre|escapejs }}";
+  </script>
 </html>
