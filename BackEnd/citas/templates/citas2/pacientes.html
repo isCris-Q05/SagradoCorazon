@@ -52,7 +52,7 @@
                         <div class="card h-100 paciente-card">
                             <img src="" class="card-img-top" alt="">
                             <div class="card-body">
-                                <h5 class="card-title">{{paciente.nombre}} {{paciente.apellido}}</h5>
+                                <h5 class="card-title">{{paciente.user.first_name}} {{paciente.apellido}}</h5>
                                 <p class="card-text">{{psciente.cedula}}</p>
                                 <p class="card-text"><small class="text-muted">{{paciente.telefono}}5</small></p>
                             </div>
@@ -60,14 +60,15 @@
                                 <button class="btn btn-outline-primary btn-sm"
                                 data-bs-toggle="modal" 
                             data-bs-target="#perfilPacienteModal"
-                            data-name="{{ paciente.nombre }}"
+                            data-name="{{ paciente.user.first_name }}"
                             data-apellido="{{ paciente.apellido }}"
                             data-edad="{{ paciente.edad }}"
                             data-genero="{{ paciente.genero }}"
-                            data-alergias="{{ paciente.alergias }}"
+                            data-alergias="{{ paciente.alergiass  }}"
                             data-foto="{{ paciente.foto }}"
-                            data-enfermedades="{{ paciente.enfermedades }}"
+                            data-enfermedades="{{ paciente.enfermedadess  }}"
                             data-telefono="{{ paciente.telefono }}"
+                            data-fechaNac="{{ paciente.fecha_nacimiento|date:'Y-m-d' }}"
                                 >Ver perfil</button>
                             </div>
                         </div>
