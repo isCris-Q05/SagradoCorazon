@@ -1,0 +1,112 @@
+/* Estilos para el contenedor principal */
+#pacientesContainer {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    margin-top: 2rem;
+    transition: all 0.3s ease;
+}
+
+/* Estilos para la tabla */
+#tablaPacientes {
+    width: 100%;
+    overflow-x: auto;
+}
+
+#tablaPacientes table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+#tablaPacientes th {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+}
+
+#tablaPacientes td {
+    padding: 1rem;
+    vertical-align: middle;
+    border-bottom: 1px solid #dee2e6;
+}
+
+#tablaPacientes tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* Estilos para las tarjetas */
+.paciente-card {
+    border: none;
+    border-radius: 0.5rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.paciente-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
+}
+
+.paciente-card .card-body {
+    flex-grow: 1;
+    padding: 1.5rem;
+}
+
+.paciente-card .card-title {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+.paciente-card .card-text {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.paciente-card .card-footer {
+    background: transparent;
+    border-top: none;
+    padding: 0 1.5rem 1.5rem;
+}
+
+/* Estilos para la paginación */
+.pagination-controls .btn {
+    min-width: 100px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    #pacientesContainer {
+        padding: 1rem;
+    }
+    
+    #tablaPacientes th, 
+    #tablaPacientes td {
+        padding: 0.75rem;
+    }
+}
+
+/* Estilos para los botones de acción */
+#tablaPacientes .btn {
+    min-width: 100px; /* Ancho mínimo para consistencia */
+    white-space: nowrap; /* Evitar que el texto se divida en varias líneas */
+}
+
+/* Contenedor de botones */
+#tablaPacientes .d-flex.gap-2 {
+    flex-wrap: nowrap; /* Evitar que los botones se envuelvan */
+}
+
+/* Para pantallas pequeñas donde el espacio es limitado */
+@media (max-width: 768px) {
+    #tablaPacientes .btn {
+        min-width: auto;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8rem;
+    }
+}
