@@ -110,3 +110,95 @@
         font-size: 0.8rem;
     }
 }
+
+/* Estilos para el modal de historial */
+#historialModal .modal-header {
+    padding: 1.5rem;
+    border-bottom: none;
+}
+
+#historialModal .modal-title {
+    font-weight: 600;
+}
+
+#historialModal .modal-body {
+    padding: 2rem;
+}
+
+#historialModal .card {
+    border-radius: 0.5rem;
+    transition: transform 0.2s;
+}
+
+#historialModal .card:hover {
+    transform: translateY(-2px);
+}
+
+#historialModal .card-header {
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    font-weight: 500;
+}
+
+#historialModal .text-muted {
+    color: #6c757d !important;
+}
+
+/* Pestañas */
+#historialModal .nav-tabs {
+    border-bottom: 2px solid #dee2e6;
+}
+
+#historialModal .nav-tabs .nav-link {
+    border: none;
+    color: #6c757d;
+    font-weight: 500;
+    padding: 0.75rem 1.5rem;
+}
+
+#historialModal .nav-tabs .nav-link.active {
+    color: #0d6efd;
+    background-color: transparent;
+    border-bottom: 3px solid #0d6efd;
+}
+
+/* Filtros */
+#historialModal .btn-group.filter-btn {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+#historialModal .filter-btn {
+    border-radius: 0.5rem !important;
+}
+
+/* Iconos */
+#historialModal .fa, #historialModal .far, #historialModal .fas {
+    width: 1.25em;
+    text-align: center;
+}
+
+/* Mensaje cuando no hay datos */
+#noCitasMessage, #noTratamientosMessage {
+    display: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    #historialModal .modal-body {
+        padding: 1.5rem;
+    }
+    
+    #historialModal .card-header h5 {
+        font-size: 1rem;
+    }
+    
+    #historialModal .nav-tabs .nav-link {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    #historialModal .filter-btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8rem;
+    }
+}

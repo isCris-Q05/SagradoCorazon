@@ -94,7 +94,13 @@
                                                 data-fechaNac="{{ paciente.fecha_nacimiento|date:'Y-m-d' }}">
                                                 Ver perfil
                                             </button>
-                                            <button class="btn btn-outline-secondary btn-sm ver-historial-btn">
+                                            <button class="btn btn-outline-secondary btn-sm ver-historial-btn"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#historialModal"
+                                                data-name="{{ paciente.user.first_name }}"
+                                                data-apellido="{{ paciente.apellido }}"
+                                                data-telefono="{{ paciente.telefono }}"
+                                                data-paciente-id="{{ paciente.id }}">
                                                 Ver Historial
                                             </button>
                                         </div>
@@ -163,7 +169,95 @@
             </div>
         </div>
 
+        <!-- Modal para el historial del paciente -->
+        <div class="modal fade" id="historialModal" tabindex="-1" aria-labelledby="historialModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h3 class="modal-title" id="historialModalLabel">Historial Médico</h3>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Encabezado con info del paciente -->
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div>
+                                <h2 id="historialNombrePaciente" class="mb-1">N/A Desconocido</h2>
+                                <p class="text-muted mb-0" id="historialTelefono">Teléfono: Cargando...</p>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-info text-dark fs-6">Paciente activo</span>
+                            </div>
+                        </div>
 
+                        <!-- Pestañas para diferentes secciones -->
+                        <ul class="nav nav-tabs mb-4" id="historialTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="citas-tab" data-bs-toggle="tab" data-bs-target="#citas" type="button" role="tab" aria-controls="citas" aria-selected="true">
+                                    <i class="fas fa-calendar-check me-2"></i>Citas
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="tratamientos-tab" data-bs-toggle="tab" data-bs-target="#tratamientos" type="button" role="tab" aria-controls="tratamientos" aria-selected="false">
+                                    <i class="fas fa-pills me-2"></i>Tratamientos
+                                </button>
+                            </li>
+                        </ul>
+
+                        <!-- Contenido de las pestañas -->
+                        <div class="tab-content" id="historialTabContent">
+                            <!-- Pestaña de Citas -->
+                            <div class="tab-pane fade show active" id="citas" role="tabpanel" aria-labelledby="citas-tab">
+                                <!-- Filtros para citas -->
+                                <div class="mb-4">
+                                    <div class="btn-group" role="group" aria-label="Filtrar citas">
+                                        <button type="button" class="btn btn-outline-primary filter-btn active" data-filter="all">
+                                            <i class="fas fa-list me-1"></i> Todas
+                                        </button>
+                                        <button type="button" class="btn btn-outline-success filter-btn" data-filter="Completada">
+                                            <i class="fas fa-check-circle me-1"></i> Completadas
+                                        </button>
+                                        <button type="button" class="btn btn-outline-warning filter-btn" data-filter="Pendiente">
+                                            <i class="fas fa-clock me-1"></i> Pendientes
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger filter-btn" data-filter="No asistió">
+                                            <i class="fas fa-times-circle me-1"></i> No asistió
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Lista de citas -->
+                                <div id="citasContenido">
+                                    <!-- Las citas se cargarán aquí dinámicamente -->
+                                    <div class="text-center py-5" id="noCitasMessage">
+                                        <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted">No hay citas registradas</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Pestaña de Tratamientos -->
+                            <div class="tab-pane fade" id="tratamientos" role="tabpanel" aria-labelledby="tratamientos-tab">
+                                <div id="tratamientosContenido">
+                                    <!-- Los tratamientos se cargarán aquí dinámicamente -->
+                                    <div class="text-center py-5" id="noTratamientosMessage">
+                                        <i class="fas fa-pills fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted">No hay tratamientos registrados</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-2"></i>Cerrar
+                        </button>
+                        <button type="button" class="btn btn-primary" id="imprimirHistorialBtn">
+                            <i class="fas fa-print me-2"></i>Imprimir Historial
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
                 <!-- Modal para el perfil del paciente -->
                 <div class="modal fade" id="perfilPacienteModal" tabindex="-1" aria-labelledby="perfilPacienteModalLabel" aria-hidden="true">
                     <div class="modal-dialog modal-lg">
@@ -335,6 +429,7 @@
     <script src="{% static 'js/perfil-paciente.js' %}"></script>
     <script src="{% static 'js/menor-edad.js' %}"></script>
     <script src="{% static 'js/pacientes.js' %}"></script>
+    <script src="{% static 'js/historial-paciente.js' %}"></script>
 
 
 </body>
