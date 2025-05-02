@@ -53,7 +53,7 @@ def registrar_paciente(request):
     pacientes = Paciente.objects.all()
 
     if request.method == "POST":
-        username = request.POST.get('nombrePaciente')
+        username = request.POST.get('username')
         nombre = request.POST.get('nombrePaciente')
         apellido = request.POST.get('apellidoPaciente')
         fecha_nacimiento = request.POST.get('fechaNacimientoPaciente')
@@ -640,6 +640,37 @@ def generar_reporte(request):
     return response
 
 
+# Historial paciente - todas las citas del paciente
+#@login_required
+def historial_paciente(request, username):
+    # Obtener el paciente por username
+    paciente = get_object_or_404(Paciente, user__username=username)
+    citas = Cita.objects.filter(id_paciente=paciente).order_by('-fecha', '-hora')
+    
+    cita_data = []
+    for cita in citas:
+        cita_data.append({
+            'id_cita': cita.id_cita,
+            'fecha': cita.fecha.strftime('%Y-%m-%d'),
+            'hora': cita.hora.strftime('%H:%M:%S'),
+            'estado': cita.estado,
+            'id_medico': cita.id_medico.id,
+            'nombre_medico': f"{cita.id_medico.user.first_name} {cita.id_medico.user.last_name}",
+            'especialidad': cita.id_especialidad.nombre,
+            'motivo': getattr(cita, 'motivo', 'Consulta médica'),  # Forma más segura de getattr
+            'notas': getattr(cita, 'notas', 'Sin notas adicionales'),
+            'tipo': getattr(cita, 'tipo', 'Consulta')  # Agregado tipo por si lo necesitas
+
+        })
+
+    for cita in citas:
+        print(f"Paciente-user:  {cita.id_paciente.user.username} -- Paciente: {cita.id_paciente.user.first_name } {cita.id_paciente.user.last_name}  -- Medico: {cita.id_medico.user.first_name} -- fecha: {cita.fecha} -- hora: {cita.hora} -- estado: {cita.estado}")
+        print("--------------------------------------------------")
+    
+    if citas:
+        return JsonResponse({"success": True, "data": cita_data})
+    
+    return JsonResponse({"success": False, "message": "No se encontraron citas para este paciente."})
 
 # vista personalizada para el logout
 def logout_user(request):
