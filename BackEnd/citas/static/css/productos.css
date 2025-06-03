@@ -1,0 +1,249 @@
+/* product-cards.css - Estilos personalizados para las tarjetas de productos */
+
+/* Variables de diseño */
+:root {
+    --dc-primary: #5d9cec;         /* Azul suave principal */
+    --dc-primary-dark: #4a89dc;    /* Azul más oscuro */
+    --dc-secondary: #a0d9d9;       /* Verde agua claro */
+    --dc-accent: #f5b7b1;          /* Rosa suave */
+    --dc-text: #333333;            /* Texto principal */
+    --dc-text-light: #777777;      /* Texto secundario */
+    --dc-bg: #f9f9f9;              /* Fondo general */
+    --dc-card-bg: #ffffff;         /* Fondo de cards */
+    --dc-border: #e0e0e0;          /* Color de bordes */
+    --dc-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    --dc-shadow-hover: 0 8px 20px rgba(0, 0, 0, 0.1);
+        --dc-card-width: 280px; /* Ancho fijo para las tarjetas */
+
+}
+
+/* Layout mejorado */
+.dc-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(var(--dc-card-width), 1fr));
+    gap: 1.5rem;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.dc-col {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    display: flex;
+}
+
+/* Tarjeta de producto */
+.dc-product-card {
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--dc-shadow);
+    transition: all 0.3s ease;
+    background-color: var(--dc-card-bg);
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    min-height: 420px; /* Altura mínima uniforme */
+    width: 100%; /* Asegura que ocupe todo el ancho del contenedor */
+}
+
+.dc-product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--dc-shadow-hover);
+}
+
+/* Contenedor de imagen */
+.dc-card-img-container {
+    position: relative;
+    overflow: hidden;
+    height: 200px;
+    flex-shrink: 0;
+}
+
+.dc-card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.dc-product-card:hover .dc-card-img {
+    transform: scale(1.03);
+}
+
+/* Badge de categoría */
+.dc-product-badge {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    background-color: var(--dc-primary);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+/* Cuerpo de la tarjeta */
+.dc-card-body {
+    padding: 1.25rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 180px; /* Altura mínima para el cuerpo */
+}
+
+.dc-card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--dc-text);
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+}
+
+.dc-card-text {
+    color: var(--dc-text-light);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 0.75rem;
+    flex-grow: 1;
+}
+
+.dc-product-price {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--dc-primary);
+    margin-top: 0.5rem;
+}
+
+/* Pie de tarjeta */
+.dc-card-footer {
+    background-color: transparent;
+    border-top: 1px solid var(--dc-border);
+    padding: 1rem 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-shrink: 0;
+}
+
+/* Botones */
+.dc-btn {
+    flex: 1;
+    padding: 0.5rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    cursor: pointer;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dc-btn-details {
+    background-color: var(--dc-primary);
+    color: white;
+}
+
+.dc-btn-details:hover {
+    background-color: var(--dc-primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.dc-btn-edit {
+    background-color: white;
+    color: var(--dc-primary);
+    border: 1px solid var(--dc-primary);
+}
+
+.dc-btn-edit:hover {
+    background-color: var(--dc-primary);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .dc-col {
+        flex: 1 0 calc(33.333% - 1.5rem);
+    }
+}
+
+@media (max-width: 992px) {
+    .dc-col {
+        flex: 1 0 calc(50% - 1.5rem);
+    }
+}
+
+@media (max-width: 768px) {
+    .dc-card-img-container {
+        height: 180px;
+    }
+    
+    .dc-card-title {
+        font-size: 1rem;
+    }
+    
+    .dc-card-text {
+        font-size: 0.85rem;
+    }
+    
+    .dc-product-price {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .dc-col {
+        flex: 1 0 100%;
+    }
+    
+    .dc-card-img-container {
+        height: 220px;
+    }
+    
+    .dc-card-footer {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .dc-btn {
+        width: 100%;
+    }
+}
+
+/* Estilos para el icono por defecto */
+.dc-default-icon {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(93, 156, 236, 0.1); /* Fondo sutil con el color primario al 10% */
+}
+
+.dc-default-icon svg {
+    width: 80px;
+    height: 80px;
+    opacity: 0.7;
+    transition: all 0.3s ease;
+}
+
+.dc-product-card:hover .dc-default-icon svg {
+    transform: scale(1.1);
+    opacity: 1;
+}
+
+/* Ajuste para el contenedor de imagen */
+.dc-card-img-container {
+    background-color: #f8fafc; /* Fondo claro para el contenedor */
+}
