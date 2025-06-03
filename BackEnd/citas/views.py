@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.utils import timezone
 from django.utils.timezone import now
 from citas.utils import admin_medico_required
 import pywhatkit as kit
@@ -20,6 +21,7 @@ import pandas as pd
 from .forms import UploadExcelForm
 
 from datetime import datetime, timedelta
+
 
 from django.conf import settings
 from twilio.rest import Client
@@ -304,9 +306,58 @@ def login_usuario(request):
 def register(request):
     return render(request, 'citas2/register.html')
 
+from django.utils import timezone
+from datetime import datetime, timedelta
+from django.db.models import Q
+
+def actualizar_estado_citas():
+    """
+    Actualiza citas pendientes a "No asistió" cuando han pasado 15 minutos 
+    de la hora programada sin ser marcadas como "Finalizada"
+    """
+    # Obtener la hora actual en la zona horaria de Managua
+    ahora_managua = timezone.localtime(timezone.now())
+    umbral_tiempo = ahora_managua - timedelta(minutes=15)
+    
+    # Debug información
+    print(f"[DEBUG] Hora actual en Managua: {ahora_managua}")
+    print(f"[DEBUG] Umbral de tiempo (hora actual -15min): {umbral_tiempo}")
+    
+    # Obtener citas pendientes que deberían marcarse como no asistidas
+    citas_no_asistidas = Cita.objects.filter(
+        estado=Cita.PENDIENTE  # Solo citas pendientes
+    ).filter(
+        Q(fecha__lt=ahora_managua.date()) |  # Citas de días anteriores
+        Q(
+            fecha=ahora_managua.date(),
+            hora__lte=umbral_tiempo.time()  # Citas de hoy con hora pasada +15min
+        )
+    )
+    
+    # Debug detallado
+    print(f"[DEBUG] Citas pendientes encontradas para marcar como no asistidas: {citas_no_asistidas.count()}")
+    
+    for cita in citas_no_asistidas[:5]:  # Mostrar solo las primeras 5 para debug
+        # Convertir a datetime con zona horaria para la comparación
+        cita_datetime = timezone.make_aware(
+            datetime.combine(cita.fecha, cita.hora),
+            timezone.get_current_timezone()
+        )
+        print(f"[DEBUG] Cita ID {cita.id_cita}: Programada {cita.fecha} {cita.hora}")
+        print(f"[DEBUG] Tiempo transcurrido: {ahora_managua - cita_datetime}")
+    
+    # Actualizar estado a "No asistió"
+    actualizadas = citas_no_asistidas.update(estado=Cita.NO_ASISTIO)
+    print(f"[DEBUG] Total citas actualizadas a 'No asistió': {actualizadas}")
+    
+    return actualizadas
+
 @login_required
 def inicio(request):
     # Procesamiento inicial para la página (sin cambios)
+    citas_actualizadas = actualizar_estado_citas()
+    print(f"Citas actualizadas: {citas_actualizadas}")
+
     citas_list = Cita.objects.all().order_by('-fecha', '-hora')
     registros_list = Registro.objects.select_related('id_enfermedad', 'id_cita').prefetch_related('tratamientos', 'registroproducto_set').order_by('-id_cita')
     
