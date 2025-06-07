@@ -564,10 +564,11 @@
                     id="horaInicioCita"
                     required
                   />
+                  <span id="error-disponibilidad" class="text-danger mt-1 d-block"></span>
                 </div>
 
                 <!-- Botón para enviar -->
-                <button type="submit" class="btn btn-success">
+                <button type="submit" class="btn btn-success"  id="btn-guardar-cita">
                   Guardar Cita
                 </button>
               </form>
@@ -737,15 +738,14 @@
     <script src="{% static 'js/optionShow.js' %}"></script>
     <script src="{% static 'js/alertCustom.js' %}"></script>
     <script src="{% static 'js/cargarNombrePaciente.js' %}"></script>
+    <script src="{% static 'js/validarHoraCitas.js' %}"></script>
     <!--
       <script src="{% static 'js/sendReminder.js' %}"></script>
     -->
-
-
-    
   </body>
 
   <script>
-       window.pacienteNombre = "{{ paciente_nombre|escapejs }}";
+    window.pacienteNombre = "{{ paciente_nombre|escapejs }}";
   </script>
+
 </html>
