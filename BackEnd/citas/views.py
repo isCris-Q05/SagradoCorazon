@@ -1172,6 +1172,35 @@ def crear_cita(request):
             return redirect('inicio')
 
 
+def validar_disponibilidad_medico(request):
+    id_medico = request.GET.get('id_medico')
+    fecha_str = request.GET.get('fecha')
+    hora_str = request.GET.get('hora')
+
+    try:
+        fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date()
+        hora_inicio = datetime.strptime(hora_str, '%H:%M').time()
+        hora_fin = (datetime.combine(fecha, hora_inicio) + timedelta(hours=1)).time()
+
+        citas = Cita.objects.filter(
+            id_medico=id_medico,
+            fecha=fecha,
+            estado__in=['pendiente', 'finalizada']
+        )
+
+        for cita in citas:
+            cita_hora_fin = (datetime.combine(fecha, cita.hora) + timedelta(hours=1)).time()
+            if (hora_inicio < cita_hora_fin) and (hora_fin > cita.hora):
+                return JsonResponse({
+                    'disponible': False,
+                    'mensaje': f"Ya existe una cita de {cita.hora.strftime('%H:%M')} a {cita_hora_fin.strftime('%H:%M')}."
+                })
+
+        return JsonResponse({'disponible': True})
+    
+    except Exception as e:
+        return JsonResponse({'disponible': False, 'mensaje': 'Datos inválidos'})
+
 def listar_citas(request):
     citas = Cita.objects.all()
     return render(request, 'citas/listar_citas.html', {'citas': citas})
