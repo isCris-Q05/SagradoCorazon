@@ -3,7 +3,8 @@
     const fechaInput = document.getElementById("fechaCita");
     const horaInput = document.getElementById("horaInicioCita");
     const form = document.querySelector('#crearCitaModal form');
-    const errorSpan = document.getElementById("error-disponibilidad");
+    const errorDisponibilidad = document.getElementById("error-disponibilidad");
+    const errorFecha = document.getElementById("error-fecha");
     const submitBtn = document.getElementById("btn-guardar-cita");
 
     async function validarDisponibilidad() {
@@ -12,9 +13,21 @@
       const hora = horaInput.value;
 
       if (!id_medico || !fecha || !hora) {
-        errorSpan.textContent = "";
+        errorDisponibilidad.textContent = "";
         submitBtn.disabled = true;
         return false;
+      }
+
+      const now = new Date();
+      now.setSeconds(0);
+      now.setMilliseconds(0);
+      const selectedDateTime = new Date(`${fecha}T${hora}`);
+      if (selectedDateTime < now) {
+        errorFecha.textContent = "No puedes agendar citas en el pasado.";
+        submitBtn.disabled = true;
+        return false;
+      } else {
+        errorFecha.textContent = "";
       }
 
       try {
@@ -22,17 +35,17 @@
         const data = await response.json();
 
         if (!data.disponible) {
-          errorSpan.textContent = data.mensaje;
+          errorDisponibilidad.textContent = data.mensaje;
           submitBtn.disabled = true;
           return false;
         } else {
-          errorSpan.textContent = "";
+          errorDisponibilidad.textContent = "";
           submitBtn.disabled = false;
           return true;
         }
       } catch (error) {
         console.error("Error en la validación de disponibilidad:", error);
-        errorSpan.textContent = "Error al validar la disponibilidad.";
+        errorDisponibilidad.textContent = "Error al validar la disponibilidad.";
         submitBtn.disabled = true;
         return false;
       }
