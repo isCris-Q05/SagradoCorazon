@@ -552,6 +552,7 @@
                     id="fechaCita"
                     required
                   />
+                  <span id="error-fecha" class="text-danger mt-1 d-block"></span>
                 </div>
                 <div class="mb-3">
                   <label for="horaInicioCita" class="form-label"
@@ -565,9 +566,11 @@
                     required
                   />
                   <span id="error-disponibilidad" class="text-danger mt-1 d-block"></span>
+                  <span id="error-disponibilidad" class="text-danger mt-1 d-block"></span>
                 </div>
 
                 <!-- Botón para enviar -->
+                <button type="submit" class="btn btn-success"  id="btn-guardar-cita">
                 <button type="submit" class="btn btn-success"  id="btn-guardar-cita">
                   Guardar Cita
                 </button>
@@ -738,12 +741,10 @@
     <script src="{% static 'js/optionShow.js' %}"></script>
     <script src="{% static 'js/alertCustom.js' %}"></script>
     <script src="{% static 'js/cargarNombrePaciente.js' %}"></script>
+    <script src="{% static 'js/validarHoraCitas.js' %}"></script>
     <!--
       <script src="{% static 'js/sendReminder.js' %}"></script>
     -->
-
-
-    
   </body>
 
   <script>
@@ -803,5 +804,8 @@
     });
   });
 </script>
+
+    window.pacienteNombre = "{{ paciente_nombre|escapejs }}";
+  </script>
 
 </html>
