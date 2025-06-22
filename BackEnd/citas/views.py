@@ -550,6 +550,50 @@ from django.contrib.auth.decorators import login_required
 from .models import Cita, Paciente, Medico, Especialidad
 import json
 
+from django.core.paginator import Paginator
+
+def tipo_citas_all(request, tipo):
+    citas = []
+    
+    if tipo == 'pendientes':
+        queryset = Cita.objects.filter(estado='pendiente')
+    elif tipo == 'finalizadas':
+        queryset = Cita.objects.filter(estado='finalizada')
+    elif tipo == 'no_asistio':
+        queryset = Cita.objects.filter(estado='no_asistio')
+    else:
+        return JsonResponse({"success": False, "message": "Tipo no válido"}, status=400)
+    
+    # Paginación
+    page_number = request.GET.get('page', 1)
+    paginator = Paginator(queryset.select_related('id_paciente__user', 'id_medico__user'), 10)
+    
+    try:
+        page_obj = paginator.get_page(page_number)
+    except PageNotAnInteger:
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+    
+    # Serializar los datos
+    citas_list = list(page_obj.object_list.values(
+        'id_cita', 'fecha', 'hora', 'estado',
+        'id_paciente__user__first_name', 'id_paciente__user__last_name',
+        'id_paciente__telefono',
+        'id_medico__user__first_name', 'id_medico__user__last_name'
+    ))
+    
+    return JsonResponse({
+        "success": True,
+        "citas": citas_list,
+        "count": paginator.count,
+        "has_previous": page_obj.has_previous(),
+        "has_next": page_obj.has_next(),
+        "current_page": page_obj.number,
+        "total_pages": paginator.num_pages
+    })
+
+
 #@login_required
 @require_GET
 def todas_las_citas_json(request):

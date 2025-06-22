@@ -92,6 +92,44 @@
           >
             Agregar Registro
           </button>
+
+          <div class="dropdown">
+            <button class="btn btn-primary dropdown-toggle" id="filtrosBtn" type="button" 
+                    data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-funnel-fill me-1"></i> Filtros
+            </button>
+            <ul class="dropdown-menu p-3">
+              <li><h6 class="dropdown-header">Filtrar por estado de cita:</h6></li>
+              <li>
+                <label class="dropdown-item">
+                  <input type="radio" name="estadoCita" class="form-check-input me-2" 
+                        value="pendientes" onchange="filtrarCitas(this.value)">
+                  Pendientes
+                </label>
+              </li>
+              <li>
+                <label class="dropdown-item">
+                  <input type="radio" name="estadoCita" class="form-check-input me-2" 
+                        value="finalizadas" onchange="filtrarCitas(this.value)">
+                  Finalizadas
+                </label>
+              </li>
+              <li>
+                <label class="dropdown-item">
+                  <input type="radio" name="estadoCita" class="form-check-input me-2" 
+                        value="no_asistio" onchange="filtrarCitas(this.value)">
+                  No asistió
+                </label>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <button class="btn btn-sm btn-outline-danger w-100" onclick="limpiarFiltros()">
+                  Limpiar filtros
+                </button>
+              </li>
+            </ul>
+          </div>
+
         </div>
 
         <div class="header d-flex justify-content-between">
@@ -276,37 +314,33 @@
        </div>
 
 
-        <!-- Paginación -->
-        <div class="d-flex justify-content-between align-items-center mt-3">
-          {% if citas.has_previous %}
-          <a
-            href="?page={{ citas.previous_page_number }}"
-            class="btn btn-primary btn-next-prev"
-          >
-            &laquo; Anterior
-          </a>
-          {% else %}
-          <span class="btn btn-secondary btn-next-prev disabled"
-            >&laquo; Anterior</span
-          >
-          {% endif %}
+        <div id="paginadorContainer">
+          <!-- Paginador estático inicial -->
+          <div class="d-flex justify-content-between align-items-center mt-3" id="paginadorEstatico">
+            {% if citas.has_previous %}
+            <a href="?page={{ citas.previous_page_number }}" class="btn btn-primary btn-next-prev">
+              &laquo; Anterior
+            </a>
+            {% else %}
+            <span class="btn btn-secondary btn-next-prev disabled">&laquo; Anterior</span>
+            {% endif %}
 
-          <span
-            >Página {{ citas.number }} de {{ citas.paginator.num_pages }}</span
-          >
+            <span>Página {{ citas.number }} de {{ citas.paginator.num_pages }}</span>
 
-          {% if citas.has_next %}
-          <a
-            href="?page={{ citas.next_page_number }}"
-            class="btn btn-primary btn-next-prev"
-          >
-            Siguiente &raquo;
-          </a>
-          {% else %}
-          <span class="btn btn-secondary btn-next-prev disabled"
-            >Siguiente &raquo;</span
-          >
-          {% endif %}
+            {% if citas.has_next %}
+            <a href="?page={{ citas.next_page_number }}" class="btn btn-primary btn-next-prev">
+              Siguiente &raquo;
+            </a>
+            {% else %}
+            <span class="btn btn-secondary btn-next-prev disabled">Siguiente &raquo;</span>
+            {% endif %}
+          </div>
+          <!-- Final del paginador estático -->
+        </div>
+
+        <!-- Contenedor del calendario -->
+        <div id="calendarioContainer" class="hidden">
+          <div id="calendar"></div>
         </div>
       </div>
 
@@ -742,6 +776,7 @@
     <script src="{% static 'js/alertCustom.js' %}"></script>
     <script src="{% static 'js/cargarNombrePaciente.js' %}"></script>
     <script src="{% static 'js/validarHoraCitas.js' %}"></script>
+    <script src="{% static 'js/filtrarCitas.js' %}"></script>
     <!--
       <script src="{% static 'js/sendReminder.js' %}"></script>
     -->
