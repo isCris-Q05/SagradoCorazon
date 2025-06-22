@@ -340,3 +340,9 @@ input[type="file"] {
   max-height: 200px;
   overflow-y: auto;
 }
+
+/* Estilos para el contador de resultados */
+.total-counter {
+  min-width: 80px;
+  text-align: center;
+}

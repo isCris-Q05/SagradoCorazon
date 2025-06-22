@@ -31,8 +31,9 @@ async function filtrarCitas(tipo, page = 1) {
         const data = await response.json();
         if (!data.success) throw new Error(data.message || 'Error al filtrar citas');
         
-        // 4. Actualizar la tabla y mostrar paginador dinámico
+        // 4. Actualizar la tabla, el contador y mostrar paginador dinámico
         actualizarTablaCitas(data);
+        actualizarContadorTotal(data.count);  // Nueva función para actualizar el contador
         crearPaginadorDinamico(data);
         
     } catch (error) {
@@ -50,6 +51,19 @@ async function filtrarCitas(tipo, page = 1) {
         
         const paginadorEstatico = document.getElementById('paginadorEstatico');
         if (paginadorEstatico) paginadorEstatico.style.display = 'flex';
+    }
+}
+
+function actualizarContadorTotal(total) {
+    const contadorTotal = document.getElementById('contadorTotal');
+    if (contadorTotal) {
+        contadorTotal.textContent = total;
+        
+        // Opcional: Añadir animación para destacar el cambio
+        contadorTotal.classList.add('text-success', 'fw-bold');
+        setTimeout(() => {
+            contadorTotal.classList.remove('text-success', 'fw-bold');
+        }, 1000);
     }
 }
 
@@ -181,7 +195,13 @@ function limpiarFiltros() {
     currentFilter = '';
     currentPage = 1;
     
-    // 2. Recargar la página para mostrar estado inicial
+    // 2. Restablecer contador a valor inicial (opcional)
+    const contadorTotal = document.getElementById('contadorTotal');
+    if (contadorTotal) {
+        contadorTotal.textContent = '0'; // O el valor inicial que prefieras
+    }
+    
+    // 3. Recargar la página para mostrar estado inicial
     window.location.href = window.location.pathname;
 }
 
