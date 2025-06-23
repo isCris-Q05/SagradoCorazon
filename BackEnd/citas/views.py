@@ -533,6 +533,8 @@ def inicio(request):
 
     # GET request normal
     paciente_nombre = request.session.pop('paciente_nombre', None)
+    print("Cantidad de citas:", citas_list.count())
+    cantidad_citas = citas_list.count()
     print(paciente_nombre)
     form = UploadExcelForm()
     return render(request, "citas2/index.html", {
@@ -541,7 +543,15 @@ def inicio(request):
         "registros": registros,
         "enfermedades": enfermedades,
         "productos": productos,
-        "form": form
+        "form": form,
+        "cantidad_citas": cantidad_citas
+    })
+
+def cantidad_total_citas(request):
+    citas = Cita.objects.all()
+    return JsonResponse({
+        "success": True,
+        "count": citas.count()
     })
 
 from django.http import JsonResponse
@@ -554,6 +564,9 @@ from django.core.paginator import Paginator
 
 def tipo_citas_all(request, tipo):
     citas = []
+
+    citas = Cita.objects.all().order_by('-fecha', '-hora')
+    #print(f"Cantidad de citas: {citas.count()}")
     
     if tipo == 'pendientes':
         queryset = Cita.objects.filter(estado='pendiente')

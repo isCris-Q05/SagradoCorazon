@@ -190,19 +190,63 @@ function crearPaginadorDinamico(data) {
     paginadorContainer.appendChild(paginadorDinamico);
 }
 
-function limpiarFiltros() {
-    // 1. Restablecer variables
-    currentFilter = '';
-    currentPage = 1;
-    
-    // 2. Restablecer contador a valor inicial (opcional)
-    const contadorTotal = document.getElementById('contadorTotal');
-    if (contadorTotal) {
-        contadorTotal.textContent = '0'; // O el valor inicial que prefieras
+async function limpiarFiltros() {
+    try {
+        // 1. Mostrar loader en el contador
+        const contadorTotal = document.getElementById('contadorTotal');
+        if (contadorTotal) {
+            contadorTotal.innerHTML = `<span class="spinner-border spinner-border-sm" role="status"></span>`;
+        }
+        
+        // 2. Restablecer variables
+        currentFilter = '';
+        currentPage = 1;
+        
+        // 3. Obtener el conteo total real desde el endpoint
+        const response = await fetch('/cantidad_total_citas/');
+        if (!response.ok) throw new Error('Error al obtener el total de citas');
+        
+        const data = await response.json();
+        if (!data.success) throw new Error(data.message || 'Error en la respuesta');
+        
+        // 4. Actualizar el contador con el valor real
+        if (contadorTotal) {
+            contadorTotal.textContent = data.count;
+            
+            // Animación para destacar el cambio (opcional)
+            contadorTotal.classList.add('text-success', 'fw-bold');
+            setTimeout(() => {
+                contadorTotal.classList.remove('text-success', 'fw-bold');
+            }, 1000);
+        }
+        
+        // 5. Ocultar paginador dinámico si existe
+        const paginadorDinamico = document.getElementById('paginadorDinamico');
+        if (paginadorDinamico) {
+            paginadorDinamico.style.display = 'none';
+        }
+        
+        // 6. Mostrar paginador estático
+        const paginadorEstatico = document.getElementById('paginadorEstatico');
+        if (paginadorEstatico) {
+            paginadorEstatico.style.display = 'flex';
+        }
+        
+        // 7. Recargar la página para mostrar todas las citas
+        window.location.href = window.location.pathname;
+        
+    } catch (error) {
+        console.error('Error al limpiar filtros:', error);
+        
+        // Restaurar valor por defecto en caso de error
+        const contadorTotal = document.getElementById('contadorTotal');
+        if (contadorTotal) {
+            contadorTotal.textContent = '0';
+        }
+        
+        // Mostrar error al usuario (opcional)
+        alert('Error al limpiar filtros: ' + error.message);
     }
-    
-    // 3. Recargar la página para mostrar estado inicial
-    window.location.href = window.location.pathname;
 }
 
 // Inicializar eventos de edición
