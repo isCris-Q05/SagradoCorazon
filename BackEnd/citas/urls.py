@@ -2,7 +2,7 @@ from django.urls import path
 from .views import index,registrar_paciente, registrar_medico, login_medico, login_paciente ,dashboard_medico, dashboard_paciente, logout_user, crear_alergia, crear_especialidad, asignar_especialidad, listar_medicos, detalle_medico, listar_enfermedades_alergias, crear_enfermedad, listar_tratamientos, crear_tratamiento, asignar_tratamiento, listar_enfermedades_tratamientos, agregar_producto, listar_productos, crear_cita, listar_citas
 from .views import login_usuario, register, inicio, listar_alergias, buscar_medicos, buscar_pacientes, obtener_especialidades, buscar_cita, crear_registro, buscar_enfermedades, tratamientos_por_enfermedad, paciente_citas,paciente_historial,paciente_inicio, editar_cita,registrar_paciente, vista_error, forgot_password_medico, validate_otp, change_password, validar_disponibilidad_medico
 
-from .views import send_reminder, todas_las_citas_json, generar_reporte, historial_paciente, tipo_citas_all, cantidad_total_citas
+from .views import send_reminder, todas_las_citas_json, generar_reporte, historial_paciente, tipo_citas_all, cantidad_total_citas, visualizacion
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
@@ -13,6 +13,7 @@ urlpatterns = [
     path('historial_paciente/<str:username>/', historial_paciente, name='historial_paciente'),
     path('tipo_citas/<str:tipo>/', tipo_citas_all, name='tipo_citas'),
     path('cantidad_total_citas/', cantidad_total_citas, name='cantidad_total_citas'),
+    path('visualizacion/', visualizacion, name='visualizacion'),
 
 
     path('login/', login_usuario, name='login'),

@@ -554,6 +554,9 @@ def cantidad_total_citas(request):
         "count": citas.count()
     })
 
+def visualizacion(request):
+    return render(request, "citas2/visualizacion.html")
+
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 from django.contrib.auth.decorators import login_required
