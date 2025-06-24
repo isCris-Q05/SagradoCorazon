@@ -557,6 +557,242 @@ def cantidad_total_citas(request):
 def visualizacion(request):
     return render(request, "citas2/visualizacion.html")
 
+# endpoint o vista que devuelve todas las citas en las que asistieron y cantidad total
+# se le pasara el campo fecha, tiene que ser YYYY-MM por motivos estadisticos
+# ahora lo haremos con un rango de fecha inicial y final, pero si no se pasa nada, se mostraran todas las citas finalizadas
+# formato de fecha: YYYY-MM
+def citas_asistio(request, fecha_inicio=None, fecha_fin=None):
+    try:
+        # Base query
+        citas = Cita.objects.filter(estado='finalizada').select_related(
+            'id_paciente', 'id_medico', 'id_especialidad'
+        )
+        
+        # Validación de fechas si se proporcionan
+        if fecha_inicio and fecha_fin:
+            try:
+                # Convertir fechas a objetos datetime
+                fecha_inicio_obj = datetime.strptime(fecha_inicio, '%Y-%m')
+                fecha_fin_obj = datetime.strptime(fecha_fin, '%Y-%m')
+                
+                # Validar que fecha_inicio <= fecha_fin
+                if fecha_inicio_obj > fecha_fin_obj:
+                    return JsonResponse({
+                        "success": False,
+                        "message": "La fecha de inicio no puede ser mayor a la fecha final"
+                    }, status=400)
+                
+                print(f"Filtrando citas entre {fecha_inicio} y {fecha_fin}")
+                
+                # Aplicar filtro de rango de fechas
+                citas = citas.filter(
+                    Q(fecha__year__gte=fecha_inicio_obj.year, 
+                      fecha__month__gte=fecha_inicio_obj.month) &
+                    Q(fecha__year__lte=fecha_fin_obj.year,
+                      fecha__month__lte=fecha_fin_obj.month)
+                )
+                
+            except ValueError:
+                return JsonResponse({
+                    "success": False,
+                    "message": "Formato de fecha inválido. Use YYYY-MM para ambas fechas"
+                }, status=400)
+        else:
+            print("Mostrando todas las citas finalizadas (sin filtro de fecha)")
+
+        # Serialización de datos
+        citas_data = []
+        for cita in citas:
+            citas_data.append({
+                'id': cita.id_cita,
+                'paciente': {
+                    'id': cita.id_paciente.id,
+                    'nombre': f"{cita.id_paciente.user.first_name} {cita.id_paciente.user.last_name}",
+                    'cedula': cita.id_paciente.cedula
+                },
+                'medico': {
+                    'id': cita.id_medico.id,
+                    'nombre': f"{cita.id_medico.user.first_name} {cita.id_medico.user.last_name}",
+                    'especialidad': cita.id_especialidad.nombre
+                },
+                'fecha': cita.fecha.strftime('%Y-%m-%d'),
+                'hora': cita.hora.strftime('%H:%M'),
+                'estado': cita.get_estado_display()
+            })
+
+        return JsonResponse({
+            "success": True,
+            "citas": citas_data,
+            "count": len(citas_data),
+            "fecha_inicio": fecha_inicio,
+            "fecha_fin": fecha_fin
+        })
+
+    except Exception as e:
+        print(f"Error en citas_asistio: {str(e)}")
+        return JsonResponse({
+            "success": False,
+            "message": "Error interno del servidor"
+        }, status=500)
+
+# endpoint o vista que devuelve todas las citas en las que no asistieron y cantidad total
+def citas_no_asistio(request, fecha_inicio=None, fecha_fin=None):
+    try:
+        # Base query
+        citas = Cita.objects.filter(estado='no_asistio').select_related(
+            'id_paciente', 'id_medico', 'id_especialidad'
+        )
+        
+        # Validación de fechas si se proporcionan
+        if fecha_inicio and fecha_fin:
+            try:
+                # Convertir fechas a objetos datetime
+                fecha_inicio_obj = datetime.strptime(fecha_inicio, '%Y-%m')
+                fecha_fin_obj = datetime.strptime(fecha_fin, '%Y-%m')
+                
+                # Validar que fecha_inicio <= fecha_fin
+                if fecha_inicio_obj > fecha_fin_obj:
+                    return JsonResponse({
+                        "success": False,
+                        "message": "La fecha de inicio no puede ser mayor a la fecha final"
+                    }, status=400)
+                
+                print(f"Filtrando citas no asistidas entre {fecha_inicio} y {fecha_fin}")
+                
+                # Aplicar filtro de rango de fechas
+                citas = citas.filter(
+                    Q(fecha__year__gte=fecha_inicio_obj.year, 
+                      fecha__month__gte=fecha_inicio_obj.month) &
+                    Q(fecha__year__lte=fecha_fin_obj.year,
+                      fecha__month__lte=fecha_fin_obj.month)
+                )
+                
+            except ValueError:
+                return JsonResponse({
+                    "success": False,
+                    "message": "Formato de fecha inválido. Use YYYY-MM para ambas fechas"
+                }, status=400)
+        else:
+            print("Mostrando todas las citas no asistidas (sin filtro de fecha)")
+
+        # Serialización de datos
+        citas_data = []
+        for cita in citas:
+            citas_data.append({
+                'id': cita.id_cita,
+                'paciente': {
+                    'id': cita.id_paciente.id,
+                    'nombre': f"{cita.id_paciente.user.first_name} {cita.id_paciente.user.last_name}",
+                    'cedula': cita.id_paciente.cedula,
+                    'telefono': cita.id_paciente.telefono
+                },
+                'medico': {
+                    'id': cita.id_medico.id,
+                    'nombre': f"{cita.id_medico.user.first_name} {cita.id_medico.user.last_name}",
+                    'especialidad': cita.id_especialidad.nombre,
+                    'telefono': cita.id_medico.telefono
+                },
+                'fecha': cita.fecha.strftime('%Y-%m-%d'),
+                'hora': cita.hora.strftime('%H:%M'),
+                'estado': cita.get_estado_display(),
+                'motivo_no_asistio': "Registrar motivo"  # Campo adicional sugerido
+            })
+
+        return JsonResponse({
+            "success": True,
+            "citas": citas_data,
+            "count": len(citas_data),
+            "fecha_inicio": fecha_inicio,
+            "fecha_fin": fecha_fin
+        })
+
+    except Exception as e:
+        print(f"Error en citas_no_asistio: {str(e)}")
+        return JsonResponse({
+            "success": False,
+            "message": "Error interno del servidor"
+        }, status=500)
+
+# endpoint o vista que devuelve todas las citas pendientes y cantidad total
+def citas_pendientes(request, fecha_inicio=None, fecha_fin=None):
+    try:
+        # Base query
+        citas = Cita.objects.filter(estado='pendiente').select_related(
+            'id_paciente', 'id_medico', 'id_especialidad'
+        ).order_by('fecha', 'hora')  # Ordenar por fecha y hora ascendente
+        
+        # Validación de fechas si se proporcionan
+        if fecha_inicio and fecha_fin:
+            try:
+                # Convertir fechas a objetos datetime
+                fecha_inicio_obj = datetime.strptime(fecha_inicio, '%Y-%m')
+                fecha_fin_obj = datetime.strptime(fecha_fin, '%Y-%m')
+                
+                # Validar que fecha_inicio <= fecha_fin
+                if fecha_inicio_obj > fecha_fin_obj:
+                    return JsonResponse({
+                        "success": False,
+                        "message": "La fecha de inicio no puede ser mayor a la fecha final"
+                    }, status=400)
+                
+                print(f"Filtrando citas pendientes entre {fecha_inicio} y {fecha_fin}")
+                
+                # Aplicar filtro de rango de fechas
+                citas = citas.filter(
+                    Q(fecha__year__gte=fecha_inicio_obj.year, 
+                      fecha__month__gte=fecha_inicio_obj.month) &
+                    Q(fecha__year__lte=fecha_fin_obj.year,
+                      fecha__month__lte=fecha_fin_obj.month)
+                )
+                
+            except ValueError:
+                return JsonResponse({
+                    "success": False,
+                    "message": "Formato de fecha inválido. Use YYYY-MM para ambas fechas"
+                }, status=400)
+        else:
+            print("Mostrando todas las citas pendientes (sin filtro de fecha)")
+
+        # Serialización de datos
+        citas_data = []
+        for cita in citas:
+            citas_data.append({
+                'id': cita.id_cita,
+                'paciente': {
+                    'id': cita.id_paciente.id,
+                    'nombre': f"{cita.id_paciente.user.first_name} {cita.id_paciente.user.last_name}",
+                    'cedula': cita.id_paciente.cedula,
+                    'telefono': cita.id_paciente.telefono,
+                    'email': cita.id_paciente.user.email
+                },
+                'medico': {
+                    'id': cita.id_medico.id,
+                    'nombre': f"{cita.id_medico.user.first_name} {cita.id_medico.user.last_name}",
+                    'especialidad': cita.id_especialidad.nombre,
+                    'telefono': cita.id_medico.telefono
+                },
+                'fecha': cita.fecha.strftime('%Y-%m-%d'),
+                'hora': cita.hora.strftime('%H:%M'),
+                'estado': cita.get_estado_display(),
+                'notificado': False  # Campo para tracking de notificaciones
+            })
+
+        return JsonResponse({
+            "success": True,
+            "citas": citas_data,
+            "count": len(citas_data),
+            "fecha_inicio": fecha_inicio,
+            "fecha_fin": fecha_fin,
+            "proximas_citas": len([c for c in citas_data if c['fecha'] >= datetime.now().strftime('%Y-%m-%d')])
+        })
+
+    except Exception as e:
+        print(f"Error en citas_pendientes: {str(e)}")
+        return JsonResponse({
+            "success": False,
+            "message": "Error interno del servidor"
+        }, status=500)
+
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 from django.contrib.auth.decorators import login_required
