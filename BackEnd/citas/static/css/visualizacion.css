@@ -1,0 +1,65 @@
+/* Agrega esto a tu visualizacion.css */
+.dropdown-menu {
+    min-width: 200px;
+    padding: 0.5rem 0;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.dropdown-item {
+    padding: 0.5rem 1.5rem;
+    transition: all 0.2s;
+}
+
+.dropdown-item:hover {
+    background-color: #f8f9fa;
+}
+
+.dropdown-toggle::after {
+    margin-left: 0.5em;
+    vertical-align: 0.15em;
+}
+
+.left-buttons .dropdown {
+    margin-right: 10px;
+    display: inline-block;
+}
+
+.left-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.filtros-section {
+  margin-top: 15px;
+  transition: all 0.3s ease;
+}
+
+.filtros-container {
+  border: 1px solid #dee2e6;
+}
+
+.filtros-container label {
+  font-weight: 500;
+  font-size: 0.9rem;
+  margin-bottom: 0.3rem;
+  display: block;
+}
+
+/* Agrega esto a tu archivo CSS si necesitas ajustar el espaciado */
+.gap-2 {
+    gap: 0.5rem;
+}
+
+.flex-grow-1 {
+    flex-grow: 1;
+}
+
+.btn-outline-secondary {
+    border-color: #6c757d;
+    color: #6c757d;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #6c757d;
+    color: white;
+}

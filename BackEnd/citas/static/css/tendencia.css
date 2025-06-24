@@ -1,0 +1,88 @@
+.custom-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1050;
+}
+
+.popup-content {
+    background-color: white;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 700px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+
+
+.popup-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.close-popup {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #6c757d;
+}
+
+.popup-body {
+    padding: 20px;
+}
+
+.chart-container {
+    width: 100%;
+    height: 400px;
+    margin: 0 auto;
+}
+
+.popup-footer {
+    padding: 15px 20px;
+    border-top: 1px solid #dee2e6;
+    text-align: right;
+}
+/* Estilos para el selector de tipo de gráfico */
+.chart-type-selector {
+    display: flex;
+    gap: 8px;
+    margin-right: 15px;
+}
+
+.chart-type-btn {
+    padding: 5px 10px;
+    border: 1px solid #dee2e6;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+}
+
+.chart-type-btn:hover {
+    background-color: #e9ecef;
+}
+
+.chart-type-btn.active {
+    background-color: #0d6efd;
+    color: white;
+    border-color: #0d6efd;
+}
+
+/* Ajustes para el header del popup */
+.popup-header {
+    display: flex;
+    align-items: center;
+}
+
+.popup-header h3 {
+    flex-grow: 1;
+    margin: 0;
+}
