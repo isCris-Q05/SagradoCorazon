@@ -568,6 +568,29 @@ def citas_asistio(request, fecha_inicio=None, fecha_fin=None):
             'id_paciente', 'id_medico', 'id_especialidad'
         )
         
+        # Filtro por médico (si se proporciona)
+        medico_id = request.GET.get('medico_id')
+        medico_username = request.GET.get('medico_username')
+        
+        if medico_id or medico_username:
+            try:
+                if medico_id:
+                    medico = Medico.objects.get(id=medico_id)
+                else:
+                    medico = Medico.objects.get(user__username=medico_username)
+                
+                citas = citas.filter(id_medico=medico)
+            except Medico.DoesNotExist:
+                return JsonResponse({
+                    "success": False,
+                    "message": "El médico no existe"
+                }, status=404)
+            except ValueError:
+                return JsonResponse({
+                    "success": False,
+                    "message": "ID de médico inválido"
+                }, status=400)
+        
         # Validación de fechas si se proporcionan
         if fecha_inicio and fecha_fin:
             try:
@@ -597,8 +620,6 @@ def citas_asistio(request, fecha_inicio=None, fecha_fin=None):
                     "success": False,
                     "message": "Formato de fecha inválido. Use YYYY-MM para ambas fechas"
                 }, status=400)
-        else:
-            print("Mostrando todas las citas finalizadas (sin filtro de fecha)")
 
         # Serialización de datos
         citas_data = []
@@ -608,12 +629,14 @@ def citas_asistio(request, fecha_inicio=None, fecha_fin=None):
                 'paciente': {
                     'id': cita.id_paciente.id,
                     'nombre': f"{cita.id_paciente.user.first_name} {cita.id_paciente.user.last_name}",
-                    'cedula': cita.id_paciente.cedula
+                    'cedula': cita.id_paciente.cedula,
+                    'telefono': cita.id_paciente.telefono
                 },
                 'medico': {
                     'id': cita.id_medico.id,
                     'nombre': f"{cita.id_medico.user.first_name} {cita.id_medico.user.last_name}",
-                    'especialidad': cita.id_especialidad.nombre
+                    'especialidad': cita.id_especialidad.nombre,
+                    'username': cita.id_medico.user.username
                 },
                 'fecha': cita.fecha.strftime('%Y-%m-%d'),
                 'hora': cita.hora.strftime('%H:%M'),
@@ -625,7 +648,11 @@ def citas_asistio(request, fecha_inicio=None, fecha_fin=None):
             "citas": citas_data,
             "count": len(citas_data),
             "fecha_inicio": fecha_inicio,
-            "fecha_fin": fecha_fin
+            "fecha_fin": fecha_fin,
+            "medico_filtrado": {
+                'id': medico.id if medico_id or medico_username else None,
+                'nombre': f"{medico.user.first_name} {medico.user.last_name}" if medico_id or medico_username else None
+            }
         })
 
     except Exception as e:
@@ -641,7 +668,30 @@ def citas_no_asistio(request, fecha_inicio=None, fecha_fin=None):
         # Base query
         citas = Cita.objects.filter(estado='no_asistio').select_related(
             'id_paciente', 'id_medico', 'id_especialidad'
-        )
+        ).order_by('-fecha', '-hora')  # Ordenar por fecha y hora descendente
+        
+        # Filtro por médico (si se proporciona)
+        medico_id = request.GET.get('medico_id')
+        medico_username = request.GET.get('medico_username')
+        
+        if medico_id or medico_username:
+            try:
+                if medico_id:
+                    medico = Medico.objects.get(id=medico_id)
+                else:
+                    medico = Medico.objects.get(user__username=medico_username)
+                
+                citas = citas.filter(id_medico=medico)
+            except Medico.DoesNotExist:
+                return JsonResponse({
+                    "success": False,
+                    "message": "El médico no existe"
+                }, status=404)
+            except ValueError:
+                return JsonResponse({
+                    "success": False,
+                    "message": "ID de médico inválido"
+                }, status=400)
         
         # Validación de fechas si se proporcionan
         if fecha_inicio and fecha_fin:
@@ -672,8 +722,6 @@ def citas_no_asistio(request, fecha_inicio=None, fecha_fin=None):
                     "success": False,
                     "message": "Formato de fecha inválido. Use YYYY-MM para ambas fechas"
                 }, status=400)
-        else:
-            print("Mostrando todas las citas no asistidas (sin filtro de fecha)")
 
         # Serialización de datos
         citas_data = []
@@ -684,18 +732,21 @@ def citas_no_asistio(request, fecha_inicio=None, fecha_fin=None):
                     'id': cita.id_paciente.id,
                     'nombre': f"{cita.id_paciente.user.first_name} {cita.id_paciente.user.last_name}",
                     'cedula': cita.id_paciente.cedula,
-                    'telefono': cita.id_paciente.telefono
+                    'telefono': cita.id_paciente.telefono,
+                    'email': cita.id_paciente.user.email
                 },
                 'medico': {
                     'id': cita.id_medico.id,
                     'nombre': f"{cita.id_medico.user.first_name} {cita.id_medico.user.last_name}",
                     'especialidad': cita.id_especialidad.nombre,
+                    'username': cita.id_medico.user.username,
                     'telefono': cita.id_medico.telefono
                 },
                 'fecha': cita.fecha.strftime('%Y-%m-%d'),
                 'hora': cita.hora.strftime('%H:%M'),
                 'estado': cita.get_estado_display(),
-                'motivo_no_asistio': "Registrar motivo"  # Campo adicional sugerido
+                'motivo_no_asistio': "Por registrar",  # Campo para registrar el motivo
+                'reagendada': False  # Campo para tracking de reagendación
             })
 
         return JsonResponse({
@@ -703,7 +754,11 @@ def citas_no_asistio(request, fecha_inicio=None, fecha_fin=None):
             "citas": citas_data,
             "count": len(citas_data),
             "fecha_inicio": fecha_inicio,
-            "fecha_fin": fecha_fin
+            "fecha_fin": fecha_fin,
+            "medico_filtrado": {
+                'id': medico.id if medico_id or medico_username else None,
+                'nombre': f"{medico.user.first_name} {medico.user.last_name}" if medico_id or medico_username else None
+            }
         })
 
     except Exception as e:
@@ -719,7 +774,31 @@ def citas_pendientes(request, fecha_inicio=None, fecha_fin=None):
         # Base query
         citas = Cita.objects.filter(estado='pendiente').select_related(
             'id_paciente', 'id_medico', 'id_especialidad'
-        ).order_by('fecha', 'hora')  # Ordenar por fecha y hora ascendente
+        ).order_by('-fecha', '-hora')  # Ordenar por fecha y hora ascendente
+        
+        # Filtro por médico (si se proporciona)
+        medico_id = request.GET.get('medico_id')
+        medico_username = request.GET.get('medico_username')
+        medico = None
+        
+        if medico_id or medico_username:
+            try:
+                if medico_id:
+                    medico = Medico.objects.get(id=medico_id)
+                else:
+                    medico = Medico.objects.get(user__username=medico_username)
+                
+                citas = citas.filter(id_medico=medico)
+            except Medico.DoesNotExist:
+                return JsonResponse({
+                    "success": False,
+                    "message": "El médico no existe"
+                }, status=404)
+            except ValueError:
+                return JsonResponse({
+                    "success": False,
+                    "message": "ID de médico inválido"
+                }, status=400)
         
         # Validación de fechas si se proporcionan
         if fecha_inicio and fecha_fin:
@@ -769,6 +848,7 @@ def citas_pendientes(request, fecha_inicio=None, fecha_fin=None):
                     'id': cita.id_medico.id,
                     'nombre': f"{cita.id_medico.user.first_name} {cita.id_medico.user.last_name}",
                     'especialidad': cita.id_especialidad.nombre,
+                    'username': cita.id_medico.user.username,
                     'telefono': cita.id_medico.telefono
                 },
                 'fecha': cita.fecha.strftime('%Y-%m-%d'),
@@ -783,6 +863,11 @@ def citas_pendientes(request, fecha_inicio=None, fecha_fin=None):
             "count": len(citas_data),
             "fecha_inicio": fecha_inicio,
             "fecha_fin": fecha_fin,
+            "medico_filtrado": {
+                'id': medico.id if medico_id or medico_username else None,
+                'nombre': f"{medico.user.first_name} {medico.user.last_name}" if medico_id or medico_username else None,
+                'username': medico.user.username if medico_id or medico_username else None
+            },
             "proximas_citas": len([c for c in citas_data if c['fecha'] >= datetime.now().strftime('%Y-%m-%d')])
         })
 
