@@ -1,7 +1,7 @@
 from django.shortcuts import render, HttpResponse, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from .models import Usuario, Paciente, Medico, Alergia, Especialidad, MedicoEspecialidad, Enfermedad, Tratamiento,TratamientoEnfermedad, Producto, Cita, Registro, RegistroTratamiento, RegistroProducto
+from .models import Usuario, Paciente, Medico, Alergia, Especialidad, MedicoEspecialidad, Enfermedad, Tratamiento,TratamientoEnfermedad, Producto, Cita, Registro, RegistroTratamiento, RegistroProducto, PacienteEnfermedad, PacienteAlergia
 from django.contrib import messages
 from django.http import JsonResponse
 from django.db.models import Q
@@ -877,6 +877,121 @@ def citas_pendientes(request, fecha_inicio=None, fecha_fin=None):
             "success": False,
             "message": "Error interno del servidor"
         }, status=500)
+    
+# Endpoint o vista que filtra las enfermedades o cantidad de enfermedades ya sea de un paciente o sino en general
+def filtro_enfermedades(request):
+    try:
+        nombre_enfermedad = request.GET.get('nombre_enfermedad', None)
+        paciente_username = request.GET.get('paciente_username', None)
+
+        # Primero obtenemos la enfermedad (si se especificó el nombre)
+        enfermedad = None
+        if nombre_enfermedad:
+            enfermedad = Enfermedad.objects.filter(nombre__icontains=nombre_enfermedad).first()
+            if not enfermedad and nombre_enfermedad:  # Solo retornar esto si se buscó una enfermedad
+                return JsonResponse({
+                    "success": True,
+                    "enfermedad": None,
+                    "total_registros": 0,
+                    "total_pacientes_unicos": 0,
+                    "registros_paciente": 0,
+                    "registros": []
+                })
+
+        # Datos para la respuesta
+        response_data = {
+            "success": True,
+            "enfermedad": {
+                'id': enfermedad.id_enfermedad if enfermedad else None,
+                'nombre': enfermedad.nombre if enfermedad else None
+            },
+            "total_registros": 0,
+            "total_pacientes_unicos": 0,
+            "registros_paciente": 0,
+            "registros": []  # Nuevo campo para listar los registros
+        }
+
+        # Si hay un paciente pero no enfermedad, mostrar todos sus registros
+        if paciente_username and not enfermedad:
+            try:
+                paciente = Paciente.objects.get(user__username=paciente_username)
+                registros = Registro.objects.filter(
+                    id_cita__id_paciente=paciente
+                ).select_related('id_enfermedad', 'id_cita')
+                
+                registros_data = [{
+                    'id': r.id_registro,
+                    'motivo': r.motivo,
+                    'enfermedad': {
+                        'id': r.id_enfermedad.id_enfermedad,
+                        'nombre': r.id_enfermedad.nombre
+                    },
+                    'fecha': r.id_cita.fecha
+                } for r in registros]
+                
+                response_data.update({
+                    "registros_paciente": registros.count(),
+                    "registros": registros_data
+                })
+                
+            except Paciente.DoesNotExist:
+                response_data.update({
+                    "success": False,
+                    "message": "Paciente no encontrado"
+                })
+            return JsonResponse(response_data)
+
+        # Lógica cuando hay enfermedad
+        if enfermedad:
+            # Conteo total en registros médicos
+            total_registros = Registro.objects.filter(id_enfermedad=enfermedad).count()
+            response_data["total_registros"] = total_registros
+
+            # Conteo de pacientes únicos con esta enfermedad (sin repetir)
+            pacientes_unicos = Registro.objects.filter(
+                id_enfermedad=enfermedad
+            ).values('id_cita__id_paciente').distinct().count()
+            response_data["total_pacientes_unicos"] = pacientes_unicos
+
+            # Conteo para un paciente específico
+            if paciente_username:
+                try:
+                    paciente = Paciente.objects.get(user__username=paciente_username)
+                    registros_paciente = Registro.objects.filter(
+                        id_cita__id_paciente=paciente,
+                        id_enfermedad=enfermedad
+                    ).select_related('id_cita')
+                    
+                    registros_data = [{
+                        'id': r.id_registro,
+                        'motivo': r.motivo,
+                        'fecha': r.id_cita.fecha
+                    } for r in registros_paciente]
+                    
+                    response_data.update({
+                        "registros_paciente": registros_paciente.count(),
+                        "tiene_enfermedad": PacienteEnfermedad.objects.filter(
+                            id_paciente=paciente,
+                            id_enfermedad=enfermedad
+                        ).exists(),
+                        "registros": registros_data
+                    })
+                    
+                except Paciente.DoesNotExist:
+                    response_data.update({
+                        "success": False,
+                        "message": "Paciente no encontrado"
+                    })
+
+        return JsonResponse(response_data)
+
+    except Exception as e:
+        print(f"Error en filtro_enfermedades: {str(e)}")
+        return JsonResponse({
+            "success": False,
+            "message": "Error interno del servidor"
+        }, status=500)
+
 
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
