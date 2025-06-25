@@ -2,7 +2,7 @@ from django.urls import path
 from .views import index,registrar_paciente, registrar_medico, login_medico, login_paciente ,dashboard_medico, dashboard_paciente, logout_user, crear_alergia, crear_especialidad, asignar_especialidad, listar_medicos, detalle_medico, listar_enfermedades_alergias, crear_enfermedad, listar_tratamientos, crear_tratamiento, asignar_tratamiento, listar_enfermedades_tratamientos, agregar_producto, listar_productos, crear_cita, listar_citas
 from .views import login_usuario, register, inicio, listar_alergias, buscar_medicos, buscar_pacientes, obtener_especialidades, buscar_cita, crear_registro, buscar_enfermedades, tratamientos_por_enfermedad, paciente_citas,paciente_historial,paciente_inicio, editar_cita,registrar_paciente, vista_error, forgot_password_medico, validate_otp, change_password, validar_disponibilidad_medico
 
-from .views import send_reminder, todas_las_citas_json, generar_reporte, historial_paciente, tipo_citas_all, cantidad_total_citas, visualizacion, citas_asistio, citas_no_asistio, citas_pendientes, filtro_enfermedades
+from .views import send_reminder, todas_las_citas_json, generar_reporte, historial_paciente, tipo_citas_all, cantidad_total_citas, visualizacion, citas_asistio, citas_no_asistio, citas_pendientes, filtro_enfermedades, filtrar_registros_tratamientos
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
@@ -25,6 +25,8 @@ urlpatterns = [
     path('citas_pendientes/<str:fecha_inicio>/<str:fecha_fin>/', citas_pendientes, name='citas_pendientes_rango'),
 
     path('filtro_enfermedades/', filtro_enfermedades, name='filtro_enfermedades'),
+
+    path('filtrar_registros_tratamientos/', filtrar_registros_tratamientos, name='filtrar_registros_tratamientos'),
 
 
     path('login/', login_usuario, name='login'),

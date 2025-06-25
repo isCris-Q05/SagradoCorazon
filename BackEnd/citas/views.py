@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from .models import Usuario, Paciente, Medico, Alergia, Especialidad, MedicoEspecialidad, Enfermedad, Tratamiento,TratamientoEnfermedad, Producto, Cita, Registro, RegistroTratamiento, RegistroProducto, PacienteEnfermedad, PacienteAlergia
 from django.contrib import messages
 from django.http import JsonResponse
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.utils import timezone
 from django.utils.timezone import now
@@ -991,6 +991,110 @@ def filtro_enfermedades(request):
             "success": False,
             "message": "Error interno del servidor"
         }, status=500)
+    
+def filtrar_registros_tratamientos(request):
+    try:
+        nombre_enfermedad = request.GET.get('nombre_enfermedad', None)
+        paciente_username = request.GET.get('paciente_username', None)
+        nombre_tratamiento = request.GET.get('nombre_tratamiento', None)
+
+        # validar parametros minimos
+        if not nombre_enfermedad or not nombre_tratamiento:
+            return JsonResponse({
+                "success": False,
+                "message": "Se requieren los parámetros 'enfermedad' y 'tratamiento'"
+            }, status=400)
+        
+        # obtenemos la enferemdad y tratamiento
+        enfermedad = Enfermedad.objects.filter(nombre__icontains=nombre_enfermedad).first()
+        tratamiento = Tratamiento.objects.filter(nombre__icontains=nombre_tratamiento).first()
+
+        if not enfermedad or not tratamiento:
+            return JsonResponse({
+                "success": False,
+                "message": "Enfermedad o tratamiento no encontrado"
+            }, status=404)
+        
+        # aqui construimos la consulta base
+        registros = Registro.objects.filter(
+            id_enfermedad=enfermedad,
+            tratamientos__id_tratamiento=tratamiento
+        ).select_related(
+            'id_cita__id_paciente',
+            'id_enfermedad',
+        ).prefetch_related('tratamientos__id_tratamiento')
+
+        # filtramos por paciente solo si se especifica
+        if paciente_username:
+            try:
+                paciente = Paciente.objects.get(user__username=paciente_username)
+                registros = registros.filter(id_cita__id_paciente=paciente)
+            except Paciente.DoesNotExist:
+                return JsonResponse({
+                    "success": False,
+                    "message": "Paciente no encontrado"
+                }, status=404)
+        
+        # obteniendo los datos de los registros
+        registros_data = []
+        pacientes_unicos = set()  # Para evitar duplicados
+
+        for registro in registros:
+            # datos del paciente
+            paciente = registro.id_cita.id_paciente
+            pacientes_unicos.add(paciente.id)
+
+            # datos del registro
+            registros_data.append({
+                'id': registro.id_registro,
+                'fecha': registro.id_cita.fecha,
+                'motivo': registro.motivo,
+                'paciente': {
+                    'id': paciente.id,
+                    'nombre_completo': f"{paciente.user.first_name} {paciente.user.last_name}",
+                    'username': paciente.user.username,
+                },
+                'tratamientos': [
+                    {
+                        'id': rt.id_tratamiento.id_tratamiento,  # Accedemos al id del tratamiento
+                        'nombre': rt.id_tratamiento.nombre,      # Accedemos al nombre del tratamiento
+                    } for rt in registro.tratamientos.all()
+                ]
+            })
+
+        # preparamos la respuesta JSON
+        response_data = {
+            "success": True,
+            "enfermedad": {
+                'id': enfermedad.id_enfermedad,
+                'nombre': enfermedad.nombre
+            },
+            "tratamiento": {
+                "id": tratamiento.id_tratamiento,
+                "nombre": tratamiento.nombre
+            },
+            "total_registros": len(registros_data),  # Usamos len() en lugar de count() para usar los datos ya obtenidos
+            "total_pacientes_unicos": len(pacientes_unicos),
+            "registros": registros_data,
+        }
+
+        # si se filtro por paciente, agregamos info adicional
+        if paciente_username:
+            response_data['paciente'] = registros_data[0]['paciente'] if registros_data else None
+            response_data['tiene_enfermedad'] = PacienteEnfermedad.objects.filter(
+                id_paciente=paciente,
+                id_enfermedad=enfermedad
+            ).exists()
+
+        return JsonResponse(response_data)
+
+    except Exception as e:
+        print(f"Error en filtrar_registros_tratamientos: {str(e)}")
+        return JsonResponse({
+            "success": False,
+            "message": "Error interno del servidor"
+        }, status=500)
+
 
 
 from django.http import JsonResponse
