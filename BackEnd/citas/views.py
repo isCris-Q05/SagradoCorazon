@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from .models import Usuario, Paciente, Medico, Alergia, Especialidad, MedicoEspecialidad, Enfermedad, Tratamiento,TratamientoEnfermedad, Producto, Cita, Registro, RegistroTratamiento, RegistroProducto, PacienteEnfermedad, PacienteAlergia
 from django.contrib import messages
 from django.http import JsonResponse
-from django.db.models import Q, Count
+from django.db.models import Q, Count, F
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.utils import timezone
 from django.utils.timezone import now
@@ -879,6 +879,45 @@ def citas_pendientes(request, fecha_inicio=None, fecha_fin=None):
             "success": False,
             "message": "Error interno del servidor"
         }, status=500)
+
+# Todas las enfermedades, y la cantidad de pacientes que afectan
+def enfermedades_cantidad_pacientes(request):
+    try:
+        # Obtener todas las enfermedades con conteo de pacientes
+        enfermedades = Enfermedad.objects.annotate(
+            # Pacientes con la enfermedad registrada directamente
+            pacientes_directos=Count('pacienteenfermedad__id_paciente', distinct=True),
+            # Pacientes con la enfermedad mencionada en registros médicos
+            pacientes_en_registros=Count('registro__id_cita__id_paciente', distinct=True)
+        ).annotate(
+            # Total de pacientes únicos (suma de ambos tipos)
+            total_pacientes=F('pacientes_directos') + F('pacientes_en_registros')
+        )
+        
+        # Preparar la respuesta
+        response_data = {
+            "success": True,
+            "enfermedades": [
+                {
+                    "id": enfermedad.id_enfermedad,
+                    "nombre": enfermedad.nombre,
+                    "pacientes_directos": enfermedad.pacientes_directos,
+                    "pacientes_en_registros": enfermedad.pacientes_en_registros,
+                    "total_pacientes": enfermedad.total_pacientes
+                }
+                for enfermedad in enfermedades
+            ]
+        }
+        
+        return JsonResponse(response_data)
+    
+    except Exception as e:
+        print(f"Error en enfermedades_cantidad_pacientes: {str(e)}")
+        return JsonResponse({
+            "success": False,
+            "message": "Error interno del servidor"
+        }, status=500)
+
     
 # Endpoint o vista que filtra las enfermedades o cantidad de enfermedades ya sea de un paciente o sino en general
 def filtro_enfermedades(request):

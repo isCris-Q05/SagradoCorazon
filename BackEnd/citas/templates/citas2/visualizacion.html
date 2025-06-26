@@ -106,25 +106,23 @@
               </div>
           </div>
 
-          <!-- Filtros para Enfermedades (inicialmente oculto) -->
+          <!-- Filtros para Enfermedades -->
           <div id="filtrosEnfermedades" class="filtros-section" style="display: none;">
               <div class="filtros-container bg-light p-3 rounded">
                   <div class="row g-3">
                       <div class="col-md-4">
                           <label>Nombre</label>
-                          <input type="text" class="form-control" placeholder="Buscar enfermedad">
+                          <input type="text" id="buscarEnfermedad" class="form-control" placeholder="Buscar enfermedad">
+                          <div id="sugerenciasEnfermedad" class="list-group sugerencias-dropdown"></div>
                       </div>
                       <div class="col-md-4">
                           <label>Paciente</label>
-                          <select class="form-select">
-                              <option>Todos</option>
-                              <option>Ana Martínez</option>
-                              <option>Luis Rodríguez</option>
-                          </select>
+                          <input type="text" id="buscarPaciente" class="form-control" placeholder="Buscar paciente">
+                          <div id="sugerenciasPaciente" class="list-group sugerencias-dropdown"></div>
                       </div>
                       <div class="col-md-4 d-flex align-items-end gap-2">
-                          <button class="btn btn-primary flex-grow-1">Buscar</button>
-                          <button class="btn btn-outline-secondary flex-grow-1">Tendencia</button>
+                          <button class="btn btn-primary flex-grow-1" id="btnBuscar">Buscar</button>
+                          <button class="btn btn-outline-secondary flex-grow-1" id="btnTendencia">Tendencia</button>
                       </div>
                   </div>
               </div>
@@ -245,40 +243,23 @@
          </div>
 
          <!-- Tabla de Enfermedades (inicialmente oculta) -->
-          <div id="tabla-enfermedades" class="tabla-seccion" style="display: none;">
-              <table class="table">
-                  <thead>
-                      <tr>
-                          <th>ID Enfermedad</th>
-                          <th>Nombre</th>
-                          <th>Descripción</th>
-                          <th>Pacientes afectados</th>
-                          <th>Acciones</th>
-                      </tr>
-                  </thead>
-                  <tbody>
-                      <!-- Datos de ejemplo -->
-                      <tr>
-                          <td>1</td>
-                          <td>Hipertensión</td>
-                          <td>Presión arterial elevada</td>
-                          <td>12</td>
-                          <td>
-                              <button class="btn btn-sm btn-info">Detalles</button>
-                          </td>
-                      </tr>
-                      <tr>
-                          <td>2</td>
-                          <td>Diabetes</td>
-                          <td>Niveles altos de glucosa</td>
-                          <td>8</td>
-                          <td>
-                              <button class="btn btn-sm btn-info">Detalles</button>
-                          </td>
-                      </tr>
-                  </tbody>
-              </table>
-          </div>
+        <div id="tabla-enfermedades" class="tabla-seccion" style="display: none;">
+            <table class="table" id="tabla-enfermedades-datos">
+                <thead>
+                    <tr>
+                        <th>ID Enfermedad</th>
+                        <th>Nombre</th>
+                        <th>Pacientes Directos</th>
+                        <th>Pacientes en Registros</th>
+                        <th>Total Pacientes</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Los datos se cargarán dinámicamente aquí -->
+                </tbody>
+            </table>
+        </div>
 
           <!-- Tabla de Tratamientos (inicialmente oculta) -->
           <div id="tabla-tratamientos" class="tabla-seccion" style="display: none;">
@@ -646,6 +627,8 @@
     <script src="{% static 'js/tendencias.js' %}"></script>
     <script src="{% static 'js/tablas.js' %}"></script>
     <script src="{% static 'js/cargarMedicos.js' %}"></script>
+    <script src="{% static 'js/mostrarEnfermedades.js' %}"></script>
+    <script src="{% static 'js/busquedaEnfermedades.js' %}"></script>
     <!--
       <script src="{% static 'js/sendReminder.js' %}"></script>
     -->
