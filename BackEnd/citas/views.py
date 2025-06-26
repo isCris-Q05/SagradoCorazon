@@ -12,6 +12,8 @@ from citas.utils import admin_medico_required
 import pywhatkit as kit
 from django.views.decorators.csrf import csrf_exempt
 import random
+from django.core.serializers.json import DjangoJSONEncoder
+
 
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
@@ -1095,7 +1097,48 @@ def filtrar_registros_tratamientos(request):
             "message": "Error interno del servidor"
         }, status=500)
 
+# endpoint que te devuelve todas las citas, esto es inicialmente para el inicio de visualizacion
+def citas_visualizacion(request):
+    citas = Cita.objects.all().order_by('-fecha', '-hora').select_related(
+        'id_paciente__user',
+        'id_medico__user',
+        'id_especialidad'
+    )
+    
+    citas_data = []
+    for cita in citas:
+        citas_data.append({
+            "id_cita": cita.id_cita,
+            "id_paciente_id": cita.id_paciente.id,
+            "paciente_nombre": f"{cita.id_paciente.user.first_name} {cita.id_paciente.user.last_name}",
+            "id_medico_id": cita.id_medico.id,
+            "medico_nombre": f"{cita.id_medico.user.first_name} {cita.id_medico.user.last_name}",
+            "fecha": cita.fecha,
+            "hora": cita.hora.strftime("%H:%M:%S"),
+            "estado": cita.estado
+        })
+    
+    return JsonResponse({
+        "citas": citas_data,
+        "success": True,
+        "count": len(citas_data)
+    }, encoder=DjangoJSONEncoder)
 
+# ENDPOINT QUE ME DEVUELVE A TODOS LOS DOCTORES
+def doctores_all(request):
+    doctores = Medico.objects.all().select_related('user')
+    doctores_data = []
+    for doctor in doctores:
+        doctores_data.append({
+            "id": doctor.id,
+            "nombre": f"{doctor.user.first_name} {doctor.user.last_name}"
+        })
+    
+    return JsonResponse({
+        "doctores": doctores_data,
+        "success": True,
+        "count": len(doctores_data)
+    }, encoder=DjangoJSONEncoder)
 
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET

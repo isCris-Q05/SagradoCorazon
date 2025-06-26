@@ -71,33 +71,36 @@
         </div>
 
           <!-- Filtros para Citas (inicialmente oculto) -->
+          <!-- Filtros para Citas (inicialmente oculto) -->
           <div id="filtrosCitas" class="filtros-section" style="display: none;">
               <div class="filtros-container bg-light p-3 rounded">
                   <div class="row g-3">
-                      <div class="col-md-3">
+                      <div class="col-md-2">
                           <label>Estado</label>
-                          <select class="form-select">
-                              <option>Todos</option>
-                              <option>Pendiente</option>
-                              <option>Finalizada</option>
-                              <option>No asistió</option>
+                          <select class="form-select" id="filtroEstado">
+                              <option value="">Todos</option>
+                              <option value="pendiente">Pendiente</option>
+                              <option value="finalizada">Finalizada</option>
+                              <option value="no_asistio">No asistió</option>
                           </select>
                       </div>
-                      <div class="col-md-3">
+                      <div class="col-md-4">
                           <label>Rango de fechas</label>
-                          <input type="date" class="form-control">
+                          <div class="input-group">
+                              <input type="month" class="form-control" id="fechaInicio" placeholder="Inicio (YYYY/MM)">
+                              <span class="input-group-text">a</span>
+                              <input type="month" class="form-control" id="fechaFin" placeholder="Fin (YYYY/MM)">
+                          </div>
                       </div>
                       <div class="col-md-3">
                           <label>Médico</label>
-                          <select class="form-select">
-                              <option>Todos</option>
-                              <option>Dr. Juan Pérez</option>
-                              <option>Dra. María Gómez</option>
+                          <select class="form-select" id="filtroMedico">
+                              <option value="">Todos</option>
                           </select>
                       </div>
                       <div class="col-md-3 d-flex align-items-end gap-2">
-                          <button class="btn btn-primary flex-grow-1">Buscar</button>
-                          <button class="btn btn-outline-secondary flex-grow-1">Tendencia</button>
+                          <button class="btn btn-primary flex-grow-1" id="btnBuscarCitas">Buscar</button>
+                          <button class="btn btn-outline-secondary flex-grow-1" id="btnResetFiltros">Limpiar</button>
                       </div>
                   </div>
               </div>
@@ -373,27 +376,17 @@
 
 
         <div id="paginadorContainer">
-          <!-- Paginador estático inicial -->
-          <div class="d-flex justify-content-between align-items-center mt-3" id="paginadorEstatico">
-            {% if citas.has_previous %}
-            <a href="?page={{ citas.previous_page_number }}" class="btn btn-primary btn-next-prev">
-              &laquo; Anterior
-            </a>
-            {% else %}
-            <span class="btn btn-secondary btn-next-prev disabled">&laquo; Anterior</span>
-            {% endif %}
-
-            <span>Página {{ citas.number }} de {{ citas.paginator.num_pages }}</span>
-
-            {% if citas.has_next %}
-            <a href="?page={{ citas.next_page_number }}" class="btn btn-primary btn-next-prev">
-              Siguiente &raquo;
-            </a>
-            {% else %}
-            <span class="btn btn-secondary btn-next-prev disabled">Siguiente &raquo;</span>
-            {% endif %}
+          <div class="d-flex justify-content-between align-items-center mt-3">
+              <button id="btnAnterior" class="btn btn-primary btn-next-prev" disabled>
+                  &laquo; Anterior
+              </button>
+              
+              <span id="paginaInfo">Página 1 de 1</span>
+              
+              <button id="btnSiguiente" class="btn btn-primary btn-next-prev" disabled>
+                  Siguiente &raquo;
+              </button>
           </div>
-          <!-- Final del paginador estático -->
         </div>
 
         <!-- Contenedor del calendario -->
@@ -652,6 +645,7 @@
     <script src="{% static 'js/visualizacion.js' %}"></script>
     <script src="{% static 'js/tendencias.js' %}"></script>
     <script src="{% static 'js/tablas.js' %}"></script>
+    <script src="{% static 'js/cargarMedicos.js' %}"></script>
     <!--
       <script src="{% static 'js/sendReminder.js' %}"></script>
     -->
