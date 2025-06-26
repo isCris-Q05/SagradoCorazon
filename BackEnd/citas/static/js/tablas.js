@@ -1,11 +1,15 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Variables para la paginación
-    let todasLasCitas = [];
-    let citasFiltradas = [];
+    //let todasLasCitas = [];
+    //let citasFiltradas = [];
     let paginaActual = 1;
     const citasPorPagina = 10;
     let totalPaginas = 1;
     let aplicandoFiltros = false;
+
+    window.aplicandoFiltros = false;
+    window.todasLasCitas = [];
+    window.citasFiltradas = [];
 
     // Cargar médicos al iniciar
     cargarMedicos();
