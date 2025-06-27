@@ -111,9 +111,10 @@
               <div class="filtros-container bg-light p-3 rounded">
                   <div class="row g-3">
                       <div class="col-md-4">
-                          <label>Nombre</label>
-                          <input type="text" id="buscarEnfermedad" class="form-control" placeholder="Buscar enfermedad">
-                          <div id="sugerenciasEnfermedad" class="list-group sugerencias-dropdown"></div>
+                          <label>Enfermedad</label>
+                          <select id="selectEnfermedad" class="form-select">
+                              <option value="" selected disabled>Cargando enfermedades...</option>
+                          </select>
                       </div>
                       <div class="col-md-4">
                           <label>Paciente</label>
@@ -260,6 +261,51 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- Tabla de resultados de busqueda de enfermedades -->
+         <!-- Resultados de Búsqueda (nueva sección) -->
+    <div id="resultados-busqueda" class="tabla-seccion" style="display: none;">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 id="titulo-resultados">Resultados de búsqueda</h4>
+            <button class="btn btn-outline-secondary" id="btn-volver-enfermedades">
+                <i class="fas fa-arrow-left"></i> Volver a todas las enfermedades
+            </button>
+        </div>
+        
+        <!-- Resumen de estadísticas -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h6>Enfermedad seleccionada</h6>
+                        <p id="resumen-enfermedad" class="fw-bold">Ninguna</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h6>Paciente seleccionado</h6>
+                        <p id="resumen-paciente" class="fw-bold">Ninguno</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h6>Total registros</h6>
+                        <p id="resumen-total" class="fw-bold">0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de resultados -->
+        <table class="table" id="tabla-resultados">
+            <thead>
+                <tr>
+                    <th>ID Registro</th>
+                    <th>Motivo</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Los datos se cargarán dinámicamente aquí -->
+            </tbody>
+        </table>
 
           <!-- Tabla de Tratamientos (inicialmente oculta) -->
           <div id="tabla-tratamientos" class="tabla-seccion" style="display: none;">
@@ -629,6 +675,7 @@
     <script src="{% static 'js/cargarMedicos.js' %}"></script>
     <script src="{% static 'js/mostrarEnfermedades.js' %}"></script>
     <script src="{% static 'js/busquedaEnfermedades.js' %}"></script>
+    <script src="{% static 'js/filtroEnfermedades.js' %}"></script>
     <!--
       <script src="{% static 'js/sendReminder.js' %}"></script>
     -->

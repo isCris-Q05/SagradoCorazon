@@ -63,3 +63,32 @@
     background-color: #6c757d;
     color: white;
 }
+/* Estilo para el dropdown de sugerencias de pacientes */
+.sugerencias-dropdown {
+    z-index: 1000;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    display: none;
+    margin-top: 5px;
+    background: white;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.175);
+}
+
+.sugerencias-dropdown a {
+    display: block;
+    padding: 8px 12px;
+    color: #212529;
+    text-decoration: none;
+}
+
+.sugerencias-dropdown a:hover {
+    background-color: #f8f9fa;
+}
+
+/* Estilo para el select de enfermedades */
+.form-select {
+    cursor: pointer;
+}

@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Función para cargar los datos de enfermedades
+    // Función para cargar los datos de enfermedades (para tabla y select)
     function cargarEnfermedades() {
         fetch('/enfermedades_cantidad_pacientes/')
             .then(response => {
@@ -10,17 +10,21 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(data => {
                 if (data.success) {
+                    // Mostrar enfermedades en la tabla
                     mostrarEnfermedades(data.enfermedades);
-                    // Mostrar la tabla si estaba oculta
                     document.getElementById('tabla-enfermedades').style.display = 'block';
+                    
+                    // Poblar el select de enfermedades
+                    poblarSelectEnfermedades(data.enfermedades);
+                    document.getElementById('filtrosEnfermedades').style.display = 'block';
                 } else {
                     console.error('Error en los datos recibidos:', data.message);
-                    alert('Error al cargar los datos de enfermedades');
+                    mostrarError('Error al cargar los datos de enfermedades');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error al conectar con el servidor');
+                mostrarError('Error al conectar con el servidor');
             });
     }
 
@@ -47,6 +51,46 @@ document.addEventListener('DOMContentLoaded', function() {
             
             tbody.appendChild(row);
         });
+    }
+
+    // Función para poblar el select con las enfermedades
+    function poblarSelectEnfermedades(enfermedades) {
+        const select = document.getElementById('selectEnfermedad');
+        select.innerHTML = ''; // Limpiar el select
+        
+        // Agregar opción por defecto
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = 'Seleccione una enfermedad';
+        defaultOption.disabled = true;
+        defaultOption.selected = true;
+        select.appendChild(defaultOption);
+        
+        // Ordenar enfermedades alfabéticamente por nombre (solo para el select)
+        const enfermedadesOrdenadas = [...enfermedades].sort((a, b) => a.nombre.localeCompare(b.nombre));
+        
+        // Agregar cada enfermedad como opción
+        enfermedadesOrdenadas.forEach(enfermedad => {
+            const option = document.createElement('option');
+            option.value = enfermedad.id;
+            option.textContent = `${enfermedad.nombre} (${enfermedad.total_pacientes} pacientes)`;
+            select.appendChild(option);
+        });
+    }
+
+    // Función para mostrar errores
+    function mostrarError(mensaje) {
+        alert(mensaje);
+        
+        // Mostrar mensaje de error en el select también
+        const select = document.getElementById('selectEnfermedad');
+        select.innerHTML = '';
+        const option = document.createElement('option');
+        option.value = '';
+        option.textContent = mensaje;
+        option.disabled = true;
+        option.selected = true;
+        select.appendChild(option);
     }
 
     // Función para ver detalles
