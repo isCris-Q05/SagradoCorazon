@@ -13,6 +13,8 @@ import pywhatkit as kit
 from django.views.decorators.csrf import csrf_exempt
 import random
 from django.core.serializers.json import DjangoJSONEncoder
+from django.db.models.functions import ExtractMonth, ExtractYear
+
 
 
 from openpyxl import Workbook
@@ -967,6 +969,113 @@ def buscar_pacientes2(request):
         ]
 
     return JsonResponse(resultados, safe=False)
+
+def datos_tendencias_enfermedades(request):
+    try:
+        enfermedad_id = request.GET.get('enfermedad_id')
+        paciente_username = request.GET.get('paciente_username')
+        
+        response_data = {
+            "success": True,
+            "title": "Tendencias de Enfermedades",
+            "labels": [],
+            "values": [],
+            "periodo": "Últimos 12 meses"
+        }
+        
+        # Datos para la enfermedad seleccionada
+        if enfermedad_id:
+            try:
+                enfermedad = Enfermedad.objects.get(id_enfermedad=enfermedad_id)
+                response_data['enfermedad_info'] = {
+                    'id': enfermedad.id_enfermedad,
+                    'nombre': enfermedad.nombre,
+                    'total_pacientes': Registro.objects.filter(id_enfermedad=enfermedad)
+                                         .values('id_cita__id_paciente')
+                                         .distinct().count()
+                }
+                
+                # Datos mensuales para la enfermedad
+                end_date = timezone.now()
+                start_date = end_date - timedelta(days=365)
+                
+                registros = Registro.objects.filter(
+                    id_enfermedad=enfermedad,
+                    id_cita__fecha__range=(start_date, end_date)
+                ).annotate(
+                    month=ExtractMonth('id_cita__fecha'),
+                    year=ExtractYear('id_cita__fecha')
+                ).values('month', 'year').annotate(
+                    count=Count('id_registro')
+                ).order_by('year', 'month')
+                
+                meses = []
+                conteos = []
+                
+                for r in registros:
+                    meses.append(f"{r['month']}/{r['year']}")
+                    conteos.append(r['count'])
+                
+                response_data['labels'] = meses
+                response_data['values'] = conteos
+                response_data['title'] = f"Casos de {enfermedad.nombre} por mes"
+                
+            except Enfermedad.DoesNotExist:
+                return JsonResponse({
+                    "success": False,
+                    "message": "Enfermedad no encontrada"
+                }, status=404)
+        
+        # Datos para el paciente seleccionado
+        if paciente_username:
+            try:
+                paciente = Paciente.objects.get(user__username=paciente_username)
+                response_data['paciente_info'] = {
+                    'id': paciente.id,
+                    'nombre': f"{paciente.user.first_name} {paciente.user.last_name}",
+                    'total_registros': Registro.objects.filter(id_cita__id_paciente=paciente).count()
+                }
+                
+                # Enfermedades más comunes del paciente
+                if not enfermedad_id:
+                    enfermedades = Registro.objects.filter(id_cita__id_paciente=paciente)\
+                                        .values('id_enfermedad__nombre')\
+                                        .annotate(count=Count('id_enfermedad'))\
+                                        .order_by('-count')[:5]
+                    
+                    labels = []
+                    values = []
+                    
+                    for e in enfermedades:
+                        labels.append(e['id_enfermedad__nombre'])
+                        values.append(e['count'])
+                    
+                    response_data['labels'] = labels
+                    response_data['values'] = values
+                    response_data['title'] = f"Enfermedades más frecuentes de {paciente.user.first_name}"
+                    
+            except Paciente.DoesNotExist:
+                return JsonResponse({
+                    "success": False,
+                    "message": "Paciente no encontrado"
+                }, status=404)
+        
+        # Validar que hay datos para mostrar
+        if not response_data['labels'] and not response_data['values']:
+            response_data.update({
+                "success": False,
+                "message": "No se encontraron datos para los filtros aplicados"
+            })
+        
+        return JsonResponse(response_data)
+    
+    except Exception as e:
+        import traceback
+        traceback.print_exc()  # Esto imprimirá el traceback completo en la consola
+        return JsonResponse({
+            "success": False,
+            "message": f"Error interno del servidor: {str(e)}"
+        }, status=500)
 
     
 # Endpoint o vista que filtra las enfermedades o cantidad de enfermedades ya sea de un paciente o sino en general
