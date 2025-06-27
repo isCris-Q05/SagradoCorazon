@@ -130,28 +130,28 @@
           </div>
 
           <!-- Filtros para Tratamientos (inicialmente oculto) -->
+          <!-- Filtros para Tratamientos (inicialmente oculto) -->
           <div id="filtrosTratamientos" class="filtros-section" style="display: none;">
               <div class="filtros-container bg-light p-3 rounded">
                   <div class="row g-3">
                       <div class="col-md-3">
                           <label>Nombre</label>
-                          <input type="text" class="form-control" placeholder="Buscar tratamiento">
+                          <select id="select-tratamientos" class="form-select">
+                              <option value="">Todos los tratamientos</option>
+                              <!-- Las opciones se llenarán con JavaScript -->
+                          </select>
                       </div>
                       <div class="col-md-3">
                           <label>Enfermedad</label>
-                          <select class="form-select">
-                              <option>Todas</option>
-                              <option>Hipertensión</option>
-                              <option>Diabetes</option>
+                          <select id="select-enfermedades" class="form-select">
+                              <option value="">Todas las enfermedades</option>
+                              <!-- Las opciones se llenarán dinámicamente -->
                           </select>
                       </div>
                       <div class="col-md-3">
                           <label>Paciente</label>
-                          <select class="form-select">
-                              <option>Todos</option>
-                              <option>Ana Martínez</option>
-                              <option>Luis Rodríguez</option>
-                          </select>
+                          <input type="text" id="buscarPaciente2" class="form-control" placeholder="Buscar paciente">
+                          <div id="sugerenciasPaciente2" class="list-group sugerencias-dropdown"></div>
                       </div>
                       <div class="col-md-3 d-flex align-items-end gap-2">
                           <button class="btn btn-primary flex-grow-1">Buscar</button>
@@ -160,7 +160,6 @@
                   </div>
               </div>
           </div>
-
 
         {% if messages %}
             <div class="container mt-3">
@@ -262,9 +261,32 @@
             </table>
         </div>
 
+        <!-- Tabla de Tratamientos (inicialmente oculta) -->
+          <div id="tabla-tratamientos" class="tabla-seccion" style="display: none;">
+              <table class="table">
+                  <thead>
+                      <tr>
+                          <th>ID Tratamiento</th>
+                          <th>Nombre</th>
+                          <th>Descripción</th>
+                          <th>Enfermedades</th>
+                          <th>Pacientes</th>
+                          <th>Acciones</th>
+                      </tr>
+                  </thead>
+                  <tbody id="tbody-tratamientos">
+                      <!-- Datos de ejemplo -->
+                      <tr>
+                          
+                      </tr>
+                      
+                  </tbody>
+              </table>
+          </div>
+
         <!-- Tabla de resultados de busqueda de enfermedades -->
          <!-- Resultados de Búsqueda (nueva sección) -->
-    <div id="resultados-busqueda" class="tabla-seccion" style="display: none;">
+        <div id="resultados-busqueda" class="tabla-seccion" style="display: none;">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h4 id="titulo-resultados">Resultados de búsqueda</h4>
             <button class="btn btn-outline-secondary" id="btn-volver-enfermedades">
@@ -307,44 +329,7 @@
             </tbody>
         </table>
 
-          <!-- Tabla de Tratamientos (inicialmente oculta) -->
-          <div id="tabla-tratamientos" class="tabla-seccion" style="display: none;">
-              <table class="table">
-                  <thead>
-                      <tr>
-                          <th>ID Tratamiento</th>
-                          <th>Nombre</th>
-                          <th>Descripción</th>
-                          <th>Enfermedades</th>
-                          <th>Pacientes</th>
-                          <th>Acciones</th>
-                      </tr>
-                  </thead>
-                  <tbody>
-                      <!-- Datos de ejemplo -->
-                      <tr>
-                          <td>1</td>
-                          <td>Metformina</td>
-                          <td>Control de glucosa</td>
-                          <td>Diabetes</td>
-                          <td>5</td>
-                          <td>
-                              <button class="btn btn-sm btn-info">Detalles</button>
-                          </td>
-                      </tr>
-                      <tr>
-                          <td>2</td>
-                          <td>Lisinopril</td>
-                          <td>Control de presión</td>
-                          <td>Hipertensión</td>
-                          <td>7</td>
-                          <td>
-                              <button class="btn btn-sm btn-info">Detalles</button>
-                          </td>
-                      </tr>
-                  </tbody>
-              </table>
-          </div>
+          
          
           <!-- Tabla de registros
            
@@ -680,6 +665,8 @@
     <script src="{% static 'js/busquedaEnfermedades.js' %}"></script>
     <script src="{% static 'js/filtroEnfermedades.js' %}"></script>
     <script src="{% static 'js/tendenciasEnfermedades.js' %}"></script>
+    <script src="{% static 'js/mostrandoTratamientos.js' %}"></script>
+    <script src="{% static 'js/busquedaPacienteTrat.js' %}"></script>
     <!--
       <script src="{% static 'js/sendReminder.js' %}"></script>
     -->

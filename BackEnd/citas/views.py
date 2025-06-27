@@ -1304,6 +1304,80 @@ def filtrar_registros_tratamientos(request):
             "message": "Error interno del servidor"
         }, status=500)
 
+def estadisticas_tratamientos(request):
+    try:
+        # Obtenemos todos los tratamientos con sus estadísticas
+        tratamientos = Tratamiento.objects.annotate(
+            total_registros=Count('registrotratamiento'),
+            total_pacientes=Count('registrotratamiento__id_registro__id_cita__id_paciente', distinct=True),
+            total_enfermedades=Count('tratamientoenfermedad__id_enfermedad', distinct=True)
+        ).prefetch_related(
+            'tratamientoenfermedad_set__id_enfermedad'
+        )
+
+        tratamientos_data = []
+        for tratamiento in tratamientos:
+            # Obtenemos las enfermedades relacionadas
+            enfermedades = [{
+                'id': te.id_enfermedad.id_enfermedad,
+                'nombre': te.id_enfermedad.nombre
+            } for te in tratamiento.tratamientoenfermedad_set.all()]
+            
+            tratamientos_data.append({
+                'id': tratamiento.id_tratamiento,
+                'nombre': tratamiento.nombre,
+                'descripcion': tratamiento.descripcion,
+                'total_registros': tratamiento.total_registros,
+                'total_pacientes': tratamiento.total_pacientes,
+                'enfermedades': enfermedades,
+                'enfermedades_lista': ", ".join([e['nombre'] for e in enfermedades])
+            })
+
+        return JsonResponse({
+            "success": True,
+            "tratamientos": tratamientos_data,
+            "total_tratamientos": len(tratamientos_data)
+        })
+
+    except Exception as e:
+        print(f"Error en estadisticas_tratamientos: {str(e)}")
+        return JsonResponse({
+            "success": False,
+            "message": "Error interno del servidor"
+        }, status=500)
+    
+def enfermedades_por_tratamiento(request):
+    tratamiento_id = request.GET.get('tratamiento_id')
+    
+    if not tratamiento_id:
+        return JsonResponse({
+            "success": False,
+            "message": "Se requiere el parámetro tratamiento_id"
+        }, status=400)
+    
+    try:
+        # Obtenemos las enfermedades relacionadas con el tratamiento
+        relaciones = TratamientoEnfermedad.objects.filter(
+            id_tratamiento=tratamiento_id
+        ).select_related('id_enfermedad')
+        
+        enfermedades = [{
+            'id': rel.id_enfermedad.id_enfermedad,
+            'nombre': rel.id_enfermedad.nombre
+        } for rel in relaciones]
+        
+        return JsonResponse({
+            "success": True,
+            "enfermedades": enfermedades
+        })
+        
+    except Exception as e:
+        print(f"Error en enfermedades_por_tratamiento: {str(e)}")
+        return JsonResponse({
+            "success": False,
+            "message": "Error interno del servidor"
+        }, status=500)
+
 # endpoint que te devuelve todas las citas, esto es inicialmente para el inicio de visualizacion
 def citas_visualizacion(request):
     citas = Cita.objects.all().order_by('-fecha', '-hora').select_related(
