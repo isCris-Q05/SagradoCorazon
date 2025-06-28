@@ -53,3 +53,33 @@ Time: 0:7
 Phone Number:  +50581274657 
 Message: Hola, este es un recordatorio de su cita en la clínica dermatológica. Fecha: 5 de diciembre de 2024, Hora: 11:41.  en la clinica dermatologica de Matagalpa con el doctor Evelyng Judith Torres
 --------------------
+Date: 28/6/2025
+Time: 11:29
+Phone Number:  +50581274657 
+Message: Hola, este es un recordatorio de su cita en la clínica dermatológica. Fecha: 12 de abril de 2025, Hora: 09:00.  en la clinica dermatologica de Matagalpa con el doctor Evelyng Judith Torres
+--------------------
+Date: 28/6/2025
+Time: 11:29
+Phone Number:  +50581274657 
+Message: Hola, este es un recordatorio de su cita en la clínica dermatológica. Fecha: 12 de abril de 2025, Hora: 09:00.  en la clinica dermatologica de Matagalpa con el doctor Evelyng Judith Torres
+--------------------
+Date: 28/6/2025
+Time: 11:31
+Phone Number:  +50581274657 
+Message: Hola, este es un recordatorio de su cita en la clínica dermatológica. Fecha: 12 de abril de 2025, Hora: 09:00.  en la clinica dermatologica de Matagalpa con el doctor Evelyng Judith Torres
+--------------------
+Date: 28/6/2025
+Time: 11:32
+Phone Number:  +50581274657 
+Message: Hola, este es un recordatorio de su cita en la clínica dermatológica. Fecha: 12 de abril de 2025, Hora: 09:00.  en la clinica dermatologica de Matagalpa con el doctor Evelyng Judith Torres
+--------------------
+Date: 28/6/2025
+Time: 11:33
+Phone Number:  +50587454185 
+Message: Hola, este es un recordatorio de su cita en la clínica dermatológica. Fecha: 14 de abril de 2025, Hora: 09:03.  en la clinica dermatologica de Matagalpa con el doctor Evelyng Judith Torres
+--------------------
+Date: 28/6/2025
+Time: 11:35
+Phone Number:  +50581274657 
+Message: Hola, este es un recordatorio de su cita en la clínica dermatológica. Fecha: 3 de abril de 2025, Hora: 08:00.  en la clinica dermatologica de Matagalpa con el doctor Jodem It
+--------------------

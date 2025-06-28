@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Variables globales
     let enfermedadesChart = null;
-    let currentChartType = 'pie';
+    let currentChartType = 'line';
     let chartData = null;
 
     // Elementos del DOM
@@ -15,15 +15,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Evento para el botón Tendencia
     btnTendencia.addEventListener('click', function() {
         const enfermedadId = document.getElementById('selectEnfermedad').value;
-        const pacienteUsername = window.obtenerPacienteUsername();
         
-        if (!enfermedadId && !pacienteUsername) {
+        if (!enfermedadId) {
             alert('Por favor seleccione una enfermedad o ingrese un paciente primero');
             return;
         }
 
         // Obtener datos para los gráficos
-        obtenerDatosParaGraficos(enfermedadId, pacienteUsername);
+        obtenerDatosParaGraficos(enfermedadId);
     });
 
     // Eventos para cerrar el popup
@@ -52,76 +51,40 @@ document.addEventListener('DOMContentLoaded', function() {
     // Función para obtener datos para los gráficos
     // Función para obtener datos para los gráficos (versión mejorada)
     // Función para obtener datos para los gráficos (versión corregida)
-    function obtenerDatosParaGraficos(enfermedadId, pacienteUsername) {
+    // Función para obtener datos para los gráficos - SIMPLIFICADA
+    function obtenerDatosParaGraficos(enfermedadId) {
         // Mostrar loading
         popup.style.display = 'block';
         chartInfoContent.innerHTML = '<p>Cargando datos...</p>';
         
-        // Construir URL según los filtros - versión corregida
-        let url = '/datos_tendencias_enfermedades/?';
-        let params = [];
-        
+        // Construir URL - ahora solo con enfermedad_id si existe
+        let url = '/datos_tendencias_enfermedades/';
         if (enfermedadId) {
-            params.push(`enfermedad_id=${enfermedadId}`);
+            url += `?enfermedad_id=${enfermedadId}`;
         }
-        
-        if (pacienteUsername) {
-            params.push(`paciente_username=${encodeURIComponent(pacienteUsername)}`);
-        }
-        
-        url += params.join('&');
 
-        // Mostrar mensaje de carga en el gráfico
-        chartInfoContent.innerHTML = '<p>Obteniendo datos del servidor...</p>';
-        
-        // Obtener datos del servidor con manejo mejorado de errores
-        const fetchData = async () => {
-            try {
-                const response = await fetch(url);
-                
+        fetch(url)
+            .then(response => {
                 if (!response.ok) {
                     throw new Error(`Error HTTP: ${response.status}`);
                 }
-                
-                const data = await response.json();
-                
+                return response.json();
+            })
+            .then(data => {
                 if (!data || !data.success) {
                     throw new Error(data?.message || 'Datos recibidos no válidos');
                 }
                 
-                return data;
-            } catch (error) {
-                console.error('Error en la solicitud:', error);
-                throw error;
-            }
-        };
-
-        // Usar Promise.race con timeout
-        const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Tiempo de espera agotado (10 segundos)')), 10000)
-        );
-
-        Promise.race([fetchData(), timeoutPromise])
-            .then(data => {
                 chartData = data;
                 renderChart(data, currentChartType);
                 updateChartInfo(data);
             })
             .catch(error => {
                 console.error('Error al obtener datos:', error);
-                
-                let errorMessage = 'Error al conectar con el servidor';
-                if (error.message.includes('HTTP')) {
-                    errorMessage = `Error del servidor: ${error.message}`;
-                } else if (error.message.includes('tiempo')) {
-                    errorMessage = 'El servidor está tardando demasiado en responder';
-                }
-                
                 chartInfoContent.innerHTML = `
                     <div class="alert alert-danger">
-                        <h5>${errorMessage}</h5>
-                        <p>Detalles: ${error.message}</p>
-                        <p class="small text-muted">URL: ${url}</p>
+                        <h5>Error al obtener datos</h5>
+                        <p>${error.message}</p>
                         <button class="btn btn-sm btn-secondary" onclick="window.location.reload()">Reintentar</button>
                     </div>
                 `;
@@ -129,15 +92,62 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Función para renderizar el gráfico
-    function renderChart(data, chartType) {
-        // Destruir gráfico anterior si existe
-        if (enfermedadesChart) {
-            enfermedadesChart.destroy();
-        }
+    // Actualiza la función renderChart para manejar el nuevo tipo de gráfico
+function renderChart(data, chartType) {
+    if (enfermedadesChart) {
+        enfermedadesChart.destroy();
+    }
 
-        const ctx = chartCanvas.getContext('2d');
-        let config = {};
+    const ctx = chartCanvas.getContext('2d');
+    let config = {};
 
+    // Nuevo caso para gráfico multi-línea
+    if (data.type === 'multi_line') {
+        config = {
+            type: 'line',
+            data: {
+                labels: data.labels,
+                datasets: data.datasets
+            },
+            options: {
+                responsive: true,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: data.title
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.dataset.label}: ${context.raw}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Número de casos'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Meses'
+                        }
+                    }
+                }
+            }
+        };
+    } 
+    else {
+        // Mantén tus otros casos existentes (pie, bar, line)
         switch(chartType) {
             case 'pie':
                 config = getPieChartConfig(data);
@@ -151,9 +161,10 @@ document.addEventListener('DOMContentLoaded', function() {
             default:
                 config = getPieChartConfig(data);
         }
-
-        enfermedadesChart = new Chart(ctx, config);
     }
+
+    enfermedadesChart = new Chart(ctx, config);
+}
 
     // Configuración para gráfico de pastel
     function getPieChartConfig(data) {

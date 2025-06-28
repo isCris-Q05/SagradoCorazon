@@ -976,76 +976,66 @@ def buscar_pacientes2(request):
 def datos_tendencias_enfermedades(request):
     try:
         enfermedad_id = request.GET.get('enfermedad_id')
-        paciente_username = request.GET.get('paciente_username')
+        today = timezone.now().date()
+        start_date = date(today.year, 1, 1)  # 1 de enero del año actual
+        end_date = today
         
         response_data = {
             "success": True,
             "title": "Tendencias de Enfermedades",
             "labels": [],
             "values": [],
-            "periodo": "Año actual"
+            "periodo": f"{start_date.year}"
         }
+
+        # Nombres de meses en español
+        meses_espanol = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 
+                         'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
         
-        # Obtener el rango del año actual (desde enero hasta hoy)
-        today = timezone.now().date()
-        start_date = date(today.year, 1, 1)  # 1 de enero del año actual
-        end_date = today
-        
-        # Datos para la enfermedad seleccionada
+        # Caso 1: Enfermedad específica
         if enfermedad_id:
             try:
                 enfermedad = Enfermedad.objects.get(id_enfermedad=enfermedad_id)
                 
-                # Consulta corregida para total_pacientes
-                total_pacientes = Registro.objects.filter(
-                    id_enfermedad=enfermedad,
-                    id_cita__fecha__range=(start_date, end_date)
-                ).values('id_cita__id_paciente').distinct().count()
-                
-                response_data['enfermedad_info'] = {
-                    'id': enfermedad.id_enfermedad,
-                    'nombre': enfermedad.nombre,
-                    'total_pacientes': total_pacientes
-                }
-                
-                # Datos mensuales para la enfermedad
+                # Obtener TODOS los registros de la enfermedad en el período
                 registros = Registro.objects.filter(
                     id_enfermedad=enfermedad,
                     id_cita__fecha__range=(start_date, end_date)
-                ).annotate(
-                    month=ExtractMonth('id_cita__fecha'),
-                    year=ExtractYear('id_cita__fecha')
-                ).values('month', 'year').annotate(
-                    count=Count('id_registro')
-                ).order_by('year', 'month')
+                ).select_related('id_cita')  # Optimización para acceder a la fecha de la cita
                 
-                # Crear labels con nombres de meses en español
-                meses_espanol = [
-                    'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
-                    'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
-                ]
+                print(f"Total registros encontrados para {enfermedad.nombre}: {registros.count()}")
                 
-                # Inicializar todos los meses del año con 0
-                datos_mensuales = {mes: 0 for mes in range(1, 13)}
+                # Contar manualmente por mes para mayor precisión
+                conteo_por_mes = {mes: 0 for mes in range(1, 13)}
                 
-                # Actualizar con los datos reales
-                for r in registros:
-                    datos_mensuales[r['month']] = r['count']
+                for registro in registros:
+                    mes = registro.id_cita.fecha.month
+                    conteo_por_mes[mes] += 1
                 
-                # Preparar datos para el gráfico
+                print("Conteo manual por mes:")
+                for mes, conteo in conteo_por_mes.items():
+                    if conteo > 0:
+                        print(f"Mes: {mes}, Conteo: {conteo}")
+                
+                # Preparar datos para el gráfico (solo meses hasta el actual)
                 meses = []
                 conteos = []
+                total_casos = 0
                 
-                for mes_num in range(1, 13):
+                for mes_num in range(1, today.month + 1):
                     meses.append(meses_espanol[mes_num - 1])
-                    conteos.append(datos_mensuales[mes_num])
-                    # Solo incluir meses hasta el actual si estamos en el año actual
-                    if mes_num == today.month and today.year == timezone.now().year:
-                        break
+                    conteos.append(conteo_por_mes[mes_num])
+                    total_casos += conteo_por_mes[mes_num]
                 
-                response_data['labels'] = meses
-                response_data['values'] = conteos
-                response_data['title'] = f"Casos de {enfermedad.nombre} en {today.year}"
+                response_data.update({
+                    "labels": meses,
+                    "values": conteos,
+                    "title": f"Casos de {enfermedad.nombre} en {today.year}",
+                    "enfermedad_info": {
+                        "nombre": enfermedad.nombre,
+                        "total_casos": total_casos
+                    }
+                })
                 
             except Enfermedad.DoesNotExist:
                 return JsonResponse({
@@ -1053,55 +1043,108 @@ def datos_tendencias_enfermedades(request):
                     "message": "Enfermedad no encontrada"
                 }, status=404)
         
-        # Resto del código para paciente seleccionado...
-        if paciente_username:
-            try:
-                paciente = Paciente.objects.get(user__username=paciente_username)
-                
-                # Consulta corregida para total_registros
-                total_registros = Registro.objects.filter(
-                    id_cita__id_paciente=paciente,
-                    id_cita__fecha__range=(start_date, end_date)
-                ).count()
-                
-                response_data['paciente_info'] = {
-                    'id': paciente.id,
-                    'nombre': f"{paciente.user.first_name} {paciente.user.last_name}",
-                    'total_registros': total_registros
-                }
-                
-                # Enfermedades más comunes del paciente en el año actual
-                if not enfermedad_id:
-                    enfermedades = Registro.objects.filter(
-                        id_cita__id_paciente=paciente,
-                        id_cita__fecha__range=(start_date, end_date)
-                    ).values('id_enfermedad__nombre')\
-                     .annotate(count=Count('id_enfermedad'))\
-                     .order_by('-count')[:5]
-                    
-                    labels = []
-                    values = []
-                    
-                    for e in enfermedades:
-                        labels.append(e['id_enfermedad__nombre'])
-                        values.append(e['count'])
-                    
-                    response_data['labels'] = labels
-                    response_data['values'] = values
-                    response_data['title'] = f"Enfermedades más frecuentes de {paciente.user.first_name} en {today.year}"
-                    
-            except Paciente.DoesNotExist:
-                return JsonResponse({
-                    "success": False,
-                    "message": "Paciente no encontrado"
-                }, status=404)
-        
-        # Validar que hay datos para mostrar
-        if not response_data['labels'] and not response_data['values']:
+        # Caso 2: Todas las enfermedades (sin filtro)
+        else:
+            # Obtener las 10 enfermedades más frecuentes con conteo directo
+            enfermedades_top = Registro.objects.filter(
+                id_cita__fecha__range=(start_date, end_date)
+            ).values('id_enfermedad__nombre').annotate(
+                total=Count('id_registro')
+            ).order_by('-total')[:10]
+            
+            labels = [e['id_enfermedad__nombre'] for e in enfermedades_top]
+            values = [e['total'] for e in enfermedades_top]
+            
             response_data.update({
-                "success": False,
-                "message": "No se encontraron datos para los filtros aplicados"
+                "labels": labels,
+                "values": values,
+                "title": f"Enfermedades más frecuentes en {today.year} (Top 10)"
             })
+        
+        return JsonResponse(response_data)
+    
+    except Exception as e:
+        import traceback
+        print(f"Error: {str(e)}")
+        print(traceback.format_exc())
+        return JsonResponse({
+            "success": False,
+            "message": f"Error interno del servidor: {str(e)}"
+        }, status=500)
+
+def tendencias_generales_enfermedades(request):
+    try:
+        # Obtener el rango del año actual (desde enero hasta hoy)
+        today = timezone.now().date()
+        start_date = date(today.year, 1, 1)  # 1 de enero del año actual
+        end_date = today
+        
+        # Obtener todas las enfermedades con sus conteos mensuales
+        enfermedades_data = []
+        
+        # Primero obtenemos todas las enfermedades registradas
+        enfermedades = Enfermedad.objects.all()
+        
+        # Meses en español para el gráfico
+        meses_espanol = [
+            'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+            'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
+        ]
+        
+        # Datos para el gráfico principal (todas las enfermedades por mes)
+        registros_por_mes = Registro.objects.filter(
+            id_cita__fecha__range=(start_date, end_date)
+        ).annotate(
+            month=ExtractMonth('id_cita__fecha'),
+            year=ExtractYear('id_cita__fecha')
+        ).values('month').annotate(
+            total=Count('id_registro')
+        ).order_by('month')
+        
+        # Inicializar datos mensuales
+        datos_mensuales = {mes: 0 for mes in range(1, 13)}
+        
+        # Llenar con datos reales
+        for r in registros_por_mes:
+            datos_mensuales[r['month']] = r['total']
+        
+        # Preparar datos para el gráfico principal
+        meses_grafico = []
+        totales_grafico = []
+        
+        for mes_num in range(1, 13):
+            # Solo incluir meses hasta el actual si estamos en el año actual
+            if mes_num > today.month and today.year == timezone.now().year:
+                break
+            meses_grafico.append(meses_espanol[mes_num - 1])
+            totales_grafico.append(datos_mensuales[mes_num])
+        
+        # Obtener las 5 enfermedades más frecuentes este año
+        enfermedades_top = Registro.objects.filter(
+            id_cita__fecha__range=(start_date, end_date)
+        ).values('id_enfermedad__nombre').annotate(
+            total=Count('id_enfermedad')
+        ).order_by('-total')[:5]
+        
+        # Preparar datos para el gráfico de enfermedades top
+        enfermedades_labels = []
+        enfermedades_values = []
+        
+        for enfermedad in enfermedades_top:
+            enfermedades_labels.append(enfermedad['id_enfermedad__nombre'])
+            enfermedades_values.append(enfermedad['total'])
+        
+        response_data = {
+            "success": True,
+            "title": f"Tendencias de enfermedades en {today.year}",
+            "labels": meses_grafico,
+            "values": totales_grafico,
+            "enfermedades_labels": enfermedades_labels,
+            "enfermedades_values": enfermedades_values,
+            "periodo": "Año actual",
+            "total_enfermedades": enfermedades.count(),
+            "total_registros": sum(totales_grafico)
+        }
         
         return JsonResponse(response_data)
     
@@ -2169,14 +2212,16 @@ def editar_cita(request):
     if request.method == "POST":
         id_cita = request.POST.get('id_cita')
         nuevo_estado = request.POST.get('estado')
+        nueva_fecha = request.POST.get('fecha')
+        nueva_hora = request.POST.get('hora')
 
         print(f"Id_cita: {id_cita}")
         print(f"Nuevo estado: {nuevo_estado}")
-
-        #return HttpResponse("Cita editada correctamente")
+        print(f"Nueva fecha: {nueva_fecha}")
+        print(f"Nueva hora: {nueva_hora}")
 
         # validar datos
-        if not id_cita or not nuevo_estado:
+        if not id_cita or not nuevo_estado or not nueva_fecha or not nueva_hora:
             messages.error(request, "Por favor, completa todos los campos obligatorios.")
             return redirect('editar_cita')
         
@@ -2186,8 +2231,12 @@ def editar_cita(request):
             messages.error(request, "La cita no existe.")
             return redirect('inicio')
         
+        # Actualizar todos los campos
         cita.estado = nuevo_estado
+        cita.fecha = nueva_fecha
+        cita.hora = nueva_hora
         cita.save()
+        
         messages.success(request, "Cita actualizada exitosamente.")
         return redirect('inicio')
 

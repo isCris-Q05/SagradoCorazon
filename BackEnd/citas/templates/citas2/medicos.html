@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <script src="{% static 'js/pagination.js' %}" defer></script>
+    <link rel="icon" href="{% static 'imagenes/logo_ICO.ico' %}" type="image/x-icon" />
 </head>
 <body>
     <main class="main-body">
@@ -48,25 +49,6 @@
                 <h2>Doctores</h2>
                 
             </div>
-
-            {% if messages %}
-                <div class="container mt-3">
-                    {% for message in messages %}
-                    <div
-                        class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %} alert-dismissible fade show"
-                        role="alert"
-                    >
-                        <strong>{{ message }}</strong>
-                        <button
-                            type="button"
-                            class="btn-close"
-                            data-bs-dismiss="alert"
-                            aria-label="Close"
-                        ></button>
-                    </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
             
             <div class="container-fluid px-0">
     <div class="row g-3 align-items-center mb-3">
