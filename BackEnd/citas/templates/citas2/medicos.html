@@ -8,33 +8,44 @@
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <script src="{% static 'js/pagination.js' %}" defer></script>
 </head>
 <body>
     <main class="main-body">
         <div class="sidebar">
-            <div class="logo">
-                🏥 DermaCare
+            <div class="logo-container">
+                <img src="{% static 'imagenes/logo_derma.png' %}" alt="Logo DermaCare" class="logo-img">
             </div>
             <nav>
-                <a href="{% url 'inicio' %}" class="nav-item">Inicio</a>
-                <a href="{% url 'doctores' %}" class="nav-item active">Doctores</a>
-                <a href="{% url 'registrar_pacientes' %}" class="nav-item">Pacientes</a>
-                <a href="{% url 'productos' %}" class="nav-item">Productos</a>
-                <a href="{% url 'enfermedades_alergias' %}" class="nav-item">Alergias y Enfermedades</a>
-                <a href="{% url 'tratamientos' %}" class="nav-item">Tratamientos</a>
-                <!--Visualizacion-->
-                <a href="{% url 'visualizacion' %}"  class="nav-item ">Visualización</a
-          >
+                <a href="{% url 'inicio' %}" class="nav-item">
+                    <i class="fas fa-home icon"></i> Inicio
+                </a>
+                <a href="{% url 'doctores' %}" class="nav-item active">
+                    <i class="fas fa-user-md icon"></i> Doctores
+                </a>
+                <a href="{% url 'registrar_pacientes' %}" class="nav-item">
+                    <i class="fas fa-procedures icon"></i> Pacientes
+                </a>
+                <a href="{% url 'productos' %}" class="nav-item">
+                    <i class="fas fa-pills icon"></i> Productos
+                </a>
+                <a href="{% url 'enfermedades_alergias' %}" class="nav-item">
+                    <i class="fas fa-allergies icon"></i> Alergias y Enfermedades
+                </a>
+                <a href="{% url 'tratamientos' %}" class="nav-item">
+                    <i class="fas fa-heartbeat icon"></i> Tratamientos
+                </a>
+                <a href="{% url 'visualizacion' %}" class="nav-item">
+                    <i class="fas fa-chart-line icon"></i> Visualización
+                </a>
             </nav>
         </div>
         <div class="main-content">
             <div class="top-bar">
                 <h2>Doctores</h2>
-                <div class="icons">
-                    <img src="{% static 'imagenes/notificaciones.png' %}" alt="">
-                    <img src="{% static 'imagenes/usser.png' %}" alt="">
-                </div>
+                
             </div>
 
             {% if messages %}
@@ -58,9 +69,7 @@
             
             <div id="items" class="container-fluid px-0">
                 <div class="row g-3 align-items-center mb-3">
-                    <div class="col-auto">
-                        <input type="search" id="searchDoctors" class="form-control" placeholder="Buscar doctores...">
-                    </div>
+                    
                     <div class="col-auto">
                         <select class="form-select" aria-label="Filtrar por especialidad">
                             <option selected>Todas las especialidades</option>
@@ -91,17 +100,7 @@
                                     </p>
                                     <p class="card-text"><small class="text-muted">Experiencia: {{ doctor.experiencia }} años</small></p>
                                 </div>
-                                <div class="card-footer">
-                                    <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" 
-                                        data-bs-target="#perfilDoctorModal"
-                                        data-name="{{ doctor.nombre }}"
-                                        data-genero="{{ doctor.genero }}"
-                                        data-especialidad="{{ doctor.especialidad }}"
-                                        data-foto="{{ doctor.foto }}">
-                                        Ver perfil
-                                    </button>
-                                    <button class="btn btn-outline-secondary btn-sm">Editar</button>
-                                </div>
+                                
                             </div>
                         </div>
                     {% endfor %}

@@ -7,6 +7,8 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link rel="stylesheet" href="{% static 'css/pacientes.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
@@ -18,35 +20,43 @@
 <body>
     <main class="main-body">
         <div class="sidebar">
-            <div class="logo">
-                🏥 DermaCare
+            <div class="logo-container">
+                <img src="{% static 'imagenes/logo_derma.png' %}" alt="Logo DermaCare" class="logo-img">
             </div>
             <nav>
-                <a href="{% url 'inicio' %}" class="nav-item">Inicio</a>
-                <a href="{% url 'doctores' %}" class="nav-item ">Doctores</a>
-                <a href="{% url 'registrar_pacientes' %}" class="nav-item active">Paciente</a>
-                <a href="{% url 'productos' %}" class="nav-item">Productos</a>
-                <a href="{% url 'enfermedades_alergias' %}" class="nav-item">Alergias y Enfermedades</a>
-                <a href="{% url 'tratamientos' %}" class="nav-item">Tratamientos</a>
-                <a href="{% url 'visualizacion' %}"  class="nav-item ">Visualización</a>
-
+                <a href="{% url 'inicio' %}" class="nav-item">
+                    <i class="fas fa-home icon"></i> Inicio
+                </a>
+                <a href="{% url 'doctores' %}" class="nav-item">
+                    <i class="fas fa-user-md icon"></i> Doctores
+                </a>
+                <a href="{% url 'registrar_pacientes' %}" class="nav-item active">
+                    <i class="fas fa-procedures icon"></i> Pacientes
+                </a>
+                <a href="{% url 'productos' %}" class="nav-item">
+                    <i class="fas fa-pills icon"></i> Productos
+                </a>
+                <a href="{% url 'enfermedades_alergias' %}" class="nav-item">
+                    <i class="fas fa-allergies icon"></i> Alergias y Enfermedades
+                </a>
+                <a href="{% url 'tratamientos' %}" class="nav-item">
+                    <i class="fas fa-heartbeat icon"></i> Tratamientos
+                </a>
+                <a href="{% url 'visualizacion' %}" class="nav-item">
+                    <i class="fas fa-chart-line icon"></i> Visualización
+                </a>
             </nav>
         </div>
         <div class="main-content">
             <div class="top-bar">
                 <h2>Pacientes</h2>
-                <div class="icons">
-                    <img src="{% static 'imagenes/notificaciones.png' %}" alt="">
-                    <img src="{% static 'imagenes/usser.png' %}" alt="">
-                </div>
+                
             </div>
 
             <div class="container-fluid px-0">
                 <!-- Mover los botones dentro del row con los otros controles -->
                 <div class="row g-3 align-items-center mb-3">
-                    <div class="col-md-4">
-                        <input type="search" id="searchPatients" class="form-control" placeholder="Buscar pacientes...">
-                    </div>
+                    
                     <div class="col-md-4">
                         <button class="btn btn-primary" id="agregarPacienteBtn" data-bs-toggle="modal" data-bs-target="#agregarPacienteModal">Agregar Paciente</button>
                     </div>

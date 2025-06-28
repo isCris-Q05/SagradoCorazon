@@ -1,33 +1,47 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Función para cargar los datos de enfermedades (para tabla y select)
+    // Mostrar spinner o indicador de carga
+    const tablaEnfermedades = document.getElementById('tabla-enfermedades');
+    tablaEnfermedades.classList.add('d-none'); // Ocultar tabla inicialmente
     function cargarEnfermedades() {
+        // Mostrar loading si es necesario
+        // document.getElementById('loading-enfermedades').style.display = 'block';
+        
         fetch('/enfermedades_cantidad_pacientes/')
             .then(response => {
-                if (!response.ok) {
-                    throw new Error('Error al obtener los datos');
-                }
+                if (!response.ok) throw new Error('Error al obtener los datos');
                 return response.json();
             })
             .then(data => {
                 if (data.success) {
-                    // Mostrar enfermedades en la tabla
                     mostrarEnfermedades(data.enfermedades);
-                    document.getElementById('tabla-enfermedades').style.display = 'block';
                     
-                    // Poblar el select de enfermedades
+                    // Control de visibilidad más estricto
+                    const tabla = document.getElementById('tabla-enfermedades');
+                    const mensaje = document.getElementById('no-enfermedades-message');
+                    
+                    if (data.enfermedades?.length > 0) {
+                        tabla.classList.remove('d-none');
+                        mensaje.classList.add('d-none');
+                    } else {
+                        tabla.classList.add('d-none');
+                        mensaje.classList.remove('d-none');
+                    }
+                    
                     poblarSelectEnfermedades(data.enfermedades);
-                    document.getElementById('filtrosEnfermedades').style.display = 'block';
+                    document.getElementById('filtrosEnfermedades').classList.remove('d-none');
                 } else {
-                    console.error('Error en los datos recibidos:', data.message);
-                    mostrarError('Error al cargar los datos de enfermedades');
+                    throw new Error(data.message || 'Error en los datos recibidos');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                mostrarError('Error al conectar con el servidor');
+                mostrarError(error.message);
+            })
+            .finally(() => {
+                // document.getElementById('loading-enfermedades').style.display = 'none';
             });
     }
-
     // Función para mostrar las enfermedades en la tabla
     function mostrarEnfermedades(enfermedades) {
         const tbody = document.querySelector('#tabla-enfermedades-datos tbody');
@@ -42,11 +56,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${enfermedad.pacientes_directos}</td>
                 <td>${enfermedad.pacientes_en_registros}</td>
                 <td>${enfermedad.total_pacientes}</td>
-                <td>
-                    <button class="btn btn-sm btn-info" onclick="verDetallesEnfermedad(${enfermedad.id})">
-                        Detalles
-                    </button>
-                </td>
             `;
             
             tbody.appendChild(row);

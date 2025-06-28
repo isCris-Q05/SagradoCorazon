@@ -1086,12 +1086,16 @@ def filtro_enfermedades(request):
         id_enfermedad = request.GET.get('id_enfermedad')
         paciente_username = request.GET.get('paciente_username')
 
-        # Obtener la enfermedad (por ID o nombre)
+        print(f"Parámetros recibidos - nombre_enfermedad: {nombre_enfermedad}, id_enfermedad: {id_enfermedad}, paciente_username: {paciente_username}")
+
+        # Obtener la enfermedad
         enfermedad = None
         if id_enfermedad:
             enfermedad = Enfermedad.objects.filter(id_enfermedad=id_enfermedad).first()
+            print(f"Enfermedad encontrada por ID: {enfermedad}")
         elif nombre_enfermedad:
             enfermedad = Enfermedad.objects.filter(nombre__icontains=nombre_enfermedad).first()
+            print(f"Enfermedad encontrada por nombre: {enfermedad}")
 
         # Datos base para la respuesta
         response_data = {
@@ -1100,86 +1104,142 @@ def filtro_enfermedades(request):
                 'id': enfermedad.id_enfermedad if enfermedad else None,
                 'nombre': enfermedad.nombre if enfermedad else None
             } if enfermedad else None,
-            "total_registros": 0,
-            "total_pacientes_unicos": 0,
-            "registros_paciente": 0,
             "registros": [],
             "tiene_enfermedad": False
         }
 
         # Caso 1: Solo paciente (sin enfermedad)
         if paciente_username and not enfermedad:
+            print("Caso 1: Solo paciente")
             try:
                 paciente = Paciente.objects.get(user__username=paciente_username)
+                print(f"Paciente encontrado: {paciente}")
+                
                 registros = Registro.objects.filter(
                     id_cita__id_paciente=paciente
-                ).select_related('id_enfermedad', 'id_cita')
+                ).select_related('id_enfermedad', 'id_cita').prefetch_related(
+                    'registrotratamiento_set__id_tratamiento',
+                    'registroproducto_set__id_producto'
+                )
+                print(f"Total registros encontrados: {registros.count()}")
                 
-                registros_data = [{
-                    'id': r.id_registro,
-                    'motivo': r.motivo,
-                    'enfermedad': {
-                        'id': r.id_enfermedad.id_enfermedad,
-                        'nombre': r.id_enfermedad.nombre
-                    },
-                    'fecha': r.id_cita.fecha.strftime('%Y-%m-%d') if r.id_cita.fecha else None
-                } for r in registros]
+                registros_data = []
+                for r in registros:
+                    print(f"Procesando registro ID: {r.id_registro}")
+                    tratamientos = [{
+                        'id': rt.id_tratamiento.id_tratamiento,
+                        'nombre': rt.id_tratamiento.nombre
+                    } for rt in r.registrotratamiento_set.all()]
+                    print(f"Tratamientos encontrados: {len(tratamientos)}")
+                    
+                    productos = [{
+                        'id': rp.id_producto.id_producto,
+                        'nombre': rp.id_producto.nombre
+                    } for rp in r.registroproducto_set.all()]
+                    print(f"Productos encontrados: {len(productos)}")
+                    
+                    registros_data.append({
+                        'id': r.id_registro,
+                        'motivo': r.motivo,
+                        'fecha': r.id_cita.fecha.strftime('%Y-%m-%d') if r.id_cita.fecha else None,
+                        'enfermedad': {
+                            'id': r.id_enfermedad.id_enfermedad,
+                            'nombre': r.id_enfermedad.nombre
+                        },
+                        'tratamientos': tratamientos,
+                        'productos': productos,
+                        'asistencia': r.id_cita.estado == 'finalizada'
+                    })
                 
                 response_data.update({
                     "registros_paciente": registros.count(),
-                    "registros": registros_data
+                    "registros": registros_data,
+                    "paciente": {
+                        "id": paciente.id,
+                        "nombre": f"{paciente.user.first_name} {paciente.user.last_name}"
+                    }
                 })
                 
-            except Paciente.DoesNotExist:
+            except Paciente.DoesNotExist as e:
+                print(f"Error: Paciente no encontrado - {str(e)}")
                 response_data.update({
                     "success": False,
                     "message": "Paciente no encontrado"
                 })
+            except Exception as e:
+                print(f"Error inesperado en Caso 1: {str(e)}")
+                raise e
+                
             return JsonResponse(response_data)
 
         # Caso 2: Solo enfermedad (sin paciente)
         if enfermedad and not paciente_username:
-            # Conteo total en registros médicos
-            total_registros = Registro.objects.filter(id_enfermedad=enfermedad).count()
-            
-            # Conteo de pacientes únicos con esta enfermedad
-            pacientes_unicos = Registro.objects.filter(
-                id_enfermedad=enfermedad
-            ).values('id_cita__id_paciente').distinct().count()
-            
-            response_data.update({
-                "total_registros": total_registros,
-                "total_pacientes_unicos": pacientes_unicos,
-                "registros": []  # No mostramos registros en este caso
-            })
+            print("Caso 2: Solo enfermedad")
+            try:
+                total_registros = Registro.objects.filter(id_enfermedad=enfermedad).count()
+                pacientes_unicos = Registro.objects.filter(
+                    id_enfermedad=enfermedad
+                ).values('id_cita__id_paciente').distinct().count()
+                
+                print(f"Total registros: {total_registros}, Pacientes únicos: {pacientes_unicos}")
+                
+                response_data.update({
+                    "total_registros": total_registros,
+                    "total_pacientes_unicos": pacientes_unicos
+                })
+            except Exception as e:
+                print(f"Error inesperado en Caso 2: {str(e)}")
+                raise e
+                
             return JsonResponse(response_data)
 
         # Caso 3: Enfermedad Y paciente
         if enfermedad and paciente_username:
+            print("Caso 3: Enfermedad y paciente")
             try:
                 paciente = Paciente.objects.get(user__username=paciente_username)
+                print(f"Paciente encontrado: {paciente}")
                 
-                # Buscar registros donde el paciente tenga esta enfermedad
                 registros_paciente = Registro.objects.filter(
                     id_cita__id_paciente=paciente,
                     id_enfermedad=enfermedad
-                ).select_related('id_cita', 'id_enfermedad')
+                ).select_related('id_cita', 'id_enfermedad').prefetch_related(
+                    'tratamientos__id_tratamiento',  # Cambiado de registrotratamiento_set a tratamientos
+                    'registroproducto_set__id_producto'
+                )
+                print(f"Total registros encontrados: {registros_paciente.count()}")
                 
-                # También buscar si el paciente tiene la enfermedad asignada directamente
                 tiene_enfermedad = PacienteEnfermedad.objects.filter(
                     id_paciente=paciente,
                     id_enfermedad=enfermedad
                 ).exists()
+                print(f"Tiene enfermedad directamente: {tiene_enfermedad}")
                 
-                registros_data = [{
-                    'id': r.id_registro,
-                    'motivo': r.motivo,
-                    'fecha': r.id_cita.fecha.strftime('%Y-%m-%d') if r.id_cita.fecha else None,
-                    'enfermedad': {
-                        'id': r.id_enfermedad.id_enfermedad,
-                        'nombre': r.id_enfermedad.nombre
-                    }
-                } for r in registros_paciente]
+                registros_data = []
+                for r in registros_paciente:
+                    print(f"Procesando registro ID: {r.id_registro}")
+                    tratamientos = [{
+                        'id': rt.id_tratamiento.id_tratamiento,
+                        'nombre': rt.id_tratamiento.nombre
+                    } for rt in r.tratamientos.all()]  # Cambiado de registrotratamiento_set a tratamientos
+                    
+                    productos = [{
+                        'id': rp.id_producto.id_producto,
+                        'nombre': rp.id_producto.nombre
+                    } for rp in r.registroproducto_set.all()]
+                    
+                    registros_data.append({
+                        'id': r.id_registro,
+                        'motivo': r.motivo,
+                        'fecha': r.id_cita.fecha.strftime('%Y-%m-%d') if r.id_cita.fecha else None,
+                        'enfermedad': {
+                            'id': r.id_enfermedad.id_enfermedad,
+                            'nombre': r.id_enfermedad.nombre
+                        },
+                        'tratamientos': tratamientos,
+                        'productos': productos,
+                        'asistencia': r.id_cita.estado == 'finalizada'
+                    })
                 
                 response_data.update({
                     "registros_paciente": registros_paciente.count(),
@@ -1191,23 +1251,25 @@ def filtro_enfermedades(request):
                     }
                 })
                 
-            except Paciente.DoesNotExist:
+            except Paciente.DoesNotExist as e:
+                print(f"Error: Paciente no encontrado - {str(e)}")
                 response_data.update({
                     "success": False,
                     "message": "Paciente no encontrado"
                 })
-            
-            return JsonResponse(response_data)  # Este return estaba mal indentado
-
-        # Retorno por defecto si no entra en ningún caso
-        return JsonResponse(response_data)
-
+            except Exception as e:
+                print(f"Error inesperado en Caso 3: {str(e)}")
+                raise e
+                
+            return JsonResponse(response_data)
+        # Si no se cumplen los casos anteriores, retornamos un error
     except Exception as e:
-        print(f"Error en filtro_enfermedades: {str(e)}")
+        print(f"Error inesperado: {str(e)}")
         return JsonResponse({
             "success": False,
             "message": "Error interno del servidor"
         }, status=500)
+    
 def filtrar_registros_tratamientos(request):
     try:
         nombre_enfermedad = request.GET.get('nombre_enfermedad', None)

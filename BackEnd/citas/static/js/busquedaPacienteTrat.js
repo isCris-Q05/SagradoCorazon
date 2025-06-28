@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-    alert("Script de búsqueda de pacientes cargado correctamente.");
     const input = document.getElementById("buscarPaciente2");
     const sugerenciasDiv = document.getElementById("sugerenciasPaciente2");
     // Variable para almacenar el username del paciente seleccionado

@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="{% static 'css/inicio.css' %}" />
     <link rel="stylesheet" href="{% static 'css/visualizacion.css' %}" />
     <link rel="stylesheet" href="{% static 'css/tendencia.css' %}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <!-- En el head de tu HTML -->
@@ -33,17 +34,33 @@
   <body>
     <main class="main-body">
       <div class="sidebar">
-        <div class="logo">🏥 DermaCare</div>
-        <nav>
-            <a href="{% url 'inicio' %}" class="nav-item">Inicio</a>
-            <a href="{% url 'doctores' %}" class="nav-item">Doctores</a>
-            <a href="{% url 'registrar_pacientes' %}" class="nav-item">Pacientes</a>
-            <a href="{% url 'productos' %}" class="nav-item">Productos</a>
-            <a href="{% url 'enfermedades_alergias' %}" class="nav-item">Alergias y Enfermedades</a>
-            <a href="{% url 'tratamientos' %}" class="nav-item">Tratamientos</a>
-            <a href="{% url 'visualizacion' %}"  class="nav-item active">Visualización</a>
-          </nav>
-      </div>
+            <div class="logo-container">
+                <img src="{% static 'imagenes/logo_derma.png' %}" alt="Logo DermaCare" class="logo-img">
+            </div>
+            <nav>
+                <a href="{% url 'inicio' %}" class="nav-item">
+                    <i class="fas fa-home icon"></i> Inicio
+                </a>
+                <a href="{% url 'doctores' %}" class="nav-item">
+                    <i class="fas fa-user-md icon"></i> Doctores
+                </a>
+                <a href="{% url 'registrar_pacientes' %}" class="nav-item">
+                    <i class="fas fa-procedures icon"></i> Pacientes
+                </a>
+                <a href="{% url 'productos' %}" class="nav-item">
+                    <i class="fas fa-pills icon"></i> Productos
+                </a>
+                <a href="{% url 'enfermedades_alergias' %}" class="nav-item">
+                    <i class="fas fa-allergies icon"></i> Alergias y Enfermedades
+                </a>
+                <a href="{% url 'tratamientos' %}" class="nav-item ">
+                    <i class="fas fa-heartbeat icon"></i> Tratamientos
+                </a>
+                <a href="{% url 'visualizacion' %}" class="nav-item active">
+                    <i class="fas fa-chart-line icon"></i> Visualización
+                </a>
+            </nav>
+        </div>
       <div class="main-content">
         <div class="top-bar">
           <h2>Visualización</h2>
@@ -243,7 +260,19 @@
          </div>
 
          <!-- Tabla de Enfermedades (inicialmente oculta) -->
-        <div id="tabla-enfermedades" class="tabla-seccion" style="display: none;">
+
+        <div id="loading-enfermedades" class="text-center py-4" style="display: none;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">Cargando...</span>
+            </div>
+            <p class="mt-2">Cargando datos de enfermedades...</p>
+        </div>
+
+        <div id="no-enfermedades-message" class="alert alert-info" style="display: none;">
+            No se encontraron enfermedades registradas.
+        </div>
+
+        <div id="tabla-enfermedades" class="tabla-seccion d-none" style="display: none !important;">
             <table class="table" id="tabla-enfermedades-datos">
                 <thead>
                     <tr>
@@ -252,7 +281,6 @@
                         <th>Pacientes Directos</th>
                         <th>Pacientes en Registros</th>
                         <th>Total Pacientes</th>
-                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -321,7 +349,9 @@
                     <th>ID Registro</th>
                     <th>Motivo</th>
                     <th>Fecha</th>
-                    <th>Acciones</th>
+                    <th>Tratamientos</th>
+                    <th>Productos</th>
+                    <th>Asistencia</th>
                 </tr>
             </thead>
             <tbody>

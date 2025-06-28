@@ -1,13 +1,14 @@
 document.addEventListener("DOMContentLoaded", () => {
     const input = document.getElementById("buscarPaciente");
     const sugerenciasDiv = document.getElementById("sugerenciasPaciente");
-    // Variable para almacenar el username del paciente seleccionado
-    let pacienteSeleccionado = null;
+    
+    // Almacenamos el paciente seleccionado en el objeto window
+    window.pacienteSeleccionado = null;
 
     input.addEventListener("input", async () => {
         const query = input.value.trim();
         sugerenciasDiv.innerHTML = '';
-        pacienteSeleccionado = null; // Resetear al cambiar la búsqueda
+        window.pacienteSeleccionado = null;
 
         if (query.length < 2) return;
 
@@ -18,10 +19,10 @@ document.addEventListener("DOMContentLoaded", () => {
             pacientes.forEach(paciente => {
                 const item = document.createElement("div");
                 item.className = "list-group-item list-group-item-action";
-                item.textContent = paciente.nombre;
+                item.textContent = `${paciente.nombre} (${paciente.username})`;
                 item.addEventListener("click", () => {
                     input.value = paciente.nombre;
-                    pacienteSeleccionado = paciente; // Guardar todo el objeto paciente
+                    window.pacienteSeleccionado = paciente; // Almacenamos el objeto completo
                     sugerenciasDiv.innerHTML = '';
                 });
                 sugerenciasDiv.appendChild(item);
@@ -31,12 +32,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Cierra las sugerencias si se hace clic fuera
     document.addEventListener("click", (e) => {
         if (!sugerenciasDiv.contains(e.target) && e.target !== input) {
             sugerenciasDiv.innerHTML = '';
         }
     });
-
-   
 });
