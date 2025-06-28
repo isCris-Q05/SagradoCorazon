@@ -153,14 +153,10 @@
                 <i class="fas fa-upload"></i> Subir Reporte
             </button>-->
             <!-- Formulario de subida (en tu index.html existente) -->
-            <form id="excelUploadForm" method="post" enctype="multipart/form-data">
+            <form id="backupForm" method="post" action="{% url 'backup_db' %}">
               {% csrf_token %}
-              <div class="form-group">
-                  {{ form.excel_file.label_tag }}
-                  {{ form.excel_file }}
-              </div>
               <button type="submit" id="subirReporteBtn" class="btn btn-primary">
-                  <i class="fas fa-upload"></i> Subir Excel
+                  <i class="fa-solid fa-database"></i> Crear Backup
               </button>
             </form>
           </div>
@@ -747,16 +743,16 @@
     </main>
 
     <!-- Alerta personalizada -->
-    <div id="customAlert" class="custom-alert">
-      <div class="alert-content">
-        <div class="alert-icon">
-          <svg viewBox="0 0 24 24">
-            <path fill="currentColor" d="M12,2C6.48,2,2,6.48,2,12s4.48,10,10,10s10-4.48,10-10S17.52,2,12,2z M10,17l-5-5l1.41-1.41L10,14.17l7.59-7.59L19,8l-9,9z"/>
-          </svg>
-        </div>
-        <h3>¡Reporte subido con éxito!</h3>
-        <p>El archivo se ha cargado correctamente al sistema.</p>
-        <button id="closeAlert" class="alert-btn">Aceptar</button>
+    <div id="customBackupAlert" class="backup-alert">
+      <div class="backup-alert-content">
+          <div class="backup-alert-icon">
+              <i class="fas fa-check-circle"></i>
+          </div>
+          <div class="backup-alert-body">
+              <h3 class="backup-alert-title">¡Backup completado!</h3>
+              <p class="backup-alert-message" id="backupMessage"></p>
+          </div>
+          <button class="backup-alert-button">Aceptar</button>
       </div>
     </div>
 
@@ -770,6 +766,7 @@
     <script src="{% static 'js/cargarNombrePaciente.js' %}"></script>
     <script src="{% static 'js/validarHoraCitas.js' %}"></script>
     <script src="{% static 'js/filtrarCitas.js' %}"></script>
+    <script src="{% static 'js/backup.js' %}"></script>
     <!--
       <script src="{% static 'js/sendReminder.js' %}"></script>
     -->

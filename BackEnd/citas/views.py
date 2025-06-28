@@ -17,7 +17,7 @@ from django.db.models.functions import ExtractMonth, ExtractYear
 from django.db.models.functions import TruncMonth
 # importando date
 from datetime import date, datetime
-
+import os
 
 
 from openpyxl import Workbook
@@ -1113,6 +1113,37 @@ def datos_tendencias_enfermedades(request):
             "message": f"Error interno del servidor: {str(e)}"
         }, status=500)
 
+# Funcion que crea una copia o backup de la BD
+@csrf_exempt
+def backup_db(request):
+    if request.method == 'POST':
+        try:
+            db_path = settings.DATABASES['default']['NAME']
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            backup_path = f"{db_path}.backup_{timestamp}"
+            
+            # Asegurarse de que el directorio existe
+            os.makedirs(os.path.dirname(backup_path), exist_ok=True)
+            
+            # Copiar el archivo de la base de datos
+            with open(db_path, 'rb') as original_db:
+                with open(backup_path, 'wb') as backup_file:
+                    backup_file.write(original_db.read())
+            
+            return JsonResponse({
+                'status': 'success',
+                'message': f"Backup creado exitosamente: {backup_path}",
+                'backup_path': backup_path
+            }, status=200)
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': f"Error al crear backup: {str(e)}"
+            }, status=500)
+    return JsonResponse({
+        'status': 'error',
+        'message': "Método no permitido"
+    }, status=405)
     
 def filtro_enfermedades(request):
     try:

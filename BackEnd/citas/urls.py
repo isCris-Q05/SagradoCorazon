@@ -4,7 +4,7 @@ from .views import login_usuario, register, inicio, listar_alergias, buscar_medi
 
 from .views import send_reminder, todas_las_citas_json, generar_reporte, historial_paciente, tipo_citas_all, cantidad_total_citas, visualizacion, citas_asistio, citas_no_asistio, citas_pendientes, filtro_enfermedades, filtrar_registros_tratamientos, citas_visualizacion, doctores_all, enfermedades_cantidad_pacientes, buscar_enfermedades, buscar_pacientes2, buscar_enfermedades, datos_tendencias_enfermedades, estadisticas_tratamientos, enfermedades_por_tratamiento
 
-from .views import tendencias_tratamientos
+from .views import tendencias_tratamientos, backup_db
 
 from django.contrib.auth import views as auth_views
 
@@ -46,6 +46,8 @@ urlpatterns = [
     path('enfermedades-por-tratamiento/', enfermedades_por_tratamiento, name='enfermedades_por_tratamiento'),
 
     path('tendencias-tratamientos/', tendencias_tratamientos, name='tendencias_tratamientos'),
+
+    path('backup/', backup_db, name='backup_db'),
 
 
     path('login/', login_usuario, name='login'),
