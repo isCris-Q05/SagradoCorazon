@@ -1,0 +1,140 @@
+/* Estilos para la cuadrícula de médicos (similares a productos) */
+    .dc-row {
+        display: flex;
+        flex-wrap: wrap;
+        margin: 0 -10px;
+    }
+    
+    .dc-col {
+        flex: 0 0 calc(33.333% - 20px);
+        max-width: calc(33.333% - 20px);
+        padding: 0 10px;
+        margin-bottom: 20px;
+    }
+    
+    .dc-product-card {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .dc-product-card:hover {
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transform: translateY(-5px);
+    }
+    
+    .dc-card-img-container {
+        position: relative;
+        height: 200px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f8f9fa;
+    }
+    
+    .dc-card-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    
+    .dc-card-img:hover {
+        transform: scale(1.05);
+    }
+    
+    .dc-default-icon {
+        width: 100px;
+        height: 100px;
+        color: #5d9cec;
+    }
+    
+    .dc-card-body {
+        padding: 15px;
+        flex-grow: 1;
+    }
+    
+    .dc-card-title {
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+        color: #333;
+    }
+    
+    .dc-card-text {
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 15px;
+    }
+    
+    .dc-specialties-list {
+        list-style-type: none;
+        padding-left: 0;
+        margin-top: 5px;
+    }
+    
+    .dc-specialties-list li {
+        font-size: 0.85rem;
+        color: #555;
+        margin-bottom: 3px;
+    }
+    
+    .dc-product-price {
+        font-weight: bold;
+        color: #2c3e50;
+        margin-top: auto;
+    }
+    
+    .dc-card-footer {
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-top: 1px solid #e0e0e0;
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    .dc-btn {
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+    }
+    
+    .dc-btn-details {
+        background-color: #5d9cec;
+        color: white;
+    }
+    
+    .dc-btn-details:hover {
+        background-color: #4a89dc;
+    }
+    
+    .dc-btn-edit {
+        background-color: #f5f7fa;
+        color: #656d78;
+        border: 1px solid #e6e9ed;
+    }
+    
+    .dc-btn-edit:hover {
+        background-color: #e6e9ed;
+    }
+    
+    @media (max-width: 992px) {
+        .dc-col {
+            flex: 0 0 calc(50% - 20px);
+            max-width: calc(50% - 20px);
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .dc-col {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+    }
