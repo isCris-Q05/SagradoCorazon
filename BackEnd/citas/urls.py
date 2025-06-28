@@ -3,6 +3,9 @@ from .views import index,registrar_paciente, registrar_medico, login_medico, log
 from .views import login_usuario, register, inicio, listar_alergias, buscar_medicos, buscar_pacientes, obtener_especialidades, buscar_cita, crear_registro, buscar_enfermedades, tratamientos_por_enfermedad, paciente_citas,paciente_historial,paciente_inicio, editar_cita,registrar_paciente, vista_error, forgot_password_medico, validate_otp, change_password, validar_disponibilidad_medico
 
 from .views import send_reminder, todas_las_citas_json, generar_reporte, historial_paciente, tipo_citas_all, cantidad_total_citas, visualizacion, citas_asistio, citas_no_asistio, citas_pendientes, filtro_enfermedades, filtrar_registros_tratamientos, citas_visualizacion, doctores_all, enfermedades_cantidad_pacientes, buscar_enfermedades, buscar_pacientes2, buscar_enfermedades, datos_tendencias_enfermedades, estadisticas_tratamientos, enfermedades_por_tratamiento
+
+from .views import tendencias_tratamientos
+
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
@@ -41,6 +44,8 @@ urlpatterns = [
     path('estadisticas-tratamientos/', estadisticas_tratamientos, name='estadisticas_tratamientos'),
 
     path('enfermedades-por-tratamiento/', enfermedades_por_tratamiento, name='enfermedades_por_tratamiento'),
+
+    path('tendencias-tratamientos/', tendencias_tratamientos, name='tendencias_tratamientos'),
 
 
     path('login/', login_usuario, name='login'),

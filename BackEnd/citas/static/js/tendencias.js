@@ -288,4 +288,215 @@ document.addEventListener('DOMContentLoaded', function() {
             return cumpleEstado && cumpleMedico && cumpleFecha;
         });
     }
+
+    // tendencia
+    // Variables globales para el gráfico y datos
+    let tratamientosChart = null;
+    let currentTrendData = [];
+    
+    // Evento para el botón de tendencia
+    document.querySelector('#filtrosTratamientos .btn-outline-secondary').addEventListener('click', function() {
+        mostrarTendencias();
+    });
+
+    // Función principal para mostrar tendencias
+    function mostrarTendencias() {
+        const tratamientoId = document.getElementById('select-tratamientos').value;
+        const enfermedadId = document.getElementById('select-enfermedades').value;
+        
+        // Mostrar el popup con estado de carga
+        const popup = document.getElementById('tendenciasTratamientosPopup');
+        popup.style.display = 'block';
+        
+        const chartContainer = document.querySelector('#tendenciasTratamientosPopup .chart-container');
+        chartContainer.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div><p class="mt-2">Cargando datos de tendencia...</p></div>';
+        
+        // Construir URL con parámetros
+        let url = `/tendencias-tratamientos/?`;
+        if (tratamientoId) url += `tratamiento_id=${tratamientoId}&`;
+        if (enfermedadId) url += `enfermedad_id=${enfermedadId}`;
+        
+        // Obtener datos del endpoint
+        fetch(url)
+            .then(response => {
+                if (!response.ok) throw new Error('Error en la respuesta del servidor');
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    renderizarDatosTendencia(data.datos);
+                } else {
+                    mostrarErrorTendencia(data.message || 'Error al cargar los datos');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                mostrarErrorTendencia('Error de conexión con el servidor');
+            });
+        
+        // Configurar eventos del popup
+        configurarPopupTendencias();
+    }
+    
+    // Función para renderizar los datos en el gráfico
+    function renderizarDatosTendencia(datos) {
+        currentTrendData = datos;
+        const chartContainer = document.querySelector('#tendenciasTratamientosPopup .chart-container');
+        
+        // Verificar si hay datos
+        if (datos.length === 0) {
+            chartContainer.innerHTML = '<p class="text-center py-4">No hay datos disponibles para los filtros seleccionados</p>';
+            return;
+        }
+        
+        // Preparar el canvas para el gráfico
+        chartContainer.innerHTML = '<canvas id="tratamientosChart"></canvas>';
+        
+        // Obtener el tipo de gráfico seleccionado (default: pie)
+        const tipoGrafico = document.querySelector('.chart-type-btn.active')?.getAttribute('data-type') || 'pie';
+        
+        // Crear el gráfico
+        crearGraficoTendencias(datos, tipoGrafico);
+    }
+    
+    // Función para crear el gráfico con Chart.js
+    // Función para crear el gráfico con Chart.js
+    function crearGraficoTendencias(datos, tipo = 'pie') {
+        
+        const ctx = document.getElementById('tratamientosChart').getContext('2d');
+        
+        // Preparar datos para el gráfico
+        const labels = datos.map(item => {
+            const [year, month] = item.mes.split('-');
+            const fecha = new Date(year, month-1).toLocaleDateString('es-ES', {month: 'long', year: 'numeric'});
+            return `${fecha} - ${item.tratamiento_nombre}`;
+        });
+        
+        const dataValues = datos.map(item => item.cantidad);
+        const backgroundColors = generarColores(labels.length);
+        
+        // Configuración del gráfico
+        const config = {
+            type: tipo,
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Aplicaciones del tratamiento',
+                    data: dataValues,
+                    backgroundColor: backgroundColors,
+                    borderColor: '#ffffff',
+                    borderWidth: 1,
+                    fill: tipo === 'line'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: tipo === 'pie' ? 'right' : 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: obtenerTituloGrafico(),
+                        font: {
+                            size: 16
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.label.split(' - ')[1]}: ${context.raw} aplicaciones`;
+                            }
+                        }
+                    }
+                },
+                scales: tipo !== 'pie' ? {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Cantidad de aplicaciones'
+                        },
+                        ticks: {
+                            precision: 0
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Periodo y Tratamiento'
+                        }
+                    }
+                } : undefined
+            }
+        };
+        
+        // Destruir gráfico anterior si existe
+        if (tratamientosChart) {
+            tratamientosChart.destroy();
+        }
+        
+        // Crear nuevo gráfico
+        tratamientosChart = new Chart(ctx, config);
+    
+    }
+    
+    // Función para generar colores aleatorios
+    function generarColores(count) {
+        const colors = [];
+        const hueStep = 360 / count;
+        
+        for (let i = 0; i < count; i++) {
+            const hue = Math.floor(i * hueStep);
+            colors.push(`hsl(${hue}, 70%, 60%)`);
+        }
+        return colors;
+    }
+    
+    // Función para obtener título basado en los filtros
+    function obtenerTituloGrafico() {
+        const tratamientoSelect = document.getElementById('select-tratamientos');
+        const enfermedadSelect = document.getElementById('select-enfermedades');
+        
+        const tratamiento = tratamientoSelect.value ? tratamientoSelect.options[tratamientoSelect.selectedIndex].text : 'Todos los tratamientos';
+        const enfermedad = enfermedadSelect.value ? enfermedadSelect.options[enfermedadSelect.selectedIndex].text : 'Todas las enfermedades';
+        
+        return `Tendencia: ${tratamiento} - ${enfermedad}`;
+    }
+    
+    // Función para mostrar errores
+    function mostrarErrorTendencia(mensaje) {
+        const chartContainer = document.querySelector('#tendenciasTratamientosPopup .chart-container');
+        chartContainer.innerHTML = `<div class="alert alert-danger">${mensaje}</div>`;
+    }
+    
+    // Configurar eventos del popup
+    function configurarPopupTendencias() {
+        const popup = document.getElementById('tendenciasTratamientosPopup');
+        
+        // Botones de tipo de gráfico
+        document.querySelectorAll('.chart-type-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.chart-type-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                if (currentTrendData.length > 0) {
+                    crearGraficoTendencias(currentTrendData, this.getAttribute('data-type'));
+                }
+            });
+        });
+        
+        // Botones de cerrar
+        document.querySelectorAll('.close-popup').forEach(btn => {
+            btn.addEventListener('click', function() {
+                popup.style.display = 'none';
+                if (tratamientosChart) {
+                    tratamientosChart.destroy();
+                    tratamientosChart = null;
+                }
+            });
+        });
+    }
+
 });

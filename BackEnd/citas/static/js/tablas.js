@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
+    //alert('Bienvenido a la sección de citas médicas');
     // Variables para la paginación
     //let todasLasCitas = [];
     //let citasFiltradas = [];
@@ -216,12 +217,19 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Función para cargar citas filtradas por estado (finalizadas) y rango de fechas
+    // Modificar la función cargarCitasFiltradas para que pueda ser llamada desde los eventos
     async function cargarCitasFiltradas() {
         try {
             const estado = document.getElementById('filtroEstado').value;
             const fechaInicio = document.getElementById('fechaInicio').value;
             const fechaFin = document.getElementById('fechaFin').value;
             const medico = document.getElementById('filtroMedico').value;
+
+            // Solo hacer la petición si el estado es "finalizada"
+            if (estado !== 'finalizada') {
+                aplicarFiltrosLocales();
+                return;
+            }
 
             // Construir la URL del endpoint
             let url = 'http://127.0.0.1:8000/citas_asistio/';
@@ -234,9 +242,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 const inicio = fechaInicio.substring(0, 7);
                 const fin = fechaFin.substring(0, 7);
                 url = `${url}${inicio}/${fin}/`;
-            } else if (estado === 'finalizada') {
-                // Si no hay fechas pero se seleccionó "finalizada", traer todas
-                url = 'http://127.0.0.1:8000/citas_asistio/';
             }
             
             if (medico) {
@@ -244,7 +249,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             const fullUrl = `${url}?${params.toString()}`;
-            console.log('Fetching URL:', fullUrl);
+            
+            // Mostrar loading
+            const tbody = document.querySelector('#tabla-citas tbody');
+            tbody.innerHTML = '<tr><td colspan="8" class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div></td></tr>';
             
             const response = await fetch(fullUrl);
             
@@ -255,7 +263,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
             
             if (data.success) {
-                console.log(`Total de citas filtradas: ${data.count}`);
                 citasFiltradas = data.citas.map(cita => ({
                     id_cita: cita.id,
                     paciente_nombre: cita.paciente.nombre,
@@ -274,7 +281,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 mostrarCitasPagina();
                 actualizarPaginador();
             } else {
-                console.error('La respuesta no fue exitosa:', data.message);
                 mostrarErrorEnTabla(data.message || 'Error al filtrar citas');
             }
         } catch (error) {
@@ -284,31 +290,38 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Función para aplicar filtros locales (para estados que no son "finalizada")
+    // Modificar la función aplicarFiltrosLocales para que sea más eficiente
     function aplicarFiltrosLocales() {
         const estado = document.getElementById('filtroEstado').value;
         const fechaInicio = document.getElementById('fechaInicio').value;
         const fechaFin = document.getElementById('fechaFin').value;
         const medico = document.getElementById('filtroMedico').value;
         
-        aplicandoFiltros = estado || fechaInicio || fechaFin || medico;
+        // Determinar si hay filtros activos
+        const hayFiltros = estado || (fechaInicio && fechaFin) || medico;
+        aplicandoFiltros = hayFiltros;
         
-        citasFiltradas = todasLasCitas.filter(cita => {
-            const cumpleEstado = !estado || cita.estado === estado;
-            const cumpleMedico = !medico || cita.id_medico_id.toString() === medico;
-            
-            // Filtro por fecha (si se proporciona)
-            let cumpleFecha = true;
-            if (fechaInicio && fechaFin) {
-                const fechaCita = new Date(cita.fecha);
-                const inicio = new Date(fechaInicio);
-                const fin = new Date(fechaFin);
-                fin.setDate(fin.getDate() + 1); // Incluir el día final
+        if (hayFiltros) {
+            citasFiltradas = todasLasCitas.filter(cita => {
+                const cumpleEstado = !estado || cita.estado === estado;
+                const cumpleMedico = !medico || cita.id_medico_id.toString() === medico;
                 
-                cumpleFecha = fechaCita >= inicio && fechaCita <= fin;
-            }
-            
-            return cumpleEstado && cumpleMedico && cumpleFecha;
-        });
+                let cumpleFecha = true;
+                if (fechaInicio && fechaFin) {
+                    const fechaCita = new Date(cita.fecha);
+                    const inicio = new Date(fechaInicio);
+                    const fin = new Date(fechaFin);
+                    fin.setDate(fin.getDate() + 1); // Incluir el día final
+                    
+                    cumpleFecha = fechaCita >= inicio && fechaCita <= fin;
+                }
+                
+                return cumpleEstado && cumpleMedico && cumpleFecha;
+            });
+        } else {
+            // Si no hay filtros, mostrar todas las citas
+            citasFiltradas = [...todasLasCitas];
+        }
         
         totalPaginas = Math.ceil(citasFiltradas.length / citasPorPagina);
         paginaActual = 1;
@@ -322,15 +335,9 @@ document.addEventListener('DOMContentLoaded', function() {
         tbody.innerHTML = `<tr><td colspan="8">${mensaje}</td></tr>`;
     }
 
-    // Configurar evento del botón de búsqueda
+    // Modificar el evento del botón de búsqueda para que sea consistente
     document.getElementById('btnBuscarCitas').addEventListener('click', function() {
-        const estado = document.getElementById('filtroEstado').value;
-        
-        if (estado === 'finalizada') {
-            cargarCitasFiltradas();
-        } else {
-            aplicarFiltrosLocales();
-        }
+        cargarCitasFiltradas();
     });
 
     // Función para cargar médicos en el select
@@ -375,4 +382,40 @@ document.addEventListener('DOMContentLoaded', function() {
             selectMedicos.appendChild(option);
         });
     }
+
+    // Con los select
+    // Configurar eventos de cambio en los filtros
+    document.getElementById('filtroEstado').addEventListener('change', function() {
+        aplicarFiltrosAutomaticos();
+    });
+
+    document.getElementById('filtroMedico').addEventListener('change', function() {
+        aplicarFiltrosAutomaticos();
+    });
+
+    document.getElementById('fechaInicio').addEventListener('change', function() {
+        // Verificar si ambos campos de fecha tienen valor
+        if (this.value && document.getElementById('fechaFin').value) {
+            aplicarFiltrosAutomaticos();
+        }
+    });
+
+    document.getElementById('fechaFin').addEventListener('change', function() {
+        // Verificar si ambos campos de fecha tienen valor
+        if (this.value && document.getElementById('fechaInicio').value) {
+            aplicarFiltrosAutomaticos();
+        }
+    });
+
+    // Función para aplicar filtros automáticamente
+    function aplicarFiltrosAutomaticos() {
+        const estado = document.getElementById('filtroEstado').value;
+        
+        // Solo aplicar automáticamente si no es "finalizada" (que requiere petición al servidor)
+        if (estado !== 'finalizada') {
+            aplicarFiltrosLocales();
+        }
+    }
+
+
 });

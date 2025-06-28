@@ -14,6 +14,8 @@ from django.views.decorators.csrf import csrf_exempt
 import random
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models.functions import ExtractMonth, ExtractYear
+from django.db.models.functions import TruncMonth
+
 
 
 
@@ -1373,6 +1375,53 @@ def enfermedades_por_tratamiento(request):
         
     except Exception as e:
         print(f"Error en enfermedades_por_tratamiento: {str(e)}")
+        return JsonResponse({
+            "success": False,
+            "message": "Error interno del servidor"
+        }, status=500)
+
+def tendencias_tratamientos(request):
+    tratamiento_id = request.GET.get('tratamiento_id')
+    enfermedad_id = request.GET.get('enfermedad_id')
+    
+    try:
+        # Consulta base usando el ORM de Django
+        queryset = RegistroTratamiento.objects.select_related('id_tratamiento')
+        
+        # Aplicar filtros según los parámetros
+        if tratamiento_id:
+            queryset = queryset.filter(id_tratamiento_id=tratamiento_id)
+            
+        if enfermedad_id:
+            queryset = queryset.filter(
+                id_tratamiento__tratamientoenfermedad__id_enfermedad_id=enfermedad_id
+            )
+        
+        # Anotar con el mes y contar las ocurrencias
+        datos_tendencia = queryset.annotate(
+            mes=TruncMonth('id_registro__id_cita__fecha')
+        ).values('mes', 'id_tratamiento__nombre').annotate(
+            cantidad=Count('id')
+        ).order_by('mes')
+        
+        # Formatear los datos para la respuesta
+        datos = [{
+            'mes': item['mes'].strftime('%Y-%m'),
+            'cantidad': item['cantidad'],
+            'tratamiento_nombre': item['id_tratamiento__nombre']
+        } for item in datos_tendencia]
+        
+        return JsonResponse({
+            "success": True,
+            "datos": datos,
+            "filtros": {
+                "tratamiento_id": tratamiento_id,
+                "enfermedad_id": enfermedad_id
+            }
+        })
+        
+    except Exception as e:
+        print(f"Error en tendencias_tratamientos: {str(e)}")
         return JsonResponse({
             "success": False,
             "message": "Error interno del servidor"
