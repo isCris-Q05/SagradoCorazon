@@ -1,21 +1,37 @@
 /* Variables de diseño */
 :root {
-    --dc-primary: #5d9cec;         /* Azul suave principal */
-    --dc-primary-dark: #4a89dc;    /* Azul más oscuro */
-    --dc-secondary: #a0d9d9;       /* Verde agua claro */
-    --dc-accent: #f5b7b1;          /* Rosa suave */
-    --dc-text: #333333;            /* Texto principal */
-    --dc-text-light: #777777;      /* Texto secundario */
-    --dc-bg: #f9f9f9;              /* Fondo general */
-    --dc-card-bg: #ffffff;         /* Fondo de cards */
-    --dc-border: #e0e0e0;          /* Color de bordes */
+    --dc-primary: #5d9cec;
+    --dc-primary-dark: #4a89dc;
+    --dc-secondary: #a0d9d9;
+    --dc-accent: #f5b7b1;
+    --dc-text: #333333;
+    --dc-text-light: #777777;
+    --dc-bg: #f9f9f9;
+    --dc-card-bg: #ffffff;
+    --dc-border: #e0e0e0;
     --dc-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     --dc-shadow-hover: 0 8px 20px rgba(0, 0, 0, 0.1);
-        --dc-card-width: 280px; /* Ancho fijo para las tarjetas */
-
+    --dc-card-width: 280px;
 }
 
-/* Estilos específicos para tarjetas de tratamiento */
+/* Layout de cuadrícula */
+.dc-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(var(--dc-card-width), 1fr));
+    gap: 1.5rem;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.dc-col {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    display: flex;
+}
+
+/* Tarjeta de tratamiento */
 .dc-treatment-card {
     border: none;
     border-radius: 12px;
@@ -27,9 +43,8 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    min-height: 280px; /* Más compacto que productos */
+    min-height: 420px;
     width: 100%;
-    padding: 1.5rem;
 }
 
 .dc-treatment-card:hover {
@@ -37,86 +52,180 @@
     box-shadow: var(--dc-shadow-hover);
 }
 
-.dc-card-header {
-    margin-bottom: 1rem;
+/* Contenedor de imagen */
+.dc-card-img-container {
+    position: relative;
+    overflow: hidden;
+    height: 200px;
+    flex-shrink: 0;
+    background-color: #f8fafc;
 }
 
-.dc-treatment-type {
-    color: var(--dc-secondary);
-    font-size: 0.9rem;
+.dc-card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.dc-treatment-card:hover .dc-card-img {
+    transform: scale(1.03);
+}
+
+/* Badge de tratamiento */
+.dc-treatment-badge {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    background-color: var(--dc-secondary);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 0.5rem;
 }
 
-.dc-treatment-card .dc-card-title {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--dc-text);
-    margin-bottom: 1rem;
-    line-height: 1.3;
-}
-
-.dc-treatment-card .dc-card-body {
+/* Cuerpo de la tarjeta */
+.dc-card-body {
+    padding: 1.25rem;
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    padding: 0;
+    min-height: 180px;
 }
 
-.dc-card-icon {
-    width: 60px;
-    height: 60px;
-    background-color: rgba(160, 217, 217, 0.1);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 1rem;
+.dc-card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--dc-text);
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
 }
 
-.dc-card-icon svg {
-    width: 30px;
-    height: 30px;
-}
-
-.dc-treatment-card .dc-card-text {
+.dc-card-text {
     color: var(--dc-text-light);
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     line-height: 1.5;
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.75rem;
     flex-grow: 1;
 }
 
-.dc-treatment-card .dc-card-footer {
+/* Pie de tarjeta */
+.dc-card-footer {
     background-color: transparent;
     border-top: 1px solid var(--dc-border);
-    padding: 1.25rem 0 0 0;
+    padding: 1rem 1.25rem;
     display: flex;
     justify-content: space-between;
     gap: 0.75rem;
-    margin-top: auto;
+    flex-shrink: 0;
 }
 
-/* Botones más compactos */
-.dc-treatment-card .dc-btn {
-    padding: 0.5rem 1rem;
+/* Botones */
+.dc-btn {
+    flex: 1;
+    padding: 0.5rem;
+    border-radius: 6px;
     font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    cursor: pointer;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dc-btn-details {
+    background-color: var(--dc-primary);
+    color: white;
+}
+
+.dc-btn-details:hover {
+    background-color: var(--dc-primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.dc-btn-edit {
+    background-color: white;
+    color: var(--dc-primary);
+    border: 1px solid var(--dc-primary);
+}
+
+.dc-btn-edit:hover {
+    background-color: var(--dc-primary);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Icono por defecto */
+.dc-default-icon {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(93, 156, 236, 0.1);
+}
+
+.dc-default-icon svg {
+    width: 80px;
+    height: 80px;
+    opacity: 0.7;
+    transition: all 0.3s ease;
+}
+
+.dc-treatment-card:hover .dc-default-icon svg {
+    transform: scale(1.1);
+    opacity: 1;
 }
 
 /* Responsive */
+@media (max-width: 1200px) {
+    .dc-col {
+        flex: 1 0 calc(33.333% - 1.5rem);
+    }
+}
+
+@media (max-width: 992px) {
+    .dc-col {
+        flex: 1 0 calc(50% - 1.5rem);
+    }
+}
+
 @media (max-width: 768px) {
-    .dc-treatment-card {
-        min-height: 240px;
-        padding: 1rem;
+    .dc-card-img-container {
+        height: 180px;
     }
     
-    .dc-treatment-card .dc-card-title {
-        font-size: 1.1rem;
+    .dc-card-title {
+        font-size: 1rem;
     }
     
-    .dc-treatment-card .dc-card-text {
+    .dc-card-text {
         font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .dc-col {
+        flex: 1 0 100%;
+    }
+    
+    .dc-card-img-container {
+        height: 220px;
+    }
+    
+    .dc-card-footer {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .dc-btn {
+        width: 100%;
     }
 }

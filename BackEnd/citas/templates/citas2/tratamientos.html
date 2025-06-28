@@ -9,8 +9,7 @@
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link rel="stylesheet" href="{% static 'css/tratamientos.css' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
     <script src="{% static 'js/pagination.js' %}" defer></script>
 </head>
 <body>
@@ -26,8 +25,8 @@
             <a href="{% url 'productos' %}" class="nav-item">Productos</a>
             <a href="{% url 'enfermedades_alergias' %}" class="nav-item">Alergias y Enfermedades</a>
             <a href="{% url 'tratamientos' %}" class="nav-item active">Tratamientos</a>
-            <a href="{% url 'visualizacion' %}"  class="nav-item ">Visualización</a>
-          </nav>
+            <a href="{% url 'visualizacion' %}" class="nav-item">Visualización</a>
+        </nav>
     </div>
     <div class="main-content">
         <div class="top-bar">
@@ -44,7 +43,15 @@
                     <input type="search" id="searchTreatments" class="form-control" placeholder="Buscar tratamientos...">
                 </div>
                 <div class="col-auto">
-                    <button class="btn btn-primary" id="agregarTratamientoBtn" data-bs-toggle="modal" data-bs-target="#agregarProductoModal">Agregar Tratamiento</button>
+                    <select class="form-select" aria-label="Filtrar por tipo de tratamiento">
+                        <option selected>Todos los tipos de tratamientos</option>
+                        {% for tipo in tipos_tratamientos %}
+                            <option value="{{ tipo }}">{{ tipo }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-primary" id="agregarTratamientoBtn" data-bs-toggle="modal" data-bs-target="#agregarTratamientoModal">Agregar Tratamiento</button>
                 </div>
             </div>
 
@@ -71,35 +78,37 @@
                 {% for tratamiento in tratamientos %}
                 <div class="dc-col">
                     <div class="dc-treatment-card">
-                        <div class="dc-card-header">
-                            <h5 class="dc-treatment-type">Tratamiento</h5>
-                            <h4 class="dc-card-title">{{ tratamiento.nombre }}</h4>
+                        <div class="dc-card-img-container">
+                            {% if tratamiento.imagen %}
+                                <img src="{{ tratamiento.imagen.url }}" class="dc-card-img" alt="{{ tratamiento.nombre }}">
+                            {% else %}
+                                <div class="dc-default-icon">
+                                    {% if "inyeccion" in tratamiento.nombre|lower %}
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="var(--dc-primary)">
+                                            <path d="M21.71,11.29l-9-9a1,1,0,0,0-1.42,0L8.17,5.13,9.88,6.83,6.17,10.54,5.13,9.5,3.71,10.92,6.17,13.38,2.29,17.26a1,1,0,0,0,0,1.42l3,3a1,1,0,0,0,1.42,0l3.88-3.88,2.46,2.46,1.42-1.42-1.06-1.06,3.71-3.71,1.7,1.7L22.29,12.71A1,1,0,0,0,21.71,11.29Z"/>
+                                        </svg>
+                                    {% elif "psoriasis" in tratamiento.nombre|lower %}
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="var(--dc-primary)">
+                                            <path d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm0,18a8,8,0,1,1,8-8A8,8,0,0,1,12,20ZM12,6a6,6,0,1,0,6,6A6,6,0,0,0,12,6Zm0,10a4,4,0,1,1,4-4A4,4,0,0,1,12,16Z"/>
+                                        </svg>
+                                    {% else %}
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="var(--dc-primary)">
+                                            <path d="M19,14v3c0,.55-.45,1-1,1h-3v2c0,.55-.45,1-1,1H6c-.55,0-1-.45-1-1v-2H2c-.55,0-1-.45-1-1v-3c0-.55.45-1,1-1h3v-2c0-.55.45-1,1-1h8c.55,0,1,.45,1,1v2h3c.55,0,1,.45,1,1Z"/>
+                                        </svg>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                            <div class="dc-treatment-badge">TRATAMIENTO</div>
                         </div>
                         <div class="dc-card-body">
-                            <div class="dc-card-icon">
-                                {% if "inyeccion" in tratamiento.nombre|lower %}
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="var(--dc-primary)">
-                                    <path d="M21.71,11.29l-9-9a1,1,0,0,0-1.42,0L8.17,5.13,9.88,6.83,6.17,10.54,5.13,9.5,3.71,10.92,6.17,13.38,2.29,17.26a1,1,0,0,0,0,1.42l3,3a1,1,0,0,0,1.42,0l3.88-3.88,2.46,2.46,1.42-1.42-1.06-1.06,3.71-3.71,1.7,1.7L22.29,12.71A1,1,0,0,0,21.71,11.29Z"/>
-                                </svg>
-                                {% elif "psoriasis" in tratamiento.nombre|lower %}
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="var(--dc-primary)">
-                                    <path d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm0,18a8,8,0,1,1,8-8A8,8,0,0,1,12,20ZM12,6a6,6,0,1,0,6,6A6,6,0,0,0,12,6Zm0,10a4,4,0,1,1,4-4A4,4,0,0,1,12,16Z"/>
-                                </svg>
-                                {% else %}
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="var(--dc-primary)">
-                                    <path d="M19,14v3c0,.55-.45,1-1,1h-3v2c0,.55-.45,1-1,1H6c-.55,0-1-.45-1-1v-2H2c-.55,0-1-.45-1-1v-3c0-.55.45-1,1-1h3v-2c0-.55.45-1,1-1h8c.55,0,1,.45,1,1v2h3c.55,0,1,.45,1,1Z"/>
-                                </svg>
-                                {% endif %}
-                            </div>
-                            <p class="dc-card-text">{{ tratamiento.descripcion }}</p>
+                            <h5 class="dc-card-title">{{ tratamiento.nombre }}</h5>
+                            <p class="dc-card-text">{{ tratamiento.descripcion|truncatechars:100 }}</p>
                         </div>
                         <div class="dc-card-footer">
-                            <button class="dc-btn dc-btn-details" 
-                                data-bs-toggle="modal" 
-                                data-bs-target="#detailsModal"
-                                data-name="{{ tratamiento.nombre }}"
-                                data-enfermedades="{% for relacion in tratamiento.tratamientoenfermedad_set.all %}{{ relacion.id_enfermedad.nombre }}{% if not forloop.last %}, {% endif %}{% endfor %}"
-                                data-descripcion="{% for relacion in tratamiento.tratamientoenfermedad_set.all %}{{ relacion.id_enfermedad.descripcion }}{% if not forloop.last %}; {% endif %}{% endfor %}">
+                            <button class="dc-btn dc-btn-details" data-bs-toggle="modal" data-bs-target="#detailsModal"  
+                                data-nombre="{{ tratamiento.nombre }}"
+                                data-descripcion="{{ tratamiento.descripcion }}"
+                                data-enfermedades="{% for relacion in tratamiento.tratamientoenfermedad_set.all %}{{ relacion.id_enfermedad.nombre }}{% if not forloop.last %}, {% endif %}{% endfor %}">
                                 Ver detalles
                             </button>
                             <button class="dc-btn dc-btn-edit">Editar</button>
@@ -108,14 +117,14 @@
                 </div>
                 {% endfor %}
             </div>
-
+            
              <!-- Controles de paginación -->
              <div id="paginationControls" class="mt-3 d-flex justify-content-center"></div>
         </div>
     </div>
 
-     <!--modal para agregar tratamiento-->
-     <div class="modal fade" id="agregarProductoModal" tabindex="-1" aria-labelledby="agregarTratamientoModalLabel" aria-hidden="true">
+    <!-- Modal para agregar tratamiento -->
+    <div class="modal fade" id="agregarTratamientoModal" tabindex="-1" aria-labelledby="agregarTratamientoModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -123,51 +132,54 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
-                    <form method="POST" action="{% url 'crear_tratamiento' %}">
+                    <form method="POST" action="{% url 'crear_tratamiento' %}" enctype="multipart/form-data">
                         {% csrf_token %}
                         <div class="mb-3">
                             <label for="nombreTratamiento" class="form-label">Nombre del Tratamiento</label>
-                            <input name="nombre" type="text" class="form-control" id="nombreTratamiento" placeholder="Ingrese el nombre">
+                            <input type="text" class="form-control" id="nombreTratamiento" name="nombre" placeholder="Ingrese el nombre">
                         </div>
                         <div class="mb-3">
                             <label for="descripcionTratamiento" class="form-label">Descripción del Tratamiento</label>
-                            <textarea name="descripcion" class="form-control" id="descripcionTratamiento" rows="3" placeholder="Ingrese descripción"></textarea>
+                            <textarea class="form-control" id="descripcionTratamiento" name="descripcion" rows="3" placeholder="Ingrese descripción"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="tipoTratamiento" class="form-label">Tipo</label>
+                            <select class="form-select" id="tipoTratamiento" name="tipo">
+                                {% for tipo in tipos_tratamientos %}
+                                    <option value="{{ tipo }}">{{ tipo }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="imagenTratamiento" class="form-label">Imagen (Opcional)</label>
+                            <input type="file" class="form-control" id="imagenTratamiento" name="imagen" accept="image/*">
                         </div>
                         <div class="mb-3 position-relative">
-                            <label for="buscarEnfermedad" class="form-label">Buscar Enfermedad</label>
-                            <input
-                                type="text"
-                                class="form-control"
-                                id="buscarEnfermedad"
-                                placeholder="Ingrese el nombre de la enfermedad"
-                                autocomplete="off"
-                            />
-                            <input type="hidden" name="id_enfermedad" id="idEnfermedadSeleccionada" />
-                            <ul class="list-group mt-1 position-absolute w-100" id="resultadosEnfermedad" style="z-index: 1000; display: none;">
-                                <!-- Resultados aparecerán aquí -->
-                            </ul>
+                            <label for="buscarEnfermedad" class="form-label">Enfermedades que trata</label>
+                            <input type="text" class="form-control" id="buscarEnfermedad" placeholder="Buscar enfermedades...">
+                            <div id="resultadosEnfermedad" class="list-group mt-1 position-absolute w-100" style="display: none; z-index: 1000;"></div>
+                            <div id="enfermedadesSeleccionadas" class="mt-2"></div>
+                            <input type="hidden" name="enfermedades" id="enfermedadesInput">
                         </div>
                         <button type="submit" class="btn btn-success">Agregar Tratamiento</button>
                     </form>
                 </div>
-                
             </div>
         </div>
     </div>
 
-    <!--Modal detalles tratamiento-->
+    <!-- Modal detalles tratamientos -->
     <div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="detailsModalLabel">Detalles del Tratamiento</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
-                    <h5 id="modalTreatmentName" class="mb-3"></h5>
-                    <p><strong>Enfermedad que trata:</strong> <span id="modalDiseases"></span></p>
-                    <p><strong>Descripción Enfermedad:</strong></p>
-                    <p id="modalTreatmentDescription"></p>
+                    <p><strong>Nombre:</strong> <span id="modalTreatmentName"></span></p>
+                    <p><strong>Descripción:</strong> <span id="modalTreatmentDescription"></span></p>
+                    <p><strong>Enfermedades que trata:</strong> <span id="modalTreatmentDiseases"></span></p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -175,8 +187,13 @@
             </div>
         </div>
     </div>
+
     </main>
+
+    <!-- Scripts -->
     <script src="{% static 'js/tratamientos-detalles.js' %}"></script>
     <script src="{% static 'js/buscarEnfermedades.js' %}"></script>
+
+    
 </body>
 </html>
