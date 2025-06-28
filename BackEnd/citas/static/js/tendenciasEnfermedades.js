@@ -51,65 +51,82 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Función para obtener datos para los gráficos
     // Función para obtener datos para los gráficos (versión mejorada)
-function obtenerDatosParaGraficos(enfermedadId, pacienteUsername) {
-    // Mostrar loading
-    popup.style.display = 'block';
-    chartInfoContent.innerHTML = '<p>Cargando datos...</p>';
-    
-    // Construir URL según los filtros
-    let url = '/datos_tendencias_enfermedades/?';
-    if (enfermedadId) {
-        const enfermedadNombre = document.getElementById('selectEnfermedad').options[
-            document.getElementById('selectEnfermedad').selectedIndex
-        ].text.split(' (')[0];
-        url += `enfermedad_id=${enfermedadId}&enfermedad_nombre=${encodeURIComponent(enfermedadNombre)}`;
-    }
-    
-    if (pacienteUsername) {
-        url += `&paciente_username=${encodeURIComponent(pacienteUsername)}`;
-    }
+    // Función para obtener datos para los gráficos (versión corregida)
+    function obtenerDatosParaGraficos(enfermedadId, pacienteUsername) {
+        // Mostrar loading
+        popup.style.display = 'block';
+        chartInfoContent.innerHTML = '<p>Cargando datos...</p>';
+        
+        // Construir URL según los filtros - versión corregida
+        let url = '/datos_tendencias_enfermedades/?';
+        let params = [];
+        
+        if (enfermedadId) {
+            params.push(`enfermedad_id=${enfermedadId}`);
+        }
+        
+        if (pacienteUsername) {
+            params.push(`paciente_username=${encodeURIComponent(pacienteUsername)}`);
+        }
+        
+        url += params.join('&');
 
-    // Mostrar mensaje de carga en el gráfico
-    chartInfoContent.innerHTML = '<p>Obteniendo datos del servidor...</p>';
-    
-    // Obtener datos del servidor con timeout
-    const fetchPromise = fetch(url);
-    const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Tiempo de espera agotado')), 10000)
-    );
-
-    Promise.race([fetchPromise, timeoutPromise])
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Error HTTP: ${response.status}`);
+        // Mostrar mensaje de carga en el gráfico
+        chartInfoContent.innerHTML = '<p>Obteniendo datos del servidor...</p>';
+        
+        // Obtener datos del servidor con manejo mejorado de errores
+        const fetchData = async () => {
+            try {
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`Error HTTP: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (!data || !data.success) {
+                    throw new Error(data?.message || 'Datos recibidos no válidos');
+                }
+                
+                return data;
+            } catch (error) {
+                console.error('Error en la solicitud:', error);
+                throw error;
             }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
+        };
+
+        // Usar Promise.race con timeout
+        const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Tiempo de espera agotado (10 segundos)')), 10000)
+        );
+
+        Promise.race([fetchData(), timeoutPromise])
+            .then(data => {
                 chartData = data;
                 renderChart(data, currentChartType);
                 updateChartInfo(data);
-            } else {
+            })
+            .catch(error => {
+                console.error('Error al obtener datos:', error);
+                
+                let errorMessage = 'Error al conectar con el servidor';
+                if (error.message.includes('HTTP')) {
+                    errorMessage = `Error del servidor: ${error.message}`;
+                } else if (error.message.includes('tiempo')) {
+                    errorMessage = 'El servidor está tardando demasiado en responder';
+                }
+                
                 chartInfoContent.innerHTML = `
-                    <p class="text-danger">
-                        ${data.message || 'Error al obtener datos del servidor'}
-                    </p>
-                    <p>URL: ${url}</p>
+                    <div class="alert alert-danger">
+                        <h5>${errorMessage}</h5>
+                        <p>Detalles: ${error.message}</p>
+                        <p class="small text-muted">URL: ${url}</p>
+                        <button class="btn btn-sm btn-secondary" onclick="window.location.reload()">Reintentar</button>
+                    </div>
                 `;
-                console.error('Error del servidor:', data);
-            }
-        })
-        .catch(error => {
-            console.error('Error en la solicitud:', error);
-            chartInfoContent.innerHTML = `
-                <p class="text-danger">
-                    Error al conectar con el servidor: ${error.message}
-                </p>
-                <p>URL intentada: ${url}</p>
-            `;
-        });
-}
+            });
+    }
 
     // Función para renderizar el gráfico
     function renderChart(data, chartType) {
@@ -224,20 +241,33 @@ function obtenerDatosParaGraficos(enfermedadId, pacienteUsername) {
             data: {
                 labels: data.labels,
                 datasets: [{
-                    label: 'Tendencia',
+                    label: 'Casos',
                     data: data.values,
-                    fill: false,
-                    backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                    fill: true,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
                     borderColor: 'rgba(75, 192, 192, 1)',
-                    tension: 0.1,
-                    borderWidth: 2
+                    tension: 0.4,
+                    borderWidth: 2,
+                    pointBackgroundColor: 'rgba(75, 192, 192, 1)',
+                    pointRadius: 5,
+                    pointHoverRadius: 7
                 }]
             },
             options: {
                 responsive: true,
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Número de casos'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Meses del año'
+                        }
                     }
                 },
                 plugins: {
@@ -245,7 +275,14 @@ function obtenerDatosParaGraficos(enfermedadId, pacienteUsername) {
                         display: true,
                         text: data.title,
                         font: {
-                            size: 16
+                            size: 18
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `Casos: ${context.raw}`;
+                            }
                         }
                     }
                 }
@@ -253,22 +290,33 @@ function obtenerDatosParaGraficos(enfermedadId, pacienteUsername) {
         };
     }
 
-    // Actualizar información del gráfico
+    // Función para actualizar la información del gráfico
     function updateChartInfo(data) {
         let infoHTML = `<h4>${data.title}</h4>`;
         
         if (data.enfermedad_info) {
             infoHTML += `<p><strong>Enfermedad:</strong> ${data.enfermedad_info.nombre}</p>`;
-            infoHTML += `<p><strong>Total pacientes:</strong> ${data.enfermedad_info.total_pacientes}</p>`;
+            infoHTML += `<p><strong>Total pacientes en el período:</strong> ${data.enfermedad_info.total_pacientes}</p>`;
         }
         
         if (data.paciente_info) {
             infoHTML += `<p><strong>Paciente:</strong> ${data.paciente_info.nombre}</p>`;
-            infoHTML += `<p><strong>Registros:</strong> ${data.paciente_info.total_registros}</p>`;
+            infoHTML += `<p><strong>Registros en el período:</strong> ${data.paciente_info.total_registros}</p>`;
         }
         
-        infoHTML += `<p><strong>Periodo analizado:</strong> ${data.periodo}</p>`;
+        const today = new Date();
+        infoHTML += `<p><strong>Periodo analizado:</strong> Enero ${today.getFullYear()} - ${getCurrentMonthName()}</p>`;
         
         chartInfoContent.innerHTML = infoHTML;
     }
+
+    // Función auxiliar para obtener el nombre del mes actual en español
+    function getCurrentMonthName() {
+        const meses = [
+            'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+            'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+        ];
+        return meses[new Date().getMonth()];
+    }
+
 });

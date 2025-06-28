@@ -15,7 +15,8 @@ import random
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models.functions import ExtractMonth, ExtractYear
 from django.db.models.functions import TruncMonth
-
+# importando date
+from datetime import date, datetime
 
 
 
@@ -982,25 +983,32 @@ def datos_tendencias_enfermedades(request):
             "title": "Tendencias de Enfermedades",
             "labels": [],
             "values": [],
-            "periodo": "Últimos 12 meses"
+            "periodo": "Año actual"
         }
+        
+        # Obtener el rango del año actual (desde enero hasta hoy)
+        today = timezone.now().date()
+        start_date = date(today.year, 1, 1)  # 1 de enero del año actual
+        end_date = today
         
         # Datos para la enfermedad seleccionada
         if enfermedad_id:
             try:
                 enfermedad = Enfermedad.objects.get(id_enfermedad=enfermedad_id)
+                
+                # Consulta corregida para total_pacientes
+                total_pacientes = Registro.objects.filter(
+                    id_enfermedad=enfermedad,
+                    id_cita__fecha__range=(start_date, end_date)
+                ).values('id_cita__id_paciente').distinct().count()
+                
                 response_data['enfermedad_info'] = {
                     'id': enfermedad.id_enfermedad,
                     'nombre': enfermedad.nombre,
-                    'total_pacientes': Registro.objects.filter(id_enfermedad=enfermedad)
-                                         .values('id_cita__id_paciente')
-                                         .distinct().count()
+                    'total_pacientes': total_pacientes
                 }
                 
                 # Datos mensuales para la enfermedad
-                end_date = timezone.now()
-                start_date = end_date - timedelta(days=365)
-                
                 registros = Registro.objects.filter(
                     id_enfermedad=enfermedad,
                     id_cita__fecha__range=(start_date, end_date)
@@ -1011,16 +1019,33 @@ def datos_tendencias_enfermedades(request):
                     count=Count('id_registro')
                 ).order_by('year', 'month')
                 
+                # Crear labels con nombres de meses en español
+                meses_espanol = [
+                    'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+                    'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
+                ]
+                
+                # Inicializar todos los meses del año con 0
+                datos_mensuales = {mes: 0 for mes in range(1, 13)}
+                
+                # Actualizar con los datos reales
+                for r in registros:
+                    datos_mensuales[r['month']] = r['count']
+                
+                # Preparar datos para el gráfico
                 meses = []
                 conteos = []
                 
-                for r in registros:
-                    meses.append(f"{r['month']}/{r['year']}")
-                    conteos.append(r['count'])
+                for mes_num in range(1, 13):
+                    meses.append(meses_espanol[mes_num - 1])
+                    conteos.append(datos_mensuales[mes_num])
+                    # Solo incluir meses hasta el actual si estamos en el año actual
+                    if mes_num == today.month and today.year == timezone.now().year:
+                        break
                 
                 response_data['labels'] = meses
                 response_data['values'] = conteos
-                response_data['title'] = f"Casos de {enfermedad.nombre} por mes"
+                response_data['title'] = f"Casos de {enfermedad.nombre} en {today.year}"
                 
             except Enfermedad.DoesNotExist:
                 return JsonResponse({
@@ -1028,22 +1053,31 @@ def datos_tendencias_enfermedades(request):
                     "message": "Enfermedad no encontrada"
                 }, status=404)
         
-        # Datos para el paciente seleccionado
+        # Resto del código para paciente seleccionado...
         if paciente_username:
             try:
                 paciente = Paciente.objects.get(user__username=paciente_username)
+                
+                # Consulta corregida para total_registros
+                total_registros = Registro.objects.filter(
+                    id_cita__id_paciente=paciente,
+                    id_cita__fecha__range=(start_date, end_date)
+                ).count()
+                
                 response_data['paciente_info'] = {
                     'id': paciente.id,
                     'nombre': f"{paciente.user.first_name} {paciente.user.last_name}",
-                    'total_registros': Registro.objects.filter(id_cita__id_paciente=paciente).count()
+                    'total_registros': total_registros
                 }
                 
-                # Enfermedades más comunes del paciente
+                # Enfermedades más comunes del paciente en el año actual
                 if not enfermedad_id:
-                    enfermedades = Registro.objects.filter(id_cita__id_paciente=paciente)\
-                                        .values('id_enfermedad__nombre')\
-                                        .annotate(count=Count('id_enfermedad'))\
-                                        .order_by('-count')[:5]
+                    enfermedades = Registro.objects.filter(
+                        id_cita__id_paciente=paciente,
+                        id_cita__fecha__range=(start_date, end_date)
+                    ).values('id_enfermedad__nombre')\
+                     .annotate(count=Count('id_enfermedad'))\
+                     .order_by('-count')[:5]
                     
                     labels = []
                     values = []
@@ -1054,7 +1088,7 @@ def datos_tendencias_enfermedades(request):
                     
                     response_data['labels'] = labels
                     response_data['values'] = values
-                    response_data['title'] = f"Enfermedades más frecuentes de {paciente.user.first_name}"
+                    response_data['title'] = f"Enfermedades más frecuentes de {paciente.user.first_name} en {today.year}"
                     
             except Paciente.DoesNotExist:
                 return JsonResponse({
@@ -1073,7 +1107,7 @@ def datos_tendencias_enfermedades(request):
     
     except Exception as e:
         import traceback
-        traceback.print_exc()  # Esto imprimirá el traceback completo en la consola
+        traceback.print_exc()
         return JsonResponse({
             "success": False,
             "message": f"Error interno del servidor: {str(e)}"
