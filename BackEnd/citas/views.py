@@ -959,7 +959,7 @@ def buscar_pacientes2(request):
             Q(user__first_name__icontains=query) | 
             Q(user__last_name__icontains=query) |
             Q(user__username__icontains=query)
-        ).select_related('user')[:10]  # Limita a 10 resultados
+        ).select_related('user')[:10]  # Limita a 10 resultadosAdd commentMore actions
 
         resultados = [
             {
@@ -1080,25 +1080,18 @@ def datos_tendencias_enfermedades(request):
         }, status=500)
 
     
-# Endpoint o vista que filtra las enfermedades o cantidad de enfermedades ya sea de un paciente o sino en general
 def filtro_enfermedades(request):
     try:
-        nombre_enfermedad = request.GET.get('nombre_enfermedad', None)
-        paciente_username = request.GET.get('paciente_username', None)
+        nombre_enfermedad = request.GET.get('nombre_enfermedad')
+        id_enfermedad = request.GET.get('id_enfermedad')
+        paciente_username = request.GET.get('paciente_username')
 
-        # Primero obtenemos la enfermedad (si se especificó el nombre)
+        # Obtener la enfermedad (por ID o nombre)
         enfermedad = None
-        if nombre_enfermedad:
+        if id_enfermedad:
+            enfermedad = Enfermedad.objects.filter(id_enfermedad=id_enfermedad).first()
+        elif nombre_enfermedad:
             enfermedad = Enfermedad.objects.filter(nombre__icontains=nombre_enfermedad).first()
-            if not enfermedad and nombre_enfermedad:
-                return JsonResponse({
-                    "success": True,
-                    "enfermedad": None,
-                    "total_registros": 0,
-                    "total_pacientes_unicos": 0,
-                    "registros_paciente": 0,
-                    "registros": []
-                })
 
         # Datos base para la respuesta
         response_data = {
@@ -1106,7 +1099,7 @@ def filtro_enfermedades(request):
             "enfermedad": {
                 'id': enfermedad.id_enfermedad if enfermedad else None,
                 'nombre': enfermedad.nombre if enfermedad else None
-            },
+            } if enfermedad else None,
             "total_registros": 0,
             "total_pacientes_unicos": 0,
             "registros_paciente": 0,
@@ -1129,7 +1122,7 @@ def filtro_enfermedades(request):
                         'id': r.id_enfermedad.id_enfermedad,
                         'nombre': r.id_enfermedad.nombre
                     },
-                    'fecha': r.id_cita.fecha
+                    'fecha': r.id_cita.fecha.strftime('%Y-%m-%d') if r.id_cita.fecha else None
                 } for r in registros]
                 
                 response_data.update({
@@ -1165,27 +1158,37 @@ def filtro_enfermedades(request):
         if enfermedad and paciente_username:
             try:
                 paciente = Paciente.objects.get(user__username=paciente_username)
+                
+                # Buscar registros donde el paciente tenga esta enfermedad
                 registros_paciente = Registro.objects.filter(
                     id_cita__id_paciente=paciente,
                     id_enfermedad=enfermedad
-                ).select_related('id_cita')
+                ).select_related('id_cita', 'id_enfermedad')
                 
-                registros_data = [{
-                    'id': r.id_registro,
-                    'motivo': r.motivo,
-                    'fecha': r.id_cita.fecha
-                } for r in registros_paciente]
-                
-                # Verificar si el paciente tiene la enfermedad asignada directamente
+                # También buscar si el paciente tiene la enfermedad asignada directamente
                 tiene_enfermedad = PacienteEnfermedad.objects.filter(
                     id_paciente=paciente,
                     id_enfermedad=enfermedad
                 ).exists()
                 
+                registros_data = [{
+                    'id': r.id_registro,
+                    'motivo': r.motivo,
+                    'fecha': r.id_cita.fecha.strftime('%Y-%m-%d') if r.id_cita.fecha else None,
+                    'enfermedad': {
+                        'id': r.id_enfermedad.id_enfermedad,
+                        'nombre': r.id_enfermedad.nombre
+                    }
+                } for r in registros_paciente]
+                
                 response_data.update({
                     "registros_paciente": registros_paciente.count(),
                     "tiene_enfermedad": tiene_enfermedad,
-                    "registros": registros_data
+                    "registros": registros_data,
+                    "paciente": {
+                        "id": paciente.id,
+                        "nombre": f"{paciente.user.first_name} {paciente.user.last_name}"
+                    }
                 })
                 
             except Paciente.DoesNotExist:
@@ -1193,7 +1196,10 @@ def filtro_enfermedades(request):
                     "success": False,
                     "message": "Paciente no encontrado"
                 })
+            
+            return JsonResponse(response_data)  # Este return estaba mal indentado
 
+        # Retorno por defecto si no entra en ningún caso
         return JsonResponse(response_data)
 
     except Exception as e:
@@ -1202,7 +1208,6 @@ def filtro_enfermedades(request):
             "success": False,
             "message": "Error interno del servidor"
         }, status=500)
-    
 def filtrar_registros_tratamientos(request):
     try:
         nombre_enfermedad = request.GET.get('nombre_enfermedad', None)

@@ -38,8 +38,5 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Función para obtener el username del paciente seleccionado
-    window.obtenerPacienteUsername = function() {
-        return pacienteSeleccionado ? pacienteSeleccionado.username : null;
-    };
+   
 });
