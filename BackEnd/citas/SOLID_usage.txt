@@ -1,0 +1,32 @@
+Uso de principios SOLID en el proyecto SagradoCorazon BackEnd
+
+Single Responsibility Principle (SRP):
+- Lugar: citas/utils.py
+  Comentario en el decorador admin_medico_required.
+  Explicación: separa la lógica de autorización de acceso de la lógica de las vistas.
+- Lugar: citas/models.py
+  Comentarios en Paciente y Medico.
+  Explicación: cada modelo se encarga solo de su propio conjunto de datos.
+
+Open/Closed Principle (OCP):
+- Lugar: citas/models.py
+  Comentario en Usuario.
+  Explicación: extiende AbstractUser sin modificar su comportamiento interno.
+- Lugar: citas/models.py
+  Comentario en Cita.
+  Explicación: los nuevos estados se agregan a ESTADO_CHOICES sin cambiar la lógica existente.
+
+Liskov Substitution Principle (LSP):
+- Lugar: citas/models.py
+  Añadido PersonaBase abstracto.
+  Explicación: Paciente y Medico heredan de PersonaBase y pueden usarse de forma intercambiable cuando se requiere la interfaz común get_full_name.
+
+Interface Segregation Principle (ISP):
+- Lugar: citas/notifications.py
+  Interfases separadas PasswordRecoveryNotifier y ReminderNotifier.
+  Explicación: cada notificador concreto implementa solo el método que necesita, evitando una interfaz general pesada.
+
+Dependency Inversion Principle (DIP):
+- Lugar: citas/views.py
+  Cambios en forgot_password_medico y send_reminder.
+  Explicación: las vistas dependen de abstracciones de notificación, no de implementaciones concretas como EmailMessage o pywhatkit.

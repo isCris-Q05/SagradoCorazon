@@ -2,24 +2,16 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.core.exceptions import ValidationError
 
+# Open/Closed Principle: este modelo extiende AbstractUser sin modificar su comportamiento interno,
+# permitiendo añadir campos y validaciones específicas para el proyecto.
 class Usuario(AbstractUser):
     ROLE_CHOICES = [
         ('Paciente', 'Paciente'),
         ('Medico', 'Medico'),
+        ('Administrador', 'Administrador'),
     ]
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES, null=True, blank=True)
-    genero = models.CharField(max_length=10, choices=[('Masculino', 'Masculino'), ('Femenino', 'Femenino')], null=True, blank=True)
-
-    groups = models.ManyToManyField(
-        Group,
-        related_name="customuser_set",  # Cambiar el nombre para evitar conflicto
-        blank=True
-    )
-    user_permissions = models.ManyToManyField(
-        Permission,
-        related_name="customuser_permissions",  # Cambiar el nombre para evitar conflicto
-        blank=True
-    )
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='Paciente')
+    genero = models.CharField(max_length=50, blank=True, null=True)
 
     def clean(self):
         if self.role not in dict(self.ROLE_CHOICES):
@@ -28,13 +20,28 @@ class Usuario(AbstractUser):
     def __str__(self):
         return self.username
 
-class Paciente(models.Model):
+# Liskov Substitution Principle: Paciente y Medico heredan de PersonaBase y pueden
+# ser usados de forma intercambiable cuando se requiere la interfaz común.
+class PersonaBase(models.Model):
+    genero = models.CharField(max_length=50, blank=True, null=True)
+    telefono = models.CharField(max_length=15, blank=True, null=True)
+
+    class Meta:
+        abstract = True
+
+    def get_full_name(self):
+        return f"{self.user.first_name} {self.user.last_name}"
+
+    def __str__(self):
+        return self.get_full_name()
+
+# Single Responsibility Principle: Paciente es responsable únicamente de los datos y relaciones
+# del paciente, sin mezclar lógica de médico o citas.
+class Paciente(PersonaBase):
     user = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='paciente_profile')
-    genero = models.CharField(max_length=200, null=True, blank=True)
     direccion = models.TextField(default='')  # Asignar un valor predeterminado para evitar el error
     motivo = models.TextField(null=True, blank=True)
     cedula = models.CharField(max_length=20)
-    telefono = models.CharField(max_length=20, blank=True, null=True)
     fecha_nacimiento = models.DateField()
     enfermedadess = models.JSONField(null=True, blank=True)
     alergiass = models.JSONField(null=True, blank=True)
@@ -42,16 +49,10 @@ class Paciente(models.Model):
     telefono_emergencia = models.CharField(max_length=20, blank=True, null=True)
     apellido = models.CharField(max_length=100, default='Desconocido')  # Asignamos un valor predeterminado
 
-    def __str__(self):
-        return f"{self.user.first_name} {self.user.last_name}"
-
-class Medico(models.Model):
+class Medico(PersonaBase):
+    # Single Responsibility Principle: este modelo encapsula únicamente los datos del médico.
     user = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='medico_profile')
-    telefono = models.CharField(max_length=15, blank=True, null=True)
     es_admin = models.BooleanField(default=False)
-
-    def __str__(self):
-        return f"{self.user.first_name} {self.user.last_name}"
 
 class Alergia(models.Model):
     codigo = models.AutoField(primary_key=True)
@@ -89,6 +90,8 @@ class MedicoEspecialidad(models.Model):
         return f"{self.id_medico} - {self.id_especialidad}"
 
 class Cita(models.Model):
+    # Open/Closed Principle: agregar nuevos estados se realiza ampliando ESTADO_CHOICES,
+    # sin modificar el comportamiento de los consumidores de este modelo.
     PENDIENTE = 'pendiente'
     FINALIZADA = 'finalizada'
     NO_ASISTIO = 'no_asistio'
@@ -131,6 +134,8 @@ class PacienteEnfermedad(models.Model):
         return f"{self.id_paciente} - {self.id_enfermedad}"
 
 class Registro(models.Model):
+    # Single Responsibility Principle: Registro guarda únicamente la información de la consulta
+    # específica, separada de la lógica de tratamiento y productos.
     id_registro = models.AutoField(primary_key=True)
     motivo = models.TextField()
     observaciones = models.TextField()
@@ -169,6 +174,8 @@ class RegistroTratamiento(models.Model):
         return f"Registro {self.id_registro.id_registro} - Tratamiento {self.id_tratamiento.nombre}"
 
 class Producto(models.Model):
+    # Single Responsibility Principle: Producto mantiene datos estáticos del producto,
+    # mientras que la relación con registros se maneja en RegistroProducto.
     id_producto = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=100)
     descripcion = models.TextField(blank=True, null=True)

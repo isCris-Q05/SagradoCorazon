@@ -4,6 +4,11 @@ from django.contrib import messages
 from django.shortcuts import redirect
 from .models import Medico
 
+# Single Responsibility Principle: esta función se encarga únicamente de la autorización de acceso
+# a vistas de médicos administradores. Se mantiene separada del código de las vistas, evitando que
+# estas tengan lógica de permisos mezclada con la lógica de negocio.
+# Dependency Inversion Principle: la vista recibe la lógica de autorización como una abstracción
+# (decorador), sin depender directamente de los detalles de implementación de la verificación.
 def admin_medico_required(view_func):
     @wraps(view_func)
     def _wrapped_view(request, *args, **kwargs):

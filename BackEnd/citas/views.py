@@ -9,7 +9,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.utils import timezone
 from django.utils.timezone import now
 from citas.utils import admin_medico_required
-import pywhatkit as kit
+from .notifications import EmailPasswordRecoveryNotifier, WhatsAppReminderNotifier
 from django.views.decorators.csrf import csrf_exempt
 import random
 from django.core.serializers.json import DjangoJSONEncoder
@@ -200,12 +200,9 @@ def login_medico(request):
             return redirect('login')
 
 import json
-from django.core.mail import EmailMessage
-from django.http import JsonResponse
-from django.contrib import messages
 from .models import Usuario  # Asegúrate de importar tu modelo Usuario
 
-def forgot_password_medico(request):
+def forgot_password_medico(request, notifier=None):
     if request.method == "POST":
         email = request.POST['email_recovery']
         print(f"email: {email}")
@@ -219,16 +216,13 @@ def forgot_password_medico(request):
                 request.session['otp'] = otp
                 request.session['email'] = email
 
-                # Crear el mensaje del correo
-                subject = 'Recuperación de contraseña'
-                message = f'Su código de recuperación es: {otp}'
-                from_email = 'cristopherquintana2725@gmail.com'  # Remitente (tu dirección de Gmail)
-                recipient_list = [email]  # Destinatario
+                # Dependency Inversion Principle: la vista utiliza una abstracción de notificador,
+                # no la implementación concreta de EmailMessage.
+                if notifier is None:
+                    notifier = EmailPasswordRecoveryNotifier()
 
-                # Enviar el correo
                 try:
-                    email_message = EmailMessage(subject, message, from_email, recipient_list)
-                    email_message.send(fail_silently=False)
+                    notifier.send_password_recovery(email, otp)
                     return JsonResponse({'status': 'success', 'message': 'Se ha enviado un correo para restablecer la contraseña.'})
                 except Exception as e:
                     print(f"Error al enviar el correo: {e}")
@@ -239,7 +233,6 @@ def forgot_password_medico(request):
             return JsonResponse({'status': 'error', 'message': 'El correo no existe.'}, status=400)
 
 
-from django.http import JsonResponse
 from django.contrib.auth.hashers import make_password
 
 def validate_otp(request):
@@ -270,16 +263,20 @@ def change_password(request):
             return JsonResponse({'status': 'error', 'message': 'Datos incompletos.'}, status=400)
 
 @csrf_exempt
-def send_reminder(request):
+def send_reminder(request, notifier=None):
     if request.method == "POST":
         phone_number = request.POST.get('phone_number')
         message = request.POST.get('message')
 
         print(f"phone_number: {phone_number}")
 
+        if notifier is None:
+            notifier = WhatsAppReminderNotifier()
+
         try:
-            # Enviar mensaje de recordatorio
-            kit.sendwhatmsg_instantly(phone_number, message)
+            # Dependency Inversion Principle: la función depende de la abstracción ReminderNotifier
+            # y no de la librería directa pywhatkit.
+            notifier.send_reminder(phone_number, message)
             return JsonResponse({'status': 'success', 'message': 'Recordatorio enviado correctamente.'})
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': f'Error al enviar el recordatorio: {str(e)}'}, status=500)
