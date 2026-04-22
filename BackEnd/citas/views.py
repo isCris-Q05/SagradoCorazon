@@ -1,7 +1,10 @@
 from django.shortcuts import render, HttpResponse, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from .models import Usuario, Paciente, Medico, Alergia, Especialidad, MedicoEspecialidad, Enfermedad, Tratamiento,TratamientoEnfermedad, Producto, Cita, Registro, RegistroTratamiento, RegistroProducto, PacienteEnfermedad, PacienteAlergia
+from usuarios.models import Usuario, Paciente, Medico, Especialidad, MedicoEspecialidad
+from historial_clinico.models import Alergia, Enfermedad, Tratamiento, TratamientoEnfermedad, Registro, RegistroTratamiento, PacienteEnfermedad, PacienteAlergia
+from inventario.models import Producto, RegistroProducto
+from citas.models import Cita
 from django.contrib import messages
 from django.http import JsonResponse
 from django.db.models import Q, Count, F
@@ -9,7 +12,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.utils import timezone
 from django.utils.timezone import now
 from citas.utils import admin_medico_required
-from .notifications import EmailPasswordRecoveryNotifier, WhatsAppReminderNotifier
+from usuarios.services.notifications import EmailPasswordRecoveryNotifier, WhatsAppReminderNotifier
 from django.views.decorators.csrf import csrf_exempt
 import random
 from django.core.serializers.json import DjangoJSONEncoder
@@ -200,7 +203,7 @@ def login_medico(request):
             return redirect('login')
 
 import json
-from .models import Usuario  # Asegúrate de importar tu modelo Usuario
+from usuarios.models import Usuario  # Asegúrate de importar tu modelo Usuario
 
 def forgot_password_medico(request, notifier=None):
     if request.method == "POST":

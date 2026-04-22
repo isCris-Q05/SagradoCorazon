@@ -2,7 +2,7 @@ from django.http import HttpResponseForbidden
 from functools import wraps
 from django.contrib import messages
 from django.shortcuts import redirect
-from .models import Medico
+from usuarios.models import Medico
 
 # Single Responsibility Principle: esta función se encarga únicamente de la autorización de acceso
 # a vistas de médicos administradores. Se mantiene separada del código de las vistas, evitando que
