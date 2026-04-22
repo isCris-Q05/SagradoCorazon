@@ -1223,7 +1223,7 @@ def filtro_enfermedades(request):
                 registros = Registro.objects.filter(
                     id_cita__id_paciente=paciente
                 ).select_related('id_enfermedad', 'id_cita').prefetch_related(
-                    'registrotratamiento_set__id_tratamiento',
+                    'tratamientos__id_tratamiento',
                     'registroproducto_set__id_producto'
                 )
                 print(f"Total registros encontrados: {registros.count()}")
@@ -1234,7 +1234,7 @@ def filtro_enfermedades(request):
                     tratamientos = [{
                         'id': rt.id_tratamiento.id_tratamiento,
                         'nombre': rt.id_tratamiento.nombre
-                    } for rt in r.registrotratamiento_set.all()]
+                    } for rt in r.tratamientos.all()]
                     print(f"Tratamientos encontrados: {len(tratamientos)}")
                     
                     productos = [{

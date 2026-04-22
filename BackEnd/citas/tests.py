@@ -177,7 +177,7 @@ class ViewIntegrationTests(TestCase):
         self.assertIn(reverse('dashboard_paciente'), response.redirect_chain[-1][0])
 
     @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
-    @patch('citas.views.EmailMessage.send')
+    @patch('citas.notifications.EmailMessage.send')
     def test_forgot_password_medico_sends_otp(self, mock_send):
         mock_send.return_value = None
         response = self.client.post(
