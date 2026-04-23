@@ -71,6 +71,41 @@ class ModelTests(TestCase):
         self.assertIn('Juan Perez', str(cita))
         self.assertEqual(cita.get_estado_display(), 'Finalizada')
 
+    def test_paciente_str(self):
+        usuario = Usuario.objects.create_user(
+            username='paciente_str',
+            password='123',
+            first_name='Carlos',
+            last_name='Santana',
+            role='Paciente'
+        )
+        paciente = Paciente.objects.create(
+            user=usuario, cedula='111', fecha_nacimiento=date(2000, 1, 1),
+            direccion='dir', telefono='123', genero='M'
+        )
+        self.assertEqual(str(paciente), 'Carlos Santana')
+
+    def test_medico_str(self):
+        usuario = Usuario.objects.create_user(
+            username='medico_str',
+            password='123',
+            first_name='Dr',
+            last_name='House',
+            role='Medico'
+        )
+        medico = Medico.objects.create(
+            user=usuario, telefono='123'
+        )
+        self.assertEqual(str(medico), 'Dr House')
+
+    def test_especialidad_str(self):
+        especialidad = Especialidad.objects.create(nombre='Neurología')
+        self.assertEqual(str(especialidad), 'Neurología')
+
+    def test_enfermedad_str(self):
+        enfermedad = Enfermedad.objects.create(nombre='Migraña')
+        self.assertEqual(str(enfermedad), 'Migraña')
+
 # Pruebas de integracion
 class ViewIntegrationTests(TestCase):
     def setUp(self):
@@ -213,3 +248,40 @@ class ViewIntegrationTests(TestCase):
         self.assertTrue(Usuario.objects.filter(username='newpatient').exists())
         self.assertTrue(Paciente.objects.filter(cedula='87654321').exists())
         self.assertIn('El paciente se ha registrado correctamente.', response.content.decode())
+
+    def test_login_medico_redirects_to_dashboard(self):
+        response = self.client.post(
+            reverse('login_medico'),
+            {'username': self.medico_user.username, 'password': 'pass1234'},
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.redirect_chain)
+        self.assertIn(reverse('inicio'), response.redirect_chain[-1][0])
+
+    def test_logout_redirects_to_login(self):
+        self.client.login(username=self.paciente_user.username, password='pass1234')
+        response = self.client.get(reverse('logout'), follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse('_auth_user_id' in self.client.session)
+        self.assertIn(reverse('login'), response.redirect_chain[-1][0])
+
+    def test_crear_especialidad_post(self):
+        response = self.client.post(reverse('crear_especialidad'), {'nombre': 'Dermatología'})
+        self.assertTrue(Especialidad.objects.filter(nombre='Dermatología').exists())
+
+    def test_crear_enfermedad_post(self):
+        response = self.client.post(reverse('crear_enfermedad'), {
+            'nombre': 'COVID-19',
+            'descripcion': 'Infección viral'
+        })
+        self.assertTrue(Enfermedad.objects.filter(nombre='COVID-19').exists())
+
+    def test_crear_tratamiento_post(self):
+        response = self.client.post(reverse('crear_tratamiento'), {
+            'nombre': 'Paracetamol',
+            'descripcion': 'Analgésico',
+            'id_enfermedad': self.enfermedad.id_enfermedad
+        })
+        self.assertTrue(Tratamiento.objects.filter(nombre='Paracetamol').exists())
+
